@@ -40,7 +40,7 @@ class IoFileStore implements FileStore {
     final handle = await _file(path).open();
     try {
       await handle.setPosition(offset);
-      return handle.read(length);
+      return await handle.read(length);
     } finally {
       await handle.close();
     }

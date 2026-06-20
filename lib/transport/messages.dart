@@ -1,0 +1,96 @@
+import 'dart:typed_data';
+
+import 'package:cbor/cbor.dart';
+
+import '../sync/index.dart';
+
+sealed class SyncMessage {
+  const SyncMessage();
+
+  String get type;
+  Map<String, Object?> fields();
+
+  Uint8List encode() =>
+      Uint8List.fromList(cbor.encode(CborValue({'t': type, ...fields()})));
+
+  static SyncMessage decode(Uint8List bytes) {
+    final map = (cbor.decode(bytes).toObject()! as Map).cast<String, Object?>();
+    return switch (map['t']) {
+      'hello' => Hello(map['id']! as String, _bytes(map['sig'])),
+      'index' => IndexSnapshot([
+          for (final entry in map['entries']! as List)
+            IndexEntry.fromMap((entry as Map).cast<String, Object?>()),
+        ]),
+      'want' => WantBlock(map['path']! as String, map['i']! as int),
+      'block' =>
+        BlockPayload(map['path']! as String, map['i']! as int, _bytes(map['d'])),
+      'bye' => const Bye(),
+      _ => throw FormatException('unknown message type: ${map['t']}'),
+    };
+  }
+
+  static Uint8List _bytes(Object? value) => Uint8List.fromList((value! as List).cast<int>());
+}
+
+final class Hello extends SyncMessage {
+  Hello(this.deviceId, this.signature);
+
+  final String deviceId;
+  final Uint8List signature;
+
+  @override
+  String get type => 'hello';
+
+  @override
+  Map<String, Object?> fields() => {'id': deviceId, 'sig': signature};
+}
+
+final class IndexSnapshot extends SyncMessage {
+  IndexSnapshot(this.entries);
+
+  final List<IndexEntry> entries;
+
+  @override
+  String get type => 'index';
+
+  @override
+  Map<String, Object?> fields() =>
+      {'entries': [for (final entry in entries) entry.toMap()]};
+}
+
+final class WantBlock extends SyncMessage {
+  WantBlock(this.path, this.index);
+
+  final String path;
+  final int index;
+
+  @override
+  String get type => 'want';
+
+  @override
+  Map<String, Object?> fields() => {'path': path, 'i': index};
+}
+
+final class BlockPayload extends SyncMessage {
+  BlockPayload(this.path, this.index, this.sealed);
+
+  final String path;
+  final int index;
+  final Uint8List sealed;
+
+  @override
+  String get type => 'block';
+
+  @override
+  Map<String, Object?> fields() => {'path': path, 'i': index, 'd': sealed};
+}
+
+final class Bye extends SyncMessage {
+  const Bye();
+
+  @override
+  String get type => 'bye';
+
+  @override
+  Map<String, Object?> fields() => const {};
+}

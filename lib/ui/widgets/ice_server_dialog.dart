@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:declar_ui/declar_ui.dart';
 
 import '../../core/config.dart';
 
@@ -30,13 +30,15 @@ Future<IceServer?> showIceServerDialog(BuildContext context) {
             autofocus: true,
             decoration: const InputDecoration(
               labelText: 'URL',
-              hintText: 'stun:host:3478 or turn:host:3478',
+              hintText: 'stun:host:3478',
             ),
           ),
+          const SizedBox(height: 12),
           TextField(
             controller: username,
             decoration: const InputDecoration(labelText: 'Username (TURN)'),
           ),
+          const SizedBox(height: 12),
           TextField(
             controller: credential,
             decoration: const InputDecoration(labelText: 'Credential (TURN)'),

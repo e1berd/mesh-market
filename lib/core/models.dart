@@ -19,12 +19,14 @@ class FolderConfig {
     required this.id,
     required this.label,
     required this.localPath,
+    required this.swarmSecret,
     this.peerIds = const [],
   });
 
   final String id;
   final String label;
   final String localPath;
+  final List<int> swarmSecret;
   final List<String> peerIds;
 }
 

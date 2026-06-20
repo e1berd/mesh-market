@@ -20,6 +20,18 @@ UDP/DHT or true background work).
 and color follows M3 Expressive. Use `m3e_core` components and M3 `ColorScheme` roles
 (`context.colors.*`) — never hard-coded colors.
 
+It must read as *visibly Expressive*, not plain Material 3: expressive shapes (large/varied
+corner radii ~28px, stadium buttons), bold and large emphasized type, spring motion via
+`m3e_core`, and generous use of container color roles. Plain M3 defaults are not enough.
+
+## UI conventions
+- **Side-rail layout (width ≥ 720):** `NavigationRail` + a `VerticalDivider` must span the
+  **full window height**. Do not put a full-width `AppBar` above them — the screen title
+  lives *inside* the content pane (right of the divider). Otherwise the divider stops below
+  the bar, which is wrong.
+- **Compact layout (width < 720):** top `AppBar` + bottom `NavigationBar` is correct.
+- Theme tokens (shapes, type, nav indicators) live in `lib/ui/theme.dart` via `pointTheme`.
+
 ## Coding rules
 - **No explanatory comments.** Code must be self-documenting through naming and structure.
 - Code must be easy for a human to read.
