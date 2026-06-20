@@ -1,0 +1,84 @@
+version: 1.0.0
+
+nav:
+  devices: Devices
+  folders: Folders
+  pair: Pair
+  activity: Activity
+  settings: Settings
+
+navShort:
+  devices: Devices
+  folders: Folders
+  pair: Pair
+  activity: Activity
+  settings: Settings
+
+devices:
+  title: Paired devices
+  thisDevice: This device
+  online: Online
+  empty: No paired devices
+  emptyHint: Open Pair to connect another device.
+  errorLoad: Could not load identity
+  errorLoadPeers: Could not load paired devices
+  remove: Remove device
+
+folders:
+  add: Add folder
+  empty: No shared folders
+  emptyHint: Add a folder to start syncing across your devices.
+  errorLoad: Could not load folders
+  scanning: Scanning...
+  fileCount:
+    zero: No files
+    one: '{count} file'
+    other: '{count} files'
+  scan: Scan
+  scanned: 'Scanned {$count} files'
+  alreadyAdded: Folder already added
+  remove: Remove folder
+
+pair:
+  scanHint: Scan this code on another device
+  scanButton: Scan a device
+  scanInstruction: Point the camera at another device QR code
+  toggleFlashlight: Toggle flashlight
+  selfPairError: Cannot pair this device with itself
+  paired: 'Device {$name} paired'
+  invalidQr: This QR code is not a point-machine device
+
+activity:
+  syncedToday: '{$bytes} synced today'
+  upToDate: All devices up to date
+  empty: Nothing syncing
+  emptyHint: Transfers and conflicts will appear here as they happen.
+
+settings:
+  appearance: Appearance
+  themeSystem: System
+  themeLight: Light
+  themeDark: Dark
+  languageTitle: Language
+  languageSubtitle: Interface language
+
+  discovery: Discovery
+  lanTitle: Local network (mDNS)
+  lanSubtitle: Find peers on the same network
+  dhtTitle: Internet (DHT)
+  dhtSubtitle: Find peers across networks
+  backgroundTitle: Sync in background
+  backgroundSubtitle: Keep syncing when app is not focused
+
+  signaling: Signaling (STUN / TURN)
+  defaultStun: Using default STUN server
+  addServer: Add server
+
+iceDialog:
+  title: STUN / TURN server
+  url: URL
+  urlHint: 'stun:host:3478'
+  username: Username (TURN)
+  credential: Credential (TURN)
+  cancel: Cancel
+  add: Add

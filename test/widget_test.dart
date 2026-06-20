@@ -15,7 +15,9 @@ void main() {
       ProviderScope(
         overrides: [
           identityProvider.overrideWithValue(AsyncData(identity)),
-          deviceNameProvider.overrideWithValue('Test machine'),
+          deviceNameProvider.overrideWithBuild(
+            (ref, notifier) => 'Test machine',
+          ),
           pairedPeersProvider.overrideWithBuild(
             (ref, notifier) => const <PairingPayload>[],
           ),

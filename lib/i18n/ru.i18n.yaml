@@ -1,0 +1,86 @@
+version: 1.0.0
+
+nav:
+  devices: Устройства
+  folders: Папки
+  pair: Связь
+  activity: Активность
+  settings: Настройки
+
+navShort:
+  devices: Устр.
+  folders: Папки
+  pair: Связь
+  activity: Статус
+  settings: Настр.
+
+devices:
+  title: Связанные устройства
+  thisDevice: Это устройство
+  online: В сети
+  empty: Нет связанных устройств
+  emptyHint: Откройте «Связь», чтобы подключить другое устройство.
+  errorLoad: Не удалось загрузить данные устройства
+  errorLoadPeers: Не удалось загрузить связанные устройства
+  remove: Удалить устройство
+
+folders:
+  add: Добавить папку
+  empty: Нет общих папок
+  emptyHint: Добавьте папку для синхронизации между устройствами.
+  errorLoad: Не удалось загрузить папки
+  scanning: Сканирование...
+  fileCount:
+    zero: Нет файлов
+    one: '{count} файл'
+    few: '{count} файла'
+    many: '{count} файлов'
+    other: '{count} файла'
+  scan: Сканировать
+  scanned: 'Просканировано файлов: {$count}'
+  alreadyAdded: Папка уже добавлена
+  remove: Удалить папку
+
+pair:
+  scanHint: Отсканируйте этот код на другом устройстве
+  scanButton: Сканировать устройство
+  scanInstruction: Направьте камеру на QR-код другого устройства
+  toggleFlashlight: Включить фонарик
+  selfPairError: Нельзя связать устройство с самим собой
+  paired: 'Устройство {$name} связано'
+  invalidQr: Этот QR-код не является кодом point-machine
+
+activity:
+  syncedToday: 'Синхронизировано сегодня: {$bytes}'
+  upToDate: Все устройства актуальны
+  empty: Ничего не синхронизируется
+  emptyHint: Передачи и конфликты будут отображаться здесь по мере возникновения.
+
+settings:
+  appearance: Внешний вид
+  themeSystem: Системная
+  themeLight: Светлая
+  themeDark: Тёмная
+  languageTitle: Язык
+  languageSubtitle: Язык интерфейса
+
+  discovery: Обнаружение
+  lanTitle: Локальная сеть (mDNS)
+  lanSubtitle: Найти устройства в одной сети
+  dhtTitle: Интернет (DHT)
+  dhtSubtitle: Найти устройства через интернет
+  backgroundTitle: Синхронизация в фоне
+  backgroundSubtitle: Продолжать синхронизацию при свернутом приложении
+
+  signaling: Сигналинг (STUN / TURN)
+  defaultStun: Используется STUN-сервер по умолчанию
+  addServer: Добавить сервер
+
+iceDialog:
+  title: STUN / TURN сервер
+  url: URL
+  urlHint: 'stun:host:3478'
+  username: Имя пользователя (TURN)
+  credential: Пароль (TURN)
+  cancel: Отмена
+  add: Добавить

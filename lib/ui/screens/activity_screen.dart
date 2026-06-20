@@ -1,6 +1,7 @@
 import 'package:declar_ui/declar_ui.dart';
 import 'package:m3e_core/m3e_core.dart';
 
+import '../../i18n/strings.g.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
 
@@ -32,10 +33,10 @@ class ActivityScreen extends StatelessWidget {
                       crossAxisAlignment: .start,
                       children: [
                         Text(
-                          '0 B synced today',
+                          context.t.activity.syncedToday(bytes: '0 B'),
                         ).size(15).weight(.w800).color(colors.onSurface),
                         Text(
-                          'All devices up to date',
+                          context.t.activity.upToDate,
                         ).size(12).color(colors.onSurfaceVariant),
                       ],
                     ),
@@ -50,12 +51,11 @@ class ActivityScreen extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             ),
           ),
-          const Expanded(
+          Expanded(
             child: EmptyState(
               icon: Icons.sync_rounded,
-              title: 'Nothing syncing',
-              message:
-                  'Transfers and conflicts will appear here as they happen.',
+              title: context.t.activity.empty,
+              message: context.t.activity.emptyHint,
             ),
           ),
         ],

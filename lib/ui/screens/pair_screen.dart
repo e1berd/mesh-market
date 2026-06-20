@@ -5,6 +5,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../core/pairing.dart';
+import '../../i18n/strings.g.dart';
 import '../../state/identity_provider.dart';
 import '../../state/peers_provider.dart';
 import '../widgets/empty_state.dart';
@@ -30,80 +31,94 @@ class PairScreen extends ConsumerWidget {
           error: (error, _) => EmptyState(
             key: const ValueKey('pair-error'),
             icon: Icons.error_outline_rounded,
-            title: 'Could not load identity',
+            title: context.t.devices.errorLoad,
             message: '$error',
           ),
-          data: (device) => Center(
-            key: const ValueKey('pair-data'),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 96),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 380),
-                child: ExpressiveReveal(
-                  child: Column(
-                    mainAxisSize: .min,
-                    children: [
-                      AnimatedContainer(
-                        duration: expressiveDuration,
-                        curve: expressiveCurve,
-                        padding: const EdgeInsets.all(22),
-                        decoration: BoxDecoration(
-                          color: colors.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(36),
-                          border: Border.all(
-                            color: colors.outlineVariant.withValues(alpha: .35),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: colors.surface,
-                                borderRadius: BorderRadius.circular(28),
-                              ),
-                              child: QrImageView(
-                                data: PairingPayload.ofDevice(
-                                  device,
-                                  name,
-                                ).encode(),
-                                size: 220,
-                                padding: const EdgeInsets.all(12),
-                                backgroundColor: colors.surface,
-                                eyeStyle: QrEyeStyle(
-                                  eyeShape: QrEyeShape.circle,
-                                  color: colors.onSurface,
-                                ),
-                                dataModuleStyle: QrDataModuleStyle(
-                                  dataModuleShape: QrDataModuleShape.circle,
-                                  color: colors.onSurface,
-                                ),
+          data: (device) => name.when(
+            loading: () => const Center(
+              key: ValueKey('pair-name-loading'),
+              child: CircularProgressIndicator(),
+            ),
+            error: (error, _) => EmptyState(
+              key: const ValueKey('pair-name-error'),
+              icon: Icons.error_outline_rounded,
+              title: 'Could not load device name',
+              message: '$error',
+            ),
+            data: (deviceName) => Center(
+              key: const ValueKey('pair-data'),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 96),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 380),
+                  child: ExpressiveReveal(
+                    child: Column(
+                      mainAxisSize: .min,
+                      children: [
+                        AnimatedContainer(
+                          duration: expressiveDuration,
+                          curve: expressiveCurve,
+                          padding: const EdgeInsets.all(22),
+                          decoration: BoxDecoration(
+                            color: colors.surfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(36),
+                            border: Border.all(
+                              color: colors.outlineVariant.withValues(
+                                alpha: .35,
                               ),
                             ),
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: colors.surface,
+                                  borderRadius: BorderRadius.circular(28),
+                                ),
+                                child: QrImageView(
+                                  data: PairingPayload.ofDevice(
+                                    device,
+                                    deviceName,
+                                  ).encode(),
+                                  size: 220,
+                                  padding: const EdgeInsets.all(12),
+                                  backgroundColor: colors.surface,
+                                  eyeStyle: QrEyeStyle(
+                                    eyeShape: QrEyeShape.circle,
+                                    color: colors.onSurface,
+                                  ),
+                                  dataModuleStyle: QrDataModuleStyle(
+                                    dataModuleShape: QrDataModuleShape.circle,
+                                    color: colors.onSurface,
+                                  ),
+                                ),
+                              ),
                             const SizedBox(height: 20),
-                            Text('Scan this code on another device')
+                            Text(context.t.pair.scanHint)
                                 .size(18)
                                 .weight(.w800)
                                 .color(colors.onSurface)
                                 .align(.center),
-                            Text(name)
-                                .size(13)
-                                .weight(.w600)
-                                .color(colors.onSurfaceVariant)
-                                .align(.center)
-                                .padding(top: 6),
-                          ],
+                              Text(deviceName)
+                                  .size(13)
+                                  .weight(.w600)
+                                  .color(colors.onSurfaceVariant)
+                                  .align(.center)
+                                  .padding(top: 6),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 20),
                       M3EButton.icon(
                         onPressed: () => _scanDevice(context, ref, device.id),
                         icon: const Icon(Icons.qr_code_scanner_rounded),
-                        label: const Text('Scan a device'),
+                        label: Text(context.t.pair.scanButton),
                         style: M3EButtonStyle.outlined,
                         size: .md,
                       ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -127,18 +142,18 @@ class PairScreen extends ConsumerWidget {
     try {
       final peer = PairingPayload.decode(raw);
       if (peer.deviceId == currentDeviceId) {
-        context.showSnackBar('Cannot pair this device with itself');
+        context.showSnackBar(context.t.pair.selfPairError);
         return;
       }
 
       await ref.read(pairedPeersProvider.future);
       await ref.read(pairedPeersProvider.notifier).add(peer);
       if (context.mounted) {
-        context.showSnackBar('Device ${peer.name} paired');
+        context.showSnackBar(context.t.pair.paired(name: peer.name));
       }
     } catch (_) {
       if (context.mounted) {
-        context.showSnackBar('This QR code is not a point-machine device');
+        context.showSnackBar(context.t.pair.invalidQr);
       }
     }
   }
@@ -172,10 +187,10 @@ class _PairingScannerPageState extends State<_PairingScannerPage> {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-        title: const Text('Scan a device'),
+        title: Text(context.t.pair.scanButton),
         actions: [
           IconButton(
-            tooltip: 'Toggle flashlight',
+            tooltip: context.t.pair.toggleFlashlight,
             onPressed: _controller.toggleTorch,
             icon: const Icon(Icons.flashlight_on_rounded),
           ),

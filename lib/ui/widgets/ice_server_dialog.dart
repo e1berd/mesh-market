@@ -1,6 +1,7 @@
 import 'package:declar_ui/declar_ui.dart';
 
 import '../../core/config.dart';
+import '../../i18n/strings.g.dart';
 import 'expressive.dart';
 
 Future<IceServer?> showIceServerDialog(BuildContext context) {
@@ -23,7 +24,7 @@ Future<IceServer?> showIceServerDialog(BuildContext context) {
   return showDialog<IceServer>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('STUN / TURN server'),
+      title: Text(context.t.iceDialog.title),
       content: SingleChildScrollView(
         child: ExpressiveReveal(
           child: Column(
@@ -32,21 +33,21 @@ Future<IceServer?> showIceServerDialog(BuildContext context) {
               TextField(
                 controller: url,
                 autofocus: true,
-                decoration: const InputDecoration(
-                  labelText: 'URL',
-                  hintText: 'stun:host:3478',
+                decoration: InputDecoration(
+                  labelText: context.t.iceDialog.url,
+                  hintText: context.t.iceDialog.urlHint,
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: username,
-                decoration: const InputDecoration(labelText: 'Username (TURN)'),
+                decoration: InputDecoration(labelText: context.t.iceDialog.username),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: credential,
-                decoration: const InputDecoration(
-                  labelText: 'Credential (TURN)',
+                decoration: InputDecoration(
+                  labelText: context.t.iceDialog.credential,
                 ),
               ),
             ],
@@ -56,11 +57,11 @@ Future<IceServer?> showIceServerDialog(BuildContext context) {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(context.t.iceDialog.cancel),
         ),
         FilledButton(
           onPressed: () => Navigator.pop(context, build()),
-          child: const Text('Add'),
+          child: Text(context.t.iceDialog.add),
         ),
       ],
     ),

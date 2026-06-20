@@ -2,6 +2,7 @@ import 'package:declar_ui/declar_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:m3e_core/m3e_core.dart';
 
+import '../../i18n/strings.g.dart';
 import '../../state/app_providers.dart';
 import '../theme.dart';
 import '../widgets/expressive.dart';
@@ -24,23 +25,23 @@ class SettingsScreen extends ConsumerWidget {
           crossAxisAlignment: .stretch,
           children: [
             ExpressiveSection(
-              title: 'Appearance',
+              title: context.t.settings.appearance,
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: M3EToggleButtonGroup(
-                    actions: const [
+                    actions: [
                       M3EToggleButtonGroupAction(
-                        icon: Icon(Icons.brightness_auto_rounded),
-                        label: Text('System'),
+                        icon: const Icon(Icons.brightness_auto_rounded),
+                        label: Text(context.t.settings.themeSystem),
                       ),
                       M3EToggleButtonGroupAction(
-                        icon: Icon(Icons.light_mode_rounded),
-                        label: Text('Light'),
+                        icon: const Icon(Icons.light_mode_rounded),
+                        label: Text(context.t.settings.themeLight),
                       ),
                       M3EToggleButtonGroupAction(
-                        icon: Icon(Icons.dark_mode_rounded),
-                        label: Text('Dark'),
+                        icon: const Icon(Icons.dark_mode_rounded),
+                        label: Text(context.t.settings.themeDark),
                       ),
                     ],
                     type: .connected,
@@ -59,12 +60,55 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
             ExpressiveSection(
-              title: 'Discovery',
+              title: context.t.settings.languageTitle,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                  child: Column(
+                    crossAxisAlignment: .stretch,
+                    children: [
+                      Text(context.t.settings.languageSubtitle)
+                          .size(14)
+                          .color(colors.onSurface)
+                          .padding(bottom: 12),
+                      Center(
+                        child: M3EToggleButtonGroup(
+                          actions: [
+                            M3EToggleButtonGroupAction(
+                              label: const Text('EN'),
+                            ),
+                            M3EToggleButtonGroupAction(
+                              label: const Text('RU'),
+                            ),
+                          ],
+                          type: .connected,
+                          size: .sm,
+                          style: .tonal,
+                          selectedIndex:
+                              LocaleSettings.currentLocale == AppLocale.en
+                              ? 0
+                              : 1,
+                          onSelectedIndexChanged: (i) {
+                            if (i != null) {
+                              LocaleSettings.setLocale(
+                                i == 0 ? AppLocale.en : AppLocale.ru,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            ExpressiveSection(
+              title: context.t.settings.discovery,
               children: [
                 _SettingTile(
                   icon: Icons.wifi_rounded,
-                  title: 'Local network (mDNS)',
-                  subtitle: 'Find peers on the same network',
+                  title: context.t.settings.lanTitle,
+                  subtitle: context.t.settings.lanSubtitle,
                   trailing: Switch(
                     value: config.lanDiscovery,
                     onChanged: notifier.toggleLanDiscovery,
@@ -72,8 +116,8 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 _SettingTile(
                   icon: Icons.public_rounded,
-                  title: 'Internet (DHT)',
-                  subtitle: 'Find peers across networks',
+                  title: context.t.settings.dhtTitle,
+                  subtitle: context.t.settings.dhtSubtitle,
                   trailing: Switch(
                     value: config.dhtDiscovery,
                     onChanged: notifier.toggleDhtDiscovery,
@@ -81,8 +125,8 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 _SettingTile(
                   icon: Icons.sync_rounded,
-                  title: 'Sync in background',
-                  subtitle: 'Keep syncing when app is not focused',
+                  title: context.t.settings.backgroundTitle,
+                  subtitle: context.t.settings.backgroundSubtitle,
                   trailing: Switch(
                     value: config.syncInBackground,
                     onChanged: notifier.toggleBackground,
@@ -91,13 +135,13 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
             ExpressiveSection(
-              title: 'Signaling (STUN / TURN)',
+              title: context.t.settings.signaling,
               children: [
                 if (config.iceServers.isEmpty)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                     child: Text(
-                      'Using default STUN server',
+                      context.t.settings.defaultStun,
                     ).size(14).color(colors.onSurfaceVariant).align(.center),
                   ),
                 for (var i = 0; i < config.iceServers.length; i++)
@@ -121,7 +165,7 @@ class SettingsScreen extends ConsumerWidget {
                   if (server != null) notifier.addIceServer(server);
                 },
                 icon: const Icon(Icons.add_rounded),
-                label: const Text('Add server'),
+                label: Text(context.t.settings.addServer),
                 style: .tonal,
                 size: .md,
               ).padding(horizontal: 16, top: 4),

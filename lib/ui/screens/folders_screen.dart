@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:m3e_core/m3e_core.dart';
 
 import '../../core/models.dart';
+import '../../i18n/strings.g.dart';
 import '../../state/folders_provider.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
@@ -25,7 +26,7 @@ class FoldersScreen extends ConsumerWidget {
             child: M3EButton.icon(
               onPressed: () => _add(context, ref),
               icon: const Icon(Icons.add_rounded),
-              label: const Text('Add folder'),
+              label: Text(context.t.folders.add),
               size: .md,
             ).padding(horizontal: 16, top: 12, bottom: 8),
           ),
@@ -39,16 +40,15 @@ class FoldersScreen extends ConsumerWidget {
                 error: (error, _) => EmptyState(
                   key: const ValueKey('folders-error'),
                   icon: Icons.error_outline_rounded,
-                  title: 'Could not load folders',
+                  title: context.t.folders.errorLoad,
                   message: '$error',
                 ),
                 data: (list) => list.isEmpty
-                    ? const EmptyState(
-                        key: ValueKey('folders-empty'),
+                    ? EmptyState(
+                        key: const ValueKey('folders-empty'),
                         icon: Icons.create_new_folder_rounded,
-                        title: 'No shared folders',
-                        message:
-                            'Add a folder to start syncing across your devices.',
+                        title: context.t.folders.empty,
+                        message: context.t.folders.emptyHint,
                       )
                     : M3EDismissibleCardList(
                         key: const ValueKey('folders-list'),
@@ -90,7 +90,7 @@ class FoldersScreen extends ConsumerWidget {
     if (!added && context.mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Folder already added')));
+      ).showSnackBar(SnackBar(content: Text(context.t.folders.alreadyAdded)));
     }
   }
 }
@@ -132,7 +132,7 @@ class _FolderTile extends ConsumerWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Remove folder',
+              tooltip: context.t.folders.remove,
               onPressed: onRemove,
               icon: const Icon(Icons.delete_outline_rounded),
             ),
@@ -157,8 +157,8 @@ class _FolderTile extends ConsumerWidget {
                 child: ExpressiveSwitcher(
                   child: Text(
                     count.when(
-                      data: (n) => '$n files',
-                      loading: () => 'Scanning...',
+                      data: (n) => context.t.folders.fileCount(n: n),
+                      loading: () => context.t.folders.scanning,
                       error: (_, _) => '-',
                     ),
                     key: ValueKey(count.toString()),
@@ -172,7 +172,7 @@ class _FolderTile extends ConsumerWidget {
                       .scan(folder);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Scanned $scanned files')),
+                      SnackBar(content: Text(context.t.folders.scanned(count: scanned))),
                     );
                   }
                 },
@@ -183,7 +183,7 @@ class _FolderTile extends ConsumerWidget {
                   children: [
                     const Icon(Icons.sync_rounded, size: 16),
                     const SizedBox(width: 6),
-                    const Text('Scan'),
+                    Text(context.t.folders.scan),
                   ],
                 ),
               ),
