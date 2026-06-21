@@ -57,12 +57,12 @@ class DevicesScreen extends ConsumerWidget {
                     child: M3ECardList(
                       itemCount: 1,
                       itemBuilder: (ctx, i) => _thisDevice(context, name),
-                      outerRadius: expressiveMobileListOuterRadius,
-                      innerRadius: expressiveMobileListInnerRadius,
-                      gap: expressiveMobileListGap,
+                      outerRadius: expressiveListOuterRadius,
+                      innerRadius: expressiveListInnerRadius,
+                      gap: expressiveListGap,
                       color: colors.surfaceContainerHigh,
-                      padding: expressiveMobileListPadding,
-                      margin: expressiveMobileListMargin,
+                      padding: expressiveListPadding,
+                      margin: expressiveListMargin,
                     ),
                   ),
                 ),
@@ -129,14 +129,14 @@ class DevicesScreen extends ConsumerWidget {
               return true;
             },
             style: M3EDismissibleCardStyle(
-              outerRadius: expressiveMobileListOuterRadius,
-              innerRadius: expressiveMobileListInnerRadius,
-              gap: expressiveMobileListGap,
+              outerRadius: expressiveListOuterRadius,
+              innerRadius: expressiveListInnerRadius,
+              gap: expressiveListGap,
               color: colors.surfaceContainerHigh,
-              padding: expressiveMobileListPadding,
-              margin: expressiveMobileListMargin,
-              backgroundBorderRadius: expressiveMobileListOuterRadius,
-              secondaryBackgroundBorderRadius: expressiveMobileListOuterRadius,
+              padding: expressiveListPadding,
+              margin: expressiveListMargin,
+              backgroundBorderRadius: expressiveListOuterRadius,
+              secondaryBackgroundBorderRadius: expressiveListOuterRadius,
               background: deleteSwipeBackground(
                 context,
                 Alignment.centerLeft,
@@ -148,7 +148,7 @@ class DevicesScreen extends ConsumerWidget {
                 context.t.devices.remove,
               ),
             ),
-            listPadding: expressiveMobileListPaddingFor(context),
+            listPadding: expressiveListPaddingFor(context),
           );
         },
       ),
@@ -261,9 +261,16 @@ class _DesktopDevicesLayout extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ExpressiveReveal(
-                  child: ExpressivePanel(
-                    padding: const EdgeInsets.all(20),
-                    child: const DevicesScreen()._thisDevice(context, name),
+                  child: M3ECardList(
+                    itemCount: 1,
+                    itemBuilder: (ctx, i) =>
+                        const DevicesScreen()._thisDevice(context, name),
+                    outerRadius: expressiveListOuterRadius,
+                    innerRadius: expressiveListInnerRadius,
+                    gap: expressiveListGap,
+                    color: colors.surfaceContainerHigh,
+                    padding: expressiveListPadding,
+                    margin: expressiveListMargin,
                   ),
                 ),
                 Text(context.t.devices.title)
@@ -319,24 +326,16 @@ class _DesktopPeerList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExpressivePanel(
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
-          for (var i = 0; i < items.length; i++) ...[
-            Padding(
-              padding: const EdgeInsets.all(18),
-              child: _PairedDeviceContent(peer: items[i], showRemove: true),
-            ),
-            if (i < items.length - 1)
-              Divider(
-                height: 1,
-                indent: 86,
-                color: context.colors.outlineVariant.withValues(alpha: .42),
-              ),
-          ],
-        ],
-      ),
+    return M3ECardList(
+      itemCount: items.length,
+      itemBuilder: (context, index) =>
+          _PairedDeviceContent(peer: items[index], showRemove: true),
+      outerRadius: expressiveListOuterRadius,
+      innerRadius: expressiveListInnerRadius,
+      gap: expressiveListGap,
+      color: context.colors.surfaceContainerHigh,
+      padding: expressiveListPadding,
+      margin: expressiveListMargin,
     );
   }
 }

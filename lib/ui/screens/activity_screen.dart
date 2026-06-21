@@ -71,53 +71,31 @@ class _ActivityBody extends ConsumerWidget {
                   key: const ValueKey('activity-desktop-list'),
                   padding: EdgeInsets.zero,
                   children: [
-                    ExpressivePanel(
-                      padding: EdgeInsets.zero,
-                      child: Column(
+                    M3ECardList(
+                      itemCount: events.length,
+                      itemBuilder: (context, index) => Row(
                         children: [
-                          for (
-                            var index = 0;
-                            index < events.length;
-                            index++
-                          ) ...[
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                18,
-                                16,
-                                10,
-                                16,
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: _ActivityEventRow(
-                                      event: events[index],
-                                      names: names,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    tooltip: context.t.activity.remove,
-                                    onPressed: () => ref
-                                        .read(syncEventsProvider.notifier)
-                                        .removeAt(index),
-                                    icon: const Icon(
-                                      Icons.delete_outline_rounded,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          Expanded(
+                            child: _ActivityEventRow(
+                              event: events[index],
+                              names: names,
                             ),
-                            if (index < events.length - 1)
-                              Divider(
-                                height: 1,
-                                indent: 84,
-                                color: context.colors.outlineVariant.withValues(
-                                  alpha: .42,
-                                ),
-                              ),
-                          ],
+                          ),
+                          IconButton(
+                            tooltip: context.t.activity.remove,
+                            onPressed: () => ref
+                                .read(syncEventsProvider.notifier)
+                                .removeAt(index),
+                            icon: const Icon(Icons.delete_outline_rounded),
+                          ),
                         ],
                       ),
+                      outerRadius: expressiveListOuterRadius,
+                      innerRadius: expressiveListInnerRadius,
+                      gap: expressiveListGap,
+                      color: context.colors.surfaceContainerHigh,
+                      padding: expressiveListPadding,
+                      margin: expressiveListMargin,
                     ),
                   ],
                 ),
@@ -139,14 +117,14 @@ class _ActivityBody extends ConsumerWidget {
           return true;
         },
         style: M3EDismissibleCardStyle(
-          outerRadius: expressiveMobileListOuterRadius,
-          innerRadius: expressiveMobileListInnerRadius,
-          gap: expressiveMobileListGap,
+          outerRadius: expressiveListOuterRadius,
+          innerRadius: expressiveListInnerRadius,
+          gap: expressiveListGap,
           color: context.colors.surfaceContainerHigh,
-          padding: expressiveMobileListPadding,
-          margin: expressiveMobileListMargin,
-          backgroundBorderRadius: expressiveMobileListOuterRadius,
-          secondaryBackgroundBorderRadius: expressiveMobileListOuterRadius,
+          padding: expressiveListPadding,
+          margin: expressiveListMargin,
+          backgroundBorderRadius: expressiveListOuterRadius,
+          secondaryBackgroundBorderRadius: expressiveListOuterRadius,
           background: deleteSwipeBackground(
             context,
             Alignment.centerLeft,
@@ -158,7 +136,7 @@ class _ActivityBody extends ConsumerWidget {
             context.t.activity.remove,
           ),
         ),
-        listPadding: expressiveMobileListPaddingFor(context),
+        listPadding: expressiveListPaddingFor(context),
       ),
     );
   }
