@@ -7,6 +7,7 @@ import 'package:point_machine/crypto/aead.dart';
 import 'package:point_machine/sync/engine.dart';
 import 'package:point_machine/sync/index.dart';
 import 'package:point_machine/sync/scanner.dart';
+import 'package:point_machine/sync/sync_event.dart';
 import 'package:point_machine/storage/file_store.dart';
 import 'package:point_machine/transport/messages.dart';
 import 'package:point_machine/transport/peer_link.dart';
@@ -55,12 +56,16 @@ void main() {
   });
 
   Future<(SyncEngine, FolderIndex, IoFileStore)> engine(
-      String device, Directory dir) async {
-    final db = await databaseFactoryMemory.openDatabase('$device.db');
+      String device, Directory dir, {List<SyncEvent>? events}) async {
+    final db = await databaseFactoryMemory.openDatabase('${dir.path}/$device.db');
     final index = FolderIndex(db, 'folder');
     final store = IoFileStore(dir);
     final cipher = FolderCipher(SecretKey(List<int>.filled(32, 3)));
-    return (SyncEngine(index: index, store: store, cipher: cipher), index, store);
+    return (
+      SyncEngine(index: index, store: store, cipher: cipher, onEvent: events?.add),
+      index,
+      store,
+    );
   }
 
   test('copies a new file from one peer to the other', () async {
@@ -141,5 +146,27 @@ void main() {
         .whereType<File>()
         .firstWhere((file) => file.path.contains('sync-conflict'));
     expect(conflict.readAsStringSync(), equals('A-content'));
+  });
+
+  test('emits a received event when a file arrives', () async {
+    File('${dirA.path}/note.txt').writeAsStringSync('hi');
+    final events = <SyncEvent>[];
+    final (engineA, indexA, storeA) = await engine('A', dirA);
+    final (engineB, _, _) = await engine('B', dirB, events: events);
+    await FolderScanner(deviceId: 'A', index: indexA, store: storeA).scan();
+
+    final (linkA, linkB) = _linkPair();
+    final runA = engineA.sync(linkA);
+    final runB = engineB.sync(linkB);
+    await _await(
+        () async => events.any((e) => e.kind == SyncEventKind.received));
+    await linkA.close();
+    await linkB.close();
+    await Future.wait([runA, runB]);
+
+    expect(
+      events.any((e) => e.kind == SyncEventKind.received && e.path == 'note.txt'),
+      isTrue,
+    );
   });
 }

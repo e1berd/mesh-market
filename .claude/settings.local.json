@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(flutter --version)",
-      "WebFetch(domain:pub.dev)"
+      "WebFetch(domain:pub.dev)",
+      "Bash(dart run *)",
+      "Bash(dart analyze *)"
     ]
   }
 }

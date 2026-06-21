@@ -1,5 +1,7 @@
 import 'package:declar_ui/declar_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:m3e_core/m3e_core.dart';
+import 'package:motor/motor.dart';
 
 import '../i18n/strings.g.dart';
 import 'screens/activity_screen.dart';
@@ -206,7 +208,7 @@ class _ExpressiveSideRail extends StatelessWidget {
   }
 }
 
-class _ExpressiveRailDestination extends StatelessWidget {
+class _ExpressiveRailDestination extends StatefulWidget {
   const _ExpressiveRailDestination({
     required this.destination,
     required this.selected,
@@ -218,57 +220,131 @@ class _ExpressiveRailDestination extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_ExpressiveRailDestination> createState() =>
+      _ExpressiveRailDestinationState();
+}
+
+class _ExpressiveRailDestinationState extends State<_ExpressiveRailDestination>
+    with TickerProviderStateMixin {
+  late final SingleMotionController _widthCtrl;
+  late final SingleMotionController _scaleCtrl;
+  late final SingleMotionController _iconScaleCtrl;
+  bool _pressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _widthCtrl = SingleMotionController(
+      motion: M3EMotion.expressiveSpatialDefault.toMotion(),
+      vsync: this,
+      initialValue: widget.selected ? 1 : 0,
+    );
+    _scaleCtrl = SingleMotionController(
+      motion: M3EMotion.expressiveSpatialFast.toMotion(),
+      vsync: this,
+      initialValue: widget.selected ? 1 : 0,
+    );
+    _iconScaleCtrl = SingleMotionController(
+      motion: M3EMotion.expressiveEffectsFast.toMotion(),
+      vsync: this,
+      initialValue: widget.selected ? 1 : 0,
+    );
+  }
+
+  @override
+  void didUpdateWidget(_ExpressiveRailDestination oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selected != widget.selected) {
+      _widthCtrl.animateTo(widget.selected ? 1 : 0);
+      _scaleCtrl.animateTo(widget.selected ? 1 : 0);
+      _iconScaleCtrl.animateTo(widget.selected ? 1 : 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _widthCtrl.dispose();
+    _scaleCtrl.dispose();
+    _iconScaleCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final foreground = selected
+    final foreground = widget.selected
         ? colors.onSecondaryContainer
         : colors.onSurfaceVariant;
 
     return Semantics(
       button: true,
-      selected: selected,
-      label: destination.titleLabel,
+      selected: widget.selected,
+      label: widget.destination.titleLabel,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(28),
-          child: SizedBox(
-            height: _railDestinationHeight,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AnimatedContainer(
-                  duration: expressiveFastDuration,
-                  curve: expressiveCurve,
-                  width: selected ? _railIndicatorWidth : 48,
-                  height: _railIndicatorHeight,
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? colors.secondaryContainer
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(selected ? 100 : 18),
-                  ),
-                  child: AnimatedScale(
-                    scale: selected ? 1.08 : 1,
-                    duration: expressiveFastDuration,
-                    curve: expressiveCurve,
-                    child: Icon(
-                      selected ? destination.selectedIcon : destination.icon,
-                      color: foreground,
-                      size: selected ? 26 : 23,
+        child: GestureDetector(
+          onTapDown: (_) => setState(() => _pressed = true),
+          onTapUp: (_) => setState(() => _pressed = false),
+          onTapCancel: () => setState(() => _pressed = false),
+          onTap: widget.onTap,
+          child: AnimatedBuilder(
+            animation: Listenable.merge([_widthCtrl, _scaleCtrl, _iconScaleCtrl]),
+            child: _RailLabel(widget.destination.navLabel, selected: widget.selected),
+            builder: (context, child) {
+              final widthProgress = _widthCtrl.value;
+              final scaleProgress = _scaleCtrl.value;
+              final iconScaleProgress = _iconScaleCtrl.value;
+
+              final width = _lerpDouble(48, _railIndicatorWidth, widthProgress);
+              final indicatorRadius = _lerpDouble(18, 100, widthProgress);
+              final iconScale = _lerpDouble(1, 1.08, iconScaleProgress);
+              final iconSize = _lerpDouble(23, 26, iconScaleProgress);
+              final pressScale = _pressed ? .94 : 1.0;
+              final bgAlpha = scaleProgress;
+
+              return SizedBox(
+                height: _railDestinationHeight,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Transform.scale(
+                      scale: pressScale,
+                      child: Container(
+                        width: width,
+                        height: _railIndicatorHeight,
+                        decoration: BoxDecoration(
+                          color: Color.lerp(
+                            Colors.transparent,
+                            colors.secondaryContainer,
+                            bgAlpha,
+                          ),
+                          borderRadius: BorderRadius.circular(indicatorRadius),
+                        ),
+                        child: Transform.scale(
+                          scale: iconScale,
+                          child: Icon(
+                            widget.selected
+                                ? widget.destination.selectedIcon
+                                : widget.destination.icon,
+                            color: foreground,
+                            size: iconSize,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 5),
+                    child!,
+                  ],
                 ),
-                const SizedBox(height: 5),
-                _RailLabel(destination.navLabel, selected: selected),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
     );
   }
+
+  double _lerpDouble(double a, double b, double t) => a + (b - a) * t;
 }
 
 class _RailLabel extends StatelessWidget {

@@ -27,6 +27,9 @@ final folderFileCountProvider = FutureProvider.family<int, String>((
   return entries.where((entry) => !entry.meta.deleted).length;
 });
 
+final folderExistsProvider =
+    FutureProvider.family<bool, String>((ref, path) => Directory(path).exists());
+
 class FoldersNotifier extends AsyncNotifier<List<FolderConfig>> {
   late File _file;
 
@@ -78,6 +81,19 @@ class FoldersNotifier extends AsyncNotifier<List<FolderConfig>> {
               localPath: folder.localPath,
               swarmSecret: folder.swarmSecret,
               peerIds: [...folder.peerIds, peerId],
+            )
+          : folder,
+  ]);
+
+  Future<void> removePeer(String folderId, String peerId) async => _persist([
+    for (final folder in [...?state.value])
+      folder.id == folderId
+          ? FolderConfig(
+              id: folder.id,
+              label: folder.label,
+              localPath: folder.localPath,
+              swarmSecret: folder.swarmSecret,
+              peerIds: [...folder.peerIds]..remove(peerId),
             )
           : folder,
   ]);

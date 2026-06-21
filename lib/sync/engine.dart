@@ -7,17 +7,20 @@ import '../transport/messages.dart';
 import '../transport/peer_link.dart';
 import 'blocks.dart';
 import 'index.dart';
+import 'sync_event.dart';
 
 class SyncEngine {
   SyncEngine({
     required this.index,
     required this.store,
     required this.cipher,
+    this.onEvent,
   });
 
   final FolderIndex index;
   final FileStore store;
   final FolderCipher cipher;
+  final void Function(SyncEvent event)? onEvent;
 
   final _downloads = <String, _Download>{};
 
@@ -63,6 +66,7 @@ class SyncEngine {
 
     if (divergent && local.version.concurrentWith(remote.version)) {
       await index.put(IndexEntry(local.meta, local.version.merge(remote.version)));
+      onEvent?.call(SyncEvent(SyncEventKind.conflict, path: path));
       await _download(remote, _conflictPath(path), path, local, link);
     } else {
       await _download(remote, path, path, local, link);
@@ -123,6 +127,7 @@ class SyncEngine {
     await store.writeBytes(download.entry.meta.path, builder.toBytes());
     await index.put(download.entry);
     _downloads.remove(requestPath);
+    onEvent?.call(SyncEvent(SyncEventKind.received, path: download.entry.meta.path));
   }
 
   bool _sameContent(List<String> a, List<String> b) {

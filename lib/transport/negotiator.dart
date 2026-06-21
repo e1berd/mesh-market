@@ -44,7 +44,11 @@ Future<WebRtcLink> negotiate({
 
   final subscription = channel.incoming.listen((message) async {
     switch (message) {
-      case SignalHello():
+      case SignalHello() ||
+            PairRequest() ||
+            PairResponse() ||
+            ShareRequest() ||
+            ShareResponse():
         return;
       case SdpSignal sdp when sdp.isOffer:
         await connection.setRemoteDescription(RTCSessionDescription(sdp.sdp, 'offer'));

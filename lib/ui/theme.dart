@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 
@@ -337,7 +338,7 @@ ThemeData _buildPointTheme(Brightness brightness, String schemeId) {
     pageTransitionsTheme: PageTransitionsTheme(
       builders: {
         for (final p in TargetPlatform.values)
-          p: const FadeForwardsPageTransitionsBuilder(),
+          p: const FadeThroughPageTransitionsBuilder(),
       },
     ),
   );

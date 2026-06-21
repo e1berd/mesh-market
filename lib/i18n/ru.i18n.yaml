@@ -26,6 +26,12 @@ devices:
 
 folders:
   add: Добавить папку
+  manageAccess: Управление доступом
+  access: Доступ устройств
+  localFolder: Локальная папка
+  localAvailable: Доступна
+  localMissing: Папка не найдена
+  noPeers: Свяжите устройство, чтобы делиться с ним папкой
   empty: Нет общих папок
   emptyHint: Добавьте папку для синхронизации между устройствами.
   errorLoad: Не удалось загрузить папки
@@ -49,20 +55,51 @@ pair:
   selfPairError: Нельзя связать устройство с самим собой
   paired: 'Устройство {$name} связано'
   invalidQr: Этот QR-код не является кодом point-machine
+  nearbyTitle: Устройства рядом
+  nearbySearching: Поиск устройств в вашей сети…
+  pairAction: Связать
+  manualTitle: Ввести код вручную
+  manualHint: Вставьте код устройства
+  pairing: Связывание…
+  pairFailed: Не удалось связаться с устройством
+  storedLocally: Сохранено — связь завершится, когда оба устройства будут в одной сети
+  incomingTitle: Запрос на связь
+  incomingBody: '{$name} хочет связаться. Проверьте, что код совпадает на обоих устройствах.'
+  verificationCode: Код проверки
+  accept: Принять
+  reject: Отклонить
+  codeButton: Связать через интернет
+  pairedDone: Устройство связано
+  yourCodeTitle: Код этого устройства
+  yourCodeHint: Введите его на другом устройстве для связи через интернет
+  showCode: Показать
+  hideCode: Скрыть
+  copyCode: Копировать
+  codeCopied: Код скопирован
+  remoteCodeTitle: Связать по коду
+  remoteCodeHint: Вставьте код другого устройства
+  fullscreen: На весь экран
+  codeEmpty: Введите код устройства
+  scanPaused: Поиск приостановлен
+  pauseScan: Приостановить поиск
+  resumeScan: Возобновить поиск
 
 activity:
   syncedToday: 'Синхронизировано сегодня: {$bytes}'
   upToDate: Все устройства актуальны
   empty: Ничего не синхронизируется
   emptyHint: Передачи и конфликты будут отображаться здесь по мере возникновения.
+  eventConnected: Подключено
+  eventDisconnected: Отключено
+  eventReceived: Получен файл
+  eventConflict: Конфликт синхронизации
 
 settings:
   appearance: Внешний вид
-  themeSystem: Системная
-  themeLight: Светлая
-  themeDark: Тёмная
   languageTitle: Язык
   languageSubtitle: Язык интерфейса
+  languageEnglish: Английский
+  languageRussian: Русский
 
   discovery: Обнаружение
   lanTitle: Локальная сеть (mDNS)

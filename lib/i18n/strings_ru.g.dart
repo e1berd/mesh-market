@@ -101,6 +101,12 @@ class _Translations$folders$ru implements Translations$folders$en {
 
 	// Translations
 	@override String get add => 'Добавить папку';
+	@override String get manageAccess => 'Управление доступом';
+	@override String get access => 'Доступ устройств';
+	@override String get localFolder => 'Локальная папка';
+	@override String get localAvailable => 'Доступна';
+	@override String get localMissing => 'Папка не найдена';
+	@override String get noPeers => 'Свяжите устройство, чтобы делиться с ним папкой';
 	@override String get empty => 'Нет общих папок';
 	@override String get emptyHint => 'Добавьте папку для синхронизации между устройствами.';
 	@override String get errorLoad => 'Не удалось загрузить папки';
@@ -132,6 +138,34 @@ class _Translations$pair$ru implements Translations$pair$en {
 	@override String get selfPairError => 'Нельзя связать устройство с самим собой';
 	@override String paired({required Object name}) => 'Устройство {${name}} связано';
 	@override String get invalidQr => 'Этот QR-код не является кодом point-machine';
+	@override String get nearbyTitle => 'Устройства рядом';
+	@override String get nearbySearching => 'Поиск устройств в вашей сети…';
+	@override String get pairAction => 'Связать';
+	@override String get manualTitle => 'Ввести код вручную';
+	@override String get manualHint => 'Вставьте код устройства';
+	@override String get pairing => 'Связывание…';
+	@override String get pairFailed => 'Не удалось связаться с устройством';
+	@override String get storedLocally => 'Сохранено — связь завершится, когда оба устройства будут в одной сети';
+	@override String get incomingTitle => 'Запрос на связь';
+	@override String incomingBody({required Object name}) => '{${name}} хочет связаться. Проверьте, что код совпадает на обоих устройствах.';
+	@override String get verificationCode => 'Код проверки';
+	@override String get accept => 'Принять';
+	@override String get reject => 'Отклонить';
+	@override String get codeButton => 'Связать через интернет';
+	@override String get pairedDone => 'Устройство связано';
+	@override String get yourCodeTitle => 'Код этого устройства';
+	@override String get yourCodeHint => 'Введите его на другом устройстве для связи через интернет';
+	@override String get showCode => 'Показать';
+	@override String get hideCode => 'Скрыть';
+	@override String get copyCode => 'Копировать';
+	@override String get codeCopied => 'Код скопирован';
+	@override String get remoteCodeTitle => 'Связать по коду';
+	@override String get remoteCodeHint => 'Вставьте код другого устройства';
+	@override String get fullscreen => 'На весь экран';
+	@override String get codeEmpty => 'Введите код устройства';
+	@override String get scanPaused => 'Поиск приостановлен';
+	@override String get pauseScan => 'Приостановить поиск';
+	@override String get resumeScan => 'Возобновить поиск';
 }
 
 // Path: activity
@@ -145,6 +179,10 @@ class _Translations$activity$ru implements Translations$activity$en {
 	@override String get upToDate => 'Все устройства актуальны';
 	@override String get empty => 'Ничего не синхронизируется';
 	@override String get emptyHint => 'Передачи и конфликты будут отображаться здесь по мере возникновения.';
+	@override String get eventConnected => 'Подключено';
+	@override String get eventDisconnected => 'Отключено';
+	@override String get eventReceived => 'Получен файл';
+	@override String get eventConflict => 'Конфликт синхронизации';
 }
 
 // Path: settings
@@ -155,11 +193,10 @@ class _Translations$settings$ru implements Translations$settings$en {
 
 	// Translations
 	@override String get appearance => 'Внешний вид';
-	@override String get themeSystem => 'Системная';
-	@override String get themeLight => 'Светлая';
-	@override String get themeDark => 'Тёмная';
 	@override String get languageTitle => 'Язык';
 	@override String get languageSubtitle => 'Язык интерфейса';
+	@override String get languageEnglish => 'Английский';
+	@override String get languageRussian => 'Русский';
 	@override String get discovery => 'Обнаружение';
 	@override String get lanTitle => 'Локальная сеть (mDNS)';
 	@override String get lanSubtitle => 'Найти устройства в одной сети';
@@ -216,6 +253,12 @@ extension on TranslationsRu {
 			'devices.errorLoadPeers' => 'Не удалось загрузить связанные устройства',
 			'devices.remove' => 'Удалить устройство',
 			'folders.add' => 'Добавить папку',
+			'folders.manageAccess' => 'Управление доступом',
+			'folders.access' => 'Доступ устройств',
+			'folders.localFolder' => 'Локальная папка',
+			'folders.localAvailable' => 'Доступна',
+			'folders.localMissing' => 'Папка не найдена',
+			'folders.noPeers' => 'Свяжите устройство, чтобы делиться с ним папкой',
 			'folders.empty' => 'Нет общих папок',
 			'folders.emptyHint' => 'Добавьте папку для синхронизации между устройствами.',
 			'folders.errorLoad' => 'Не удалось загрузить папки',
@@ -232,16 +275,47 @@ extension on TranslationsRu {
 			'pair.selfPairError' => 'Нельзя связать устройство с самим собой',
 			'pair.paired' => ({required Object name}) => 'Устройство {${name}} связано',
 			'pair.invalidQr' => 'Этот QR-код не является кодом point-machine',
+			'pair.nearbyTitle' => 'Устройства рядом',
+			'pair.nearbySearching' => 'Поиск устройств в вашей сети…',
+			'pair.pairAction' => 'Связать',
+			'pair.manualTitle' => 'Ввести код вручную',
+			'pair.manualHint' => 'Вставьте код устройства',
+			'pair.pairing' => 'Связывание…',
+			'pair.pairFailed' => 'Не удалось связаться с устройством',
+			'pair.storedLocally' => 'Сохранено — связь завершится, когда оба устройства будут в одной сети',
+			'pair.incomingTitle' => 'Запрос на связь',
+			'pair.incomingBody' => ({required Object name}) => '{${name}} хочет связаться. Проверьте, что код совпадает на обоих устройствах.',
+			'pair.verificationCode' => 'Код проверки',
+			'pair.accept' => 'Принять',
+			'pair.reject' => 'Отклонить',
+			'pair.codeButton' => 'Связать через интернет',
+			'pair.pairedDone' => 'Устройство связано',
+			'pair.yourCodeTitle' => 'Код этого устройства',
+			'pair.yourCodeHint' => 'Введите его на другом устройстве для связи через интернет',
+			'pair.showCode' => 'Показать',
+			'pair.hideCode' => 'Скрыть',
+			'pair.copyCode' => 'Копировать',
+			'pair.codeCopied' => 'Код скопирован',
+			'pair.remoteCodeTitle' => 'Связать по коду',
+			'pair.remoteCodeHint' => 'Вставьте код другого устройства',
+			'pair.fullscreen' => 'На весь экран',
+			'pair.codeEmpty' => 'Введите код устройства',
+			'pair.scanPaused' => 'Поиск приостановлен',
+			'pair.pauseScan' => 'Приостановить поиск',
+			'pair.resumeScan' => 'Возобновить поиск',
 			'activity.syncedToday' => ({required Object bytes}) => 'Синхронизировано сегодня: {${bytes}}',
 			'activity.upToDate' => 'Все устройства актуальны',
 			'activity.empty' => 'Ничего не синхронизируется',
 			'activity.emptyHint' => 'Передачи и конфликты будут отображаться здесь по мере возникновения.',
+			'activity.eventConnected' => 'Подключено',
+			'activity.eventDisconnected' => 'Отключено',
+			'activity.eventReceived' => 'Получен файл',
+			'activity.eventConflict' => 'Конфликт синхронизации',
 			'settings.appearance' => 'Внешний вид',
-			'settings.themeSystem' => 'Системная',
-			'settings.themeLight' => 'Светлая',
-			'settings.themeDark' => 'Тёмная',
 			'settings.languageTitle' => 'Язык',
 			'settings.languageSubtitle' => 'Язык интерфейса',
+			'settings.languageEnglish' => 'Английский',
+			'settings.languageRussian' => 'Русский',
 			'settings.discovery' => 'Обнаружение',
 			'settings.lanTitle' => 'Локальная сеть (mDNS)',
 			'settings.lanSubtitle' => 'Найти устройства в одной сети',

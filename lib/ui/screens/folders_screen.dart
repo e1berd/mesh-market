@@ -4,8 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:m3e_core/m3e_core.dart';
 
 import '../../core/models.dart';
+import '../../core/pairing.dart';
 import '../../i18n/strings.g.dart';
 import '../../state/folders_provider.dart';
+import '../../state/peers_provider.dart';
+import '../../state/share_controller.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
 
@@ -122,7 +125,23 @@ class _FolderTile extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: .start,
                 children: [
-                  Text(folder.label).size(16).weight(.w700),
+                  Row(
+                    children: [
+                      _statusDot(
+                        context,
+                        ref.watch(folderExistsProvider(folder.localPath)).value ??
+                            false,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(folder.label)
+                            .size(16)
+                            .weight(.w700)
+                            .maxLines(1)
+                            .overflow(.ellipsis),
+                      ),
+                    ],
+                  ),
                   Text(folder.localPath)
                       .size(12)
                       .color(colors.onSurfaceVariant)
@@ -130,6 +149,11 @@ class _FolderTile extends ConsumerWidget {
                       .overflow(.ellipsis),
                 ],
               ),
+            ),
+            IconButton(
+              tooltip: context.t.folders.manageAccess,
+              onPressed: () => _showAccess(context, ref, folder),
+              icon: const Icon(Icons.group_rounded),
             ),
             IconButton(
               tooltip: context.t.folders.remove,
@@ -192,5 +216,112 @@ class _FolderTile extends ConsumerWidget {
         ),
       ],
     );
+  }
+}
+
+Widget _statusDot(BuildContext context, bool ok) => Container(
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: ok ? const Color(0xFF34A853) : context.colors.error,
+      ),
+    );
+
+void _showAccess(BuildContext context, WidgetRef ref, FolderConfig folder) {
+  showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) => _FolderAccessSheet(folderId: folder.id),
+  );
+}
+
+class _FolderAccessSheet extends ConsumerWidget {
+  const _FolderAccessSheet({required this.folderId});
+
+  final String folderId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final folders = ref.watch(foldersProvider).value ?? const <FolderConfig>[];
+    FolderConfig? match;
+    for (final folder in folders) {
+      if (folder.id == folderId) {
+        match = folder;
+        break;
+      }
+    }
+    if (match == null) return const SizedBox.shrink();
+    final current = match;
+
+    final peers = ref.watch(pairedPeersProvider).value ?? const <PairingPayload>[];
+    final exists =
+        ref.watch(folderExistsProvider(current.localPath)).value ?? false;
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        child: Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: .stretch,
+          children: [
+            Text(current.label).size(20).weight(.w800).align(.center),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                _statusDot(context, exists),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(context.t.folders.localFolder).size(15).weight(.w600),
+                ),
+                Text(exists
+                        ? context.t.folders.localAvailable
+                        : context.t.folders.localMissing)
+                    .size(13)
+                    .color(colors.onSurfaceVariant),
+              ],
+            ),
+            const Divider(height: 28),
+            Text(context.t.folders.access)
+                .size(13)
+                .weight(.w800)
+                .letterSpacing(.5)
+                .color(colors.primary),
+            const SizedBox(height: 4),
+            if (peers.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Text(context.t.folders.noPeers)
+                    .size(14)
+                    .color(colors.onSurfaceVariant)
+                    .align(.center),
+              )
+            else
+              for (final peer in peers)
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  secondary:
+                      _statusDot(context, current.peerIds.contains(peer.deviceId)),
+                  title: Text(peer.name),
+                  value: current.peerIds.contains(peer.deviceId),
+                  onChanged: (granted) =>
+                      _toggleAccess(ref, current, peer, granted),
+                ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _toggleAccess(
+      WidgetRef ref, FolderConfig folder, PairingPayload peer, bool granted) {
+    final notifier = ref.read(foldersProvider.notifier);
+    if (granted) {
+      notifier.addPeer(folder.id, peer.deviceId);
+      ref.read(shareControllerProvider).shareWith(folder, peer);
+    } else {
+      notifier.removePeer(folder.id, peer.deviceId);
+    }
   }
 }

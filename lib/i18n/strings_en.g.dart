@@ -146,6 +146,24 @@ class Translations$folders$en {
 	/// en: 'Add folder'
 	String get add => 'Add folder';
 
+	/// en: 'Manage access'
+	String get manageAccess => 'Manage access';
+
+	/// en: 'Device access'
+	String get access => 'Device access';
+
+	/// en: 'Local folder'
+	String get localFolder => 'Local folder';
+
+	/// en: 'Available'
+	String get localAvailable => 'Available';
+
+	/// en: 'Folder not found'
+	String get localMissing => 'Folder not found';
+
+	/// en: 'Pair a device to share this folder with it'
+	String get noPeers => 'Pair a device to share this folder with it';
+
 	/// en: 'No shared folders'
 	String get empty => 'No shared folders';
 
@@ -206,6 +224,90 @@ class Translations$pair$en {
 
 	/// en: 'This QR code is not a point-machine device'
 	String get invalidQr => 'This QR code is not a point-machine device';
+
+	/// en: 'Nearby devices'
+	String get nearbyTitle => 'Nearby devices';
+
+	/// en: 'Looking for devices on your network…'
+	String get nearbySearching => 'Looking for devices on your network…';
+
+	/// en: 'Pair'
+	String get pairAction => 'Pair';
+
+	/// en: 'Enter code manually'
+	String get manualTitle => 'Enter code manually';
+
+	/// en: 'Paste a device code'
+	String get manualHint => 'Paste a device code';
+
+	/// en: 'Pairing…'
+	String get pairing => 'Pairing…';
+
+	/// en: 'Could not reach that device'
+	String get pairFailed => 'Could not reach that device';
+
+	/// en: 'Saved — pairing finishes when both devices are on the same network'
+	String get storedLocally => 'Saved — pairing finishes when both devices are on the same network';
+
+	/// en: 'Pairing request'
+	String get incomingTitle => 'Pairing request';
+
+	/// en: '{$name} wants to pair. Check the code matches on both devices.'
+	String incomingBody({required Object name}) => '{${name}} wants to pair. Check the code matches on both devices.';
+
+	/// en: 'Verification code'
+	String get verificationCode => 'Verification code';
+
+	/// en: 'Accept'
+	String get accept => 'Accept';
+
+	/// en: 'Reject'
+	String get reject => 'Reject';
+
+	/// en: 'Pair over the internet'
+	String get codeButton => 'Pair over the internet';
+
+	/// en: 'Device paired'
+	String get pairedDone => 'Device paired';
+
+	/// en: 'Your device code'
+	String get yourCodeTitle => 'Your device code';
+
+	/// en: 'Enter this on another device to pair over the internet'
+	String get yourCodeHint => 'Enter this on another device to pair over the internet';
+
+	/// en: 'Show'
+	String get showCode => 'Show';
+
+	/// en: 'Hide'
+	String get hideCode => 'Hide';
+
+	/// en: 'Copy'
+	String get copyCode => 'Copy';
+
+	/// en: 'Code copied'
+	String get codeCopied => 'Code copied';
+
+	/// en: 'Pair with a code'
+	String get remoteCodeTitle => 'Pair with a code';
+
+	/// en: 'Paste the other device's code'
+	String get remoteCodeHint => 'Paste the other device\'s code';
+
+	/// en: 'View fullscreen'
+	String get fullscreen => 'View fullscreen';
+
+	/// en: 'Enter a device code'
+	String get codeEmpty => 'Enter a device code';
+
+	/// en: 'Scanning paused'
+	String get scanPaused => 'Scanning paused';
+
+	/// en: 'Pause scanning'
+	String get pauseScan => 'Pause scanning';
+
+	/// en: 'Resume scanning'
+	String get resumeScan => 'Resume scanning';
 }
 
 // Path: activity
@@ -227,6 +329,18 @@ class Translations$activity$en {
 
 	/// en: 'Transfers and conflicts will appear here as they happen.'
 	String get emptyHint => 'Transfers and conflicts will appear here as they happen.';
+
+	/// en: 'Connected'
+	String get eventConnected => 'Connected';
+
+	/// en: 'Disconnected'
+	String get eventDisconnected => 'Disconnected';
+
+	/// en: 'Received a file'
+	String get eventReceived => 'Received a file';
+
+	/// en: 'Sync conflict'
+	String get eventConflict => 'Sync conflict';
 }
 
 // Path: settings
@@ -240,20 +354,17 @@ class Translations$settings$en {
 	/// en: 'Appearance'
 	String get appearance => 'Appearance';
 
-	/// en: 'System'
-	String get themeSystem => 'System';
-
-	/// en: 'Light'
-	String get themeLight => 'Light';
-
-	/// en: 'Dark'
-	String get themeDark => 'Dark';
-
 	/// en: 'Language'
 	String get languageTitle => 'Language';
 
 	/// en: 'Interface language'
 	String get languageSubtitle => 'Interface language';
+
+	/// en: 'English'
+	String get languageEnglish => 'English';
+
+	/// en: 'Russian'
+	String get languageRussian => 'Russian';
 
 	/// en: 'Discovery'
 	String get discovery => 'Discovery';
@@ -344,6 +455,12 @@ extension on Translations {
 			'devices.errorLoadPeers' => 'Could not load paired devices',
 			'devices.remove' => 'Remove device',
 			'folders.add' => 'Add folder',
+			'folders.manageAccess' => 'Manage access',
+			'folders.access' => 'Device access',
+			'folders.localFolder' => 'Local folder',
+			'folders.localAvailable' => 'Available',
+			'folders.localMissing' => 'Folder not found',
+			'folders.noPeers' => 'Pair a device to share this folder with it',
 			'folders.empty' => 'No shared folders',
 			'folders.emptyHint' => 'Add a folder to start syncing across your devices.',
 			'folders.errorLoad' => 'Could not load folders',
@@ -360,16 +477,47 @@ extension on Translations {
 			'pair.selfPairError' => 'Cannot pair this device with itself',
 			'pair.paired' => ({required Object name}) => 'Device {${name}} paired',
 			'pair.invalidQr' => 'This QR code is not a point-machine device',
+			'pair.nearbyTitle' => 'Nearby devices',
+			'pair.nearbySearching' => 'Looking for devices on your network…',
+			'pair.pairAction' => 'Pair',
+			'pair.manualTitle' => 'Enter code manually',
+			'pair.manualHint' => 'Paste a device code',
+			'pair.pairing' => 'Pairing…',
+			'pair.pairFailed' => 'Could not reach that device',
+			'pair.storedLocally' => 'Saved — pairing finishes when both devices are on the same network',
+			'pair.incomingTitle' => 'Pairing request',
+			'pair.incomingBody' => ({required Object name}) => '{${name}} wants to pair. Check the code matches on both devices.',
+			'pair.verificationCode' => 'Verification code',
+			'pair.accept' => 'Accept',
+			'pair.reject' => 'Reject',
+			'pair.codeButton' => 'Pair over the internet',
+			'pair.pairedDone' => 'Device paired',
+			'pair.yourCodeTitle' => 'Your device code',
+			'pair.yourCodeHint' => 'Enter this on another device to pair over the internet',
+			'pair.showCode' => 'Show',
+			'pair.hideCode' => 'Hide',
+			'pair.copyCode' => 'Copy',
+			'pair.codeCopied' => 'Code copied',
+			'pair.remoteCodeTitle' => 'Pair with a code',
+			'pair.remoteCodeHint' => 'Paste the other device\'s code',
+			'pair.fullscreen' => 'View fullscreen',
+			'pair.codeEmpty' => 'Enter a device code',
+			'pair.scanPaused' => 'Scanning paused',
+			'pair.pauseScan' => 'Pause scanning',
+			'pair.resumeScan' => 'Resume scanning',
 			'activity.syncedToday' => ({required Object bytes}) => '{${bytes}} synced today',
 			'activity.upToDate' => 'All devices up to date',
 			'activity.empty' => 'Nothing syncing',
 			'activity.emptyHint' => 'Transfers and conflicts will appear here as they happen.',
+			'activity.eventConnected' => 'Connected',
+			'activity.eventDisconnected' => 'Disconnected',
+			'activity.eventReceived' => 'Received a file',
+			'activity.eventConflict' => 'Sync conflict',
 			'settings.appearance' => 'Appearance',
-			'settings.themeSystem' => 'System',
-			'settings.themeLight' => 'Light',
-			'settings.themeDark' => 'Dark',
 			'settings.languageTitle' => 'Language',
 			'settings.languageSubtitle' => 'Interface language',
+			'settings.languageEnglish' => 'English',
+			'settings.languageRussian' => 'Russian',
 			'settings.discovery' => 'Discovery',
 			'settings.lanTitle' => 'Local network (mDNS)',
 			'settings.lanSubtitle' => 'Find peers on the same network',

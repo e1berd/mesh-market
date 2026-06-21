@@ -1,6 +1,7 @@
 import 'package:declar_ui/declar_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:m3e_core/m3e_core.dart';
+import 'package:motor/motor.dart';
 
 import '../../i18n/strings.g.dart';
 import '../../state/app_providers.dart';
@@ -19,37 +20,50 @@ class SettingsScreen extends ConsumerWidget {
 
     return SafeArea(
       top: false,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
-        child: Column(
-          crossAxisAlignment: .stretch,
-          children: [
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            clipBehavior: Clip.hardEdge,
+            padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
+            child: SizedBox(
+              width: constraints.maxWidth,
+              child: Column(
+                crossAxisAlignment: .stretch,
+                children: [
             ExpressiveSection(
               title: context.t.settings.appearance,
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: M3EToggleButtonGroup(
-                    actions: [
-                      M3EToggleButtonGroupAction(
-                        icon: const Icon(Icons.brightness_auto_rounded),
-                        label: Text(context.t.settings.themeSystem),
-                      ),
-                      M3EToggleButtonGroupAction(
-                        icon: const Icon(Icons.light_mode_rounded),
-                        label: Text(context.t.settings.themeLight),
-                      ),
-                      M3EToggleButtonGroupAction(
-                        icon: const Icon(Icons.dark_mode_rounded),
-                        label: Text(context.t.settings.themeDark),
-                      ),
-                    ],
-                    type: .connected,
-                    size: .sm,
-                    style: .tonal,
-                    selectedIndex: config.themeMode.index,
-                    onSelectedIndexChanged: (i) {
-                      if (i != null) notifier.setThemeMode(ThemeMode.values[i]);
+                  child: LayoutBuilder(
+                    builder: (context, c) {
+                      final w = _segmentWidth(c.maxWidth, 3);
+                      return M3EToggleButtonGroup(
+                        actions: [
+                          M3EToggleButtonGroupAction(
+                            icon: const Icon(Icons.brightness_auto_rounded),
+                            width: w,
+                          ),
+                          M3EToggleButtonGroupAction(
+                            icon: const Icon(Icons.light_mode_rounded),
+                            width: w,
+                          ),
+                          M3EToggleButtonGroupAction(
+                            icon: const Icon(Icons.dark_mode_rounded),
+                            width: w,
+                          ),
+                        ],
+                        type: .connected,
+                        size: .sm,
+                        style: .tonal,
+                        overflow: M3EButtonGroupOverflow.none,
+                        selectedIndex: config.themeMode.index,
+                        onSelectedIndexChanged: (i) {
+                          if (i != null) {
+                            notifier.setThemeMode(ThemeMode.values[i]);
+                          }
+                        },
+                      );
                     },
                   ),
                 ),
@@ -71,31 +85,37 @@ class SettingsScreen extends ConsumerWidget {
                           .size(14)
                           .color(colors.onSurface)
                           .padding(bottom: 12),
-                      Center(
-                        child: M3EToggleButtonGroup(
-                          actions: [
-                            M3EToggleButtonGroupAction(
-                              label: const Text('EN'),
-                            ),
-                            M3EToggleButtonGroupAction(
-                              label: const Text('RU'),
-                            ),
-                          ],
-                          type: .connected,
-                          size: .sm,
-                          style: .tonal,
-                          selectedIndex:
-                              LocaleSettings.currentLocale == AppLocale.en
-                              ? 0
-                              : 1,
-                          onSelectedIndexChanged: (i) {
-                            if (i != null) {
-                              LocaleSettings.setLocale(
-                                i == 0 ? AppLocale.en : AppLocale.ru,
-                              );
-                            }
-                          },
-                        ),
+                      LayoutBuilder(
+                        builder: (context, c) {
+                          final w = _segmentWidth(c.maxWidth, 2);
+                          return M3EToggleButtonGroup(
+                            actions: [
+                              M3EToggleButtonGroupAction(
+                                label: Text(context.t.settings.languageEnglish),
+                                width: w,
+                              ),
+                              M3EToggleButtonGroupAction(
+                                label: Text(context.t.settings.languageRussian),
+                                width: w,
+                              ),
+                            ],
+                            type: .connected,
+                            size: .sm,
+                            style: .tonal,
+                            overflow: M3EButtonGroupOverflow.none,
+                            selectedIndex:
+                                LocaleSettings.currentLocale == AppLocale.en
+                                ? 0
+                                : 1,
+                            onSelectedIndexChanged: (i) {
+                              if (i != null) {
+                                LocaleSettings.setLocale(
+                                  i == 0 ? AppLocale.en : AppLocale.ru,
+                                );
+                              }
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -174,7 +194,17 @@ class SettingsScreen extends ConsumerWidget {
         ),
       ),
     );
+        },
+      ),
+    );
   }
+}
+
+double _segmentWidth(double maxWidth, int count) {
+  const connectedGap = 2.0;
+  const focusRingSlack = 4.0;
+  final usable = maxWidth - (count - 1) * connectedGap - focusRingSlack;
+  return usable / count;
 }
 
 class _PalettePicker extends StatelessWidget {
@@ -233,17 +263,61 @@ class _PaletteCard extends StatefulWidget {
   State<_PaletteCard> createState() => _PaletteCardState();
 }
 
-class _PaletteCardState extends State<_PaletteCard> {
+class _PaletteCardState extends State<_PaletteCard>
+    with TickerProviderStateMixin {
   bool _hovered = false;
   bool _focused = false;
   bool _pressed = false;
+
+  late final SingleMotionController _scaleCtrl;
+  late final SingleMotionController _radiusCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleCtrl = SingleMotionController(
+      motion: M3EMotion.expressiveSpatialFast.toMotion(),
+      vsync: this,
+      initialValue: _scaleTarget,
+    );
+    _radiusCtrl = SingleMotionController(
+      motion: M3EMotion.expressiveSpatialDefault.toMotion(),
+      vsync: this,
+      initialValue: _radiusTarget,
+    );
+  }
+
+  double get _scaleTarget => _pressed ? .96 : _isActive || widget.selected ? 1 : .98;
+  double get _radiusTarget => _pressed ? 18 : _isActive || widget.selected ? 28 : 22;
+  bool get _isActive => _hovered || _focused || _pressed;
+
+  @override
+  void didUpdateWidget(_PaletteCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selected != widget.selected) {
+      _scaleCtrl.animateTo(_scaleTarget);
+      _radiusCtrl.animateTo(_radiusTarget);
+    }
+  }
+
+  void _updateState() {
+    setState(() {});
+    _scaleCtrl.animateTo(_scaleTarget);
+    _radiusCtrl.animateTo(_radiusTarget);
+  }
+
+  @override
+  void dispose() {
+    _scaleCtrl.dispose();
+    _radiusCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final preview = widget.preview;
     final selected = widget.selected;
-    final active = _hovered || _focused || _pressed;
     final foreground = selected
         ? preview.onSecondaryContainer
         : colors.onSurface;
@@ -264,116 +338,104 @@ class _PaletteCardState extends State<_PaletteCard> {
       selected: selected,
       button: true,
       label: widget.scheme.name,
-      child: AnimatedScale(
-        duration: expressiveFastDuration,
-        curve: expressiveCurve,
-        scale: _pressed
-            ? .96
-            : active || selected
-            ? 1
-            : .98,
-        child: AnimatedContainer(
-          duration: expressiveFastDuration,
-          curve: expressiveCurve,
-          decoration: BoxDecoration(
-            color: selected
-                ? preview.secondaryContainer
-                : active
-                ? colors.surfaceContainerHigh
-                : colors.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(
-              _pressed
-                  ? 18
-                  : selected || active
-                  ? 28
-                  : 22,
-            ),
-            border: Border.all(
-              color: borderColor,
-              width: selected || _focused ? 2 : 1,
-            ),
-            boxShadow: [
-              if (_hovered && !_pressed)
-                BoxShadow(
-                  color: preview.primary.withValues(alpha: .10),
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
-                ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: widget.onTap,
-              onHover: (value) => setState(() => _hovered = value),
-              onFocusChange: (value) => setState(() => _focused = value),
-              onTapDown: (_) => setState(() => _pressed = true),
-              onTapUp: (_) => setState(() => _pressed = false),
-              onTapCancel: () => setState(() => _pressed = false),
-              customBorder: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  _pressed
-                      ? 18
-                      : selected || active
-                      ? 28
-                      : 22,
-                ),
-              ),
-              overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  AnimatedContainer(
-                    duration: expressiveFastDuration,
-                    curve: expressiveCurve,
-                    color: stateLayerColor,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: .start,
-                      children: [
-                        Row(
-                          children: [
-                            _Swatch(color: preview.primary),
-                            _Swatch(color: preview.secondary),
-                            _Swatch(color: preview.tertiary),
-                            const Spacer(),
-                            AnimatedSwitcher(
-                              duration: expressiveFastDuration,
-                              child: selected
-                                  ? Icon(
-                                      Icons.check_circle_rounded,
-                                      key: const ValueKey('selected'),
-                                      size: 20,
-                                      color: preview.onSecondaryContainer,
-                                    )
-                                  : Icon(
-                                      widget.scheme.icon,
-                                      key: const ValueKey('icon'),
-                                      size: 20,
-                                      color: active
-                                          ? preview.primary
-                                          : colors.onSurfaceVariant,
-                                    ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
-                        Text(
-                          widget.scheme.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ).size(13).weight(.w800).color(foreground),
-                      ],
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_scaleCtrl, _radiusCtrl]),
+        builder: (context, _) {
+          final scale = _scaleCtrl.value;
+          final radius = _radiusCtrl.value;
+          final borderW = selected || _focused ? 2.0 : 1.0;
+
+          return Transform.scale(
+            scale: scale,
+            child: AnimatedContainer(
+              duration: expressiveFastDuration,
+              curve: expressiveCurve,
+              decoration: BoxDecoration(
+                color: selected
+                    ? preview.secondaryContainer
+                    : _isActive
+                    ? colors.surfaceContainerHigh
+                    : colors.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(radius),
+                border: Border.all(color: borderColor, width: borderW),
+                boxShadow: [
+                  if (_hovered && !_pressed)
+                    BoxShadow(
+                      color: preview.primary.withValues(alpha: .10),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
                     ),
-                  ),
                 ],
               ),
+              clipBehavior: Clip.antiAlias,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: widget.onTap,
+                  onHover: (v) { _hovered = v; _updateState(); },
+                  onFocusChange: (v) { _focused = v; _updateState(); },
+                  onTapDown: (_) { _pressed = true; _updateState(); },
+                  onTapUp: (_) { _pressed = false; _updateState(); },
+                  onTapCancel: () { _pressed = false; _updateState(); },
+                  customBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(radius),
+                  ),
+                  overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      AnimatedContainer(
+                        duration: expressiveFastDuration,
+                        curve: expressiveCurve,
+                        color: stateLayerColor,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                _Swatch(color: preview.primary),
+                                _Swatch(color: preview.secondary),
+                                _Swatch(color: preview.tertiary),
+                                const Spacer(),
+                                AnimatedSwitcher(
+                                  duration: expressiveFastDuration,
+                                  child: selected
+                                      ? Icon(
+                                          Icons.check_circle_rounded,
+                                          key: const ValueKey('selected'),
+                                          size: 20,
+                                          color: preview.onSecondaryContainer,
+                                        )
+                                      : Icon(
+                                          widget.scheme.icon,
+                                          key: const ValueKey('icon'),
+                                          size: 20,
+                                          color: _isActive
+                                              ? preview.primary
+                                              : colors.onSurfaceVariant,
+                                        ),
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            Text(
+                              widget.scheme.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ).size(13).weight(.w800).color(foreground),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

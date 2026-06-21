@@ -1,11 +1,18 @@
 import 'dart:async';
 
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:m3e_core/m3e_core.dart';
+import 'package:motor/motor.dart';
 
 const expressiveDuration = Duration(milliseconds: 520);
 const expressiveFastDuration = Duration(milliseconds: 260);
 const expressiveCurve = Easing.emphasizedDecelerate;
 const expressiveExitCurve = Easing.emphasizedAccelerate;
+
+const _springReveal = M3EMotion.expressiveSpatialDefault;
+const _springFast = M3EMotion.expressiveEffectsFast;
+const _springScale = M3EMotion.expressiveSpatialFast;
 
 class ExpressiveSwitcher extends StatelessWidget {
   const ExpressiveSwitcher({
@@ -30,19 +37,7 @@ class ExpressiveSwitcher extends StatelessWidget {
           curve: expressiveCurve,
           reverseCurve: expressiveExitCurve,
         );
-        final offset = Tween<Offset>(
-          begin: const Offset(0, .035),
-          end: Offset.zero,
-        ).animate(curved);
-        final scale = Tween<double>(begin: .98, end: 1).animate(curved);
-
-        return FadeTransition(
-          opacity: curved,
-          child: SlideTransition(
-            position: offset,
-            child: ScaleTransition(scale: scale, child: child),
-          ),
-        );
+        return FadeTransition(opacity: curved, child: child);
       },
       child: child,
     );
@@ -53,40 +48,21 @@ class ExpressivePageSwitcher extends StatelessWidget {
   const ExpressivePageSwitcher({
     super.key,
     required this.child,
-    this.duration = expressiveFastDuration,
   });
 
   final Widget child;
-  final Duration duration;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return AnimatedSwitcher(
-      duration: duration,
-      reverseDuration: Duration.zero,
-      switchInCurve: expressiveCurve,
-      switchOutCurve: expressiveExitCurve,
-      layoutBuilder: (currentChild, previousChildren) {
-        return currentChild ?? const SizedBox.shrink();
-      },
-      transitionBuilder: (child, animation) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: expressiveCurve,
-          reverseCurve: expressiveExitCurve,
-        );
-        final offset = Tween<Offset>(
-          begin: const Offset(0, .025),
-          end: Offset.zero,
-        ).animate(curved);
-
-        return Material(
-          color: colors.surfaceContainerLowest,
-          child: FadeTransition(
-            opacity: curved,
-            child: SlideTransition(position: offset, child: child),
-          ),
+    return PageTransitionSwitcher(
+      duration: expressiveDuration,
+      transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
+        return FadeThroughTransition(
+          animation: primaryAnimation,
+          secondaryAnimation: secondaryAnimation,
+          fillColor: colors.surfaceContainerLowest,
+          child: child,
         );
       },
       child: child,
@@ -112,24 +88,23 @@ class ExpressiveReveal extends StatefulWidget {
 
 class _ExpressiveRevealState extends State<ExpressiveReveal>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _animation;
+  late final SingleMotionController _controller;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _controller = SingleMotionController(
+      motion: _springReveal.toMotion(),
       vsync: this,
-      duration: expressiveDuration,
+      initialValue: 0,
     );
-    _animation = CurvedAnimation(parent: _controller, curve: expressiveCurve);
 
     if (widget.delay == Duration.zero) {
-      _controller.forward();
+      _controller.animateTo(1);
     } else {
       _timer = Timer(widget.delay, () {
-        if (mounted) _controller.forward();
+        if (mounted) _controller.animateTo(1);
       });
     }
   }
@@ -144,12 +119,12 @@ class _ExpressiveRevealState extends State<ExpressiveReveal>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _animation,
+      animation: _controller,
       child: widget.child,
       builder: (context, child) {
-        final value = _animation.value;
+        final value = _controller.value;
         return Opacity(
-          opacity: value,
+          opacity: value.clamp(0.0, 1.0),
           child: Transform.translate(
             offset: Offset(0, (1 - value) * widget.offset),
             child: Transform.scale(
@@ -313,5 +288,153 @@ class ExpressiveStatusPill extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class ExpressiveSpringScale extends StatefulWidget {
+  const ExpressiveSpringScale({
+    super.key,
+    required this.child,
+    this.pressed = false,
+    this.active = false,
+    this.selected = false,
+  });
+
+  final Widget child;
+  final bool pressed;
+  final bool active;
+  final bool selected;
+
+  @override
+  State<ExpressiveSpringScale> createState() => _ExpressiveSpringScaleState();
+}
+
+class _ExpressiveSpringScaleState extends State<ExpressiveSpringScale>
+    with SingleTickerProviderStateMixin {
+  late final SingleMotionController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = SingleMotionController(
+      motion: _springScale.toMotion(),
+      vsync: this,
+      initialValue: _target,
+    );
+  }
+
+  @override
+  void didUpdateWidget(ExpressiveSpringScale oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.pressed != widget.pressed ||
+        oldWidget.active != widget.active ||
+        oldWidget.selected != widget.selected) {
+      _controller.animateTo(_target);
+    }
+  }
+
+  double get _target => widget.pressed
+      ? .96
+      : widget.active || widget.selected
+          ? 1
+          : .98;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      child: widget.child,
+      builder: (context, child) => Transform.scale(
+        scale: _controller.value,
+        child: child,
+      ),
+    );
+  }
+}
+
+class ExpressiveSpringContainer extends StatefulWidget {
+  const ExpressiveSpringContainer({
+    super.key,
+    required this.decoration,
+    this.child,
+    this.width,
+    this.height,
+    this.padding,
+  });
+
+  final Decoration decoration;
+  final Widget? child;
+  final double? width;
+  final double? height;
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  State<ExpressiveSpringContainer> createState() =>
+      _ExpressiveSpringContainerState();
+}
+
+class _ExpressiveSpringContainerState extends State<ExpressiveSpringContainer>
+    with SingleTickerProviderStateMixin {
+  late final SingleMotionController _controller;
+  Decoration? _previousDecoration;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = SingleMotionController(
+      motion: _springFast.toMotion(),
+      vsync: this,
+      initialValue: 1,
+    );
+    _previousDecoration = widget.decoration;
+  }
+
+  @override
+  void didUpdateWidget(ExpressiveSpringContainer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.decoration != widget.decoration) {
+      _previousDecoration = oldWidget.decoration;
+      _controller
+        ..stop(canceled: true)
+        ..value = 0
+        ..animateTo(1);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      child: widget.child,
+      builder: (context, child) {
+        final t = _controller.value;
+        final current = _lerpDecoration(_previousDecoration, widget.decoration, t);
+        return AnimatedContainer(
+          duration: Duration.zero,
+          width: widget.width,
+          height: widget.height,
+          padding: widget.padding,
+          decoration: current,
+          child: child,
+        );
+      },
+    );
+  }
+
+  Decoration? _lerpDecoration(Decoration? a, Decoration? b, double t) {
+    if (a == null || b == null) return b;
+    return Decoration.lerp(a, b, t);
   }
 }

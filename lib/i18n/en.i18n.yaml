@@ -26,6 +26,12 @@ devices:
 
 folders:
   add: Add folder
+  manageAccess: Manage access
+  access: Device access
+  localFolder: Local folder
+  localAvailable: Available
+  localMissing: Folder not found
+  noPeers: Pair a device to share this folder with it
   empty: No shared folders
   emptyHint: Add a folder to start syncing across your devices.
   errorLoad: Could not load folders
@@ -47,20 +53,51 @@ pair:
   selfPairError: Cannot pair this device with itself
   paired: 'Device {$name} paired'
   invalidQr: This QR code is not a point-machine device
+  nearbyTitle: Nearby devices
+  nearbySearching: Looking for devices on your network…
+  pairAction: Pair
+  manualTitle: Enter code manually
+  manualHint: Paste a device code
+  pairing: Pairing…
+  pairFailed: Could not reach that device
+  storedLocally: Saved — pairing finishes when both devices are on the same network
+  incomingTitle: Pairing request
+  incomingBody: '{$name} wants to pair. Check the code matches on both devices.'
+  verificationCode: Verification code
+  accept: Accept
+  reject: Reject
+  codeButton: Pair over the internet
+  pairedDone: Device paired
+  yourCodeTitle: Your device code
+  yourCodeHint: Enter this on another device to pair over the internet
+  showCode: Show
+  hideCode: Hide
+  copyCode: Copy
+  codeCopied: Code copied
+  remoteCodeTitle: Pair with a code
+  remoteCodeHint: Paste the other device's code
+  fullscreen: View fullscreen
+  codeEmpty: Enter a device code
+  scanPaused: Scanning paused
+  pauseScan: Pause scanning
+  resumeScan: Resume scanning
 
 activity:
   syncedToday: '{$bytes} synced today'
   upToDate: All devices up to date
   empty: Nothing syncing
   emptyHint: Transfers and conflicts will appear here as they happen.
+  eventConnected: Connected
+  eventDisconnected: Disconnected
+  eventReceived: Received a file
+  eventConflict: Sync conflict
 
 settings:
   appearance: Appearance
-  themeSystem: System
-  themeLight: Light
-  themeDark: Dark
   languageTitle: Language
   languageSubtitle: Interface language
+  languageEnglish: English
+  languageRussian: Russian
 
   discovery: Discovery
   lanTitle: Local network (mDNS)

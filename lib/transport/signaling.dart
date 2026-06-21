@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import '../core/folder_share.dart';
+import '../core/pairing.dart';
+
 sealed class SignalMessage {
   const SignalMessage();
 
@@ -14,6 +17,14 @@ sealed class SignalMessage {
       switch (json['t']) {
         'hello' =>
           SignalHello(json['infohash']! as String, json['id']! as String),
+        'pair-req' => PairRequest(
+            PairingPayload.fromJson((json['p']! as Map).cast<String, Object?>())),
+        'pair-res' => PairResponse(
+            PairingPayload.fromJson((json['p']! as Map).cast<String, Object?>())),
+        'share-req' => ShareRequest(
+            FolderShare.fromJson((json['s']! as Map).cast<String, Object?>()),
+            json['id']! as String),
+        'share-res' => ShareResponse(json['ok']! as bool),
         'offer' => SdpSignal.offer(json['sdp']! as String),
         'answer' => SdpSignal.answer(json['sdp']! as String),
         'ice' => IceSignal(
@@ -23,6 +34,44 @@ sealed class SignalMessage {
           ),
         _ => throw FormatException('unknown signal: ${json['t']}'),
       };
+}
+
+final class PairRequest extends SignalMessage {
+  const PairRequest(this.payload);
+
+  final PairingPayload payload;
+
+  @override
+  Map<String, Object?> toJson() => {'t': 'pair-req', 'p': payload.toJson()};
+}
+
+final class PairResponse extends SignalMessage {
+  const PairResponse(this.payload);
+
+  final PairingPayload payload;
+
+  @override
+  Map<String, Object?> toJson() => {'t': 'pair-res', 'p': payload.toJson()};
+}
+
+final class ShareRequest extends SignalMessage {
+  const ShareRequest(this.share, this.deviceId);
+
+  final FolderShare share;
+  final String deviceId;
+
+  @override
+  Map<String, Object?> toJson() =>
+      {'t': 'share-req', 's': share.toJson(), 'id': deviceId};
+}
+
+final class ShareResponse extends SignalMessage {
+  const ShareResponse(this.accepted);
+
+  final bool accepted;
+
+  @override
+  Map<String, Object?> toJson() => {'t': 'share-res', 'ok': accepted};
 }
 
 final class SignalHello extends SignalMessage {
