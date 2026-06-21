@@ -25,6 +25,7 @@ class AppConfig {
     this.iceServers = defaultIceServers,
     this.lanDiscovery = true,
     this.dhtDiscovery = true,
+    this.bluetoothDiscovery = true,
     this.syncInBackground = true,
     this.syncNow = false,
     this.scheduleEnabled = false,
@@ -37,6 +38,7 @@ class AppConfig {
   final List<IceServer> iceServers;
   final bool lanDiscovery;
   final bool dhtDiscovery;
+  final bool bluetoothDiscovery;
   final bool syncInBackground;
   final bool syncNow;
   final bool scheduleEnabled;
@@ -49,6 +51,7 @@ class AppConfig {
     List<IceServer>? iceServers,
     bool? lanDiscovery,
     bool? dhtDiscovery,
+    bool? bluetoothDiscovery,
     bool? syncInBackground,
     bool? syncNow,
     bool? scheduleEnabled,
@@ -60,6 +63,7 @@ class AppConfig {
     iceServers: iceServers ?? this.iceServers,
     lanDiscovery: lanDiscovery ?? this.lanDiscovery,
     dhtDiscovery: dhtDiscovery ?? this.dhtDiscovery,
+    bluetoothDiscovery: bluetoothDiscovery ?? this.bluetoothDiscovery,
     syncInBackground: syncInBackground ?? this.syncInBackground,
     syncNow: syncNow ?? this.syncNow,
     scheduleEnabled: scheduleEnabled ?? this.scheduleEnabled,
@@ -71,14 +75,17 @@ class AppConfig {
     'themeMode': themeMode.index,
     'themeSchemeId': themeSchemeId,
     'iceServers': iceServers
-        .map((s) => {
-          'url': s.url,
-          if (s.username != null) 'username': s.username,
-          if (s.credential != null) 'credential': s.credential,
-        })
+        .map(
+          (s) => {
+            'url': s.url,
+            if (s.username != null) 'username': s.username,
+            if (s.credential != null) 'credential': s.credential,
+          },
+        )
         .toList(),
     'lanDiscovery': lanDiscovery,
     'dhtDiscovery': dhtDiscovery,
+    'bluetoothDiscovery': bluetoothDiscovery,
     'syncInBackground': syncInBackground,
     'syncNow': syncNow,
     'scheduleEnabled': scheduleEnabled,
@@ -89,16 +96,20 @@ class AppConfig {
   factory AppConfig.fromJson(Map<String, dynamic> json) => AppConfig(
     themeMode: ThemeMode.values[json['themeMode'] as int? ?? 0],
     themeSchemeId: json['themeSchemeId'] as String? ?? 'violet',
-    iceServers: (json['iceServers'] as List<dynamic>?)
-            ?.map((s) => IceServer(
-              url: s['url'] as String,
-              username: s['username'] as String?,
-              credential: s['credential'] as String?,
-            ))
+    iceServers:
+        (json['iceServers'] as List<dynamic>?)
+            ?.map(
+              (s) => IceServer(
+                url: s['url'] as String,
+                username: s['username'] as String?,
+                credential: s['credential'] as String?,
+              ),
+            )
             .toList() ??
         defaultIceServers,
     lanDiscovery: json['lanDiscovery'] as bool? ?? true,
     dhtDiscovery: json['dhtDiscovery'] as bool? ?? true,
+    bluetoothDiscovery: json['bluetoothDiscovery'] as bool? ?? true,
     syncInBackground: json['syncInBackground'] as bool? ?? true,
     syncNow: json['syncNow'] as bool? ?? false,
     scheduleEnabled: json['scheduleEnabled'] as bool? ?? false,

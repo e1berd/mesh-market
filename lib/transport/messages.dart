@@ -16,20 +16,38 @@ sealed class SyncMessage {
   static SyncMessage decode(Uint8List bytes) {
     final map = (cbor.decode(bytes).toObject()! as Map).cast<String, Object?>();
     return switch (map['t']) {
+      'open' => OpenLink(map['id']! as String, map['folder']! as String),
       'hello' => Hello(map['id']! as String, _bytes(map['sig'])),
       'index' => IndexSnapshot([
-          for (final entry in map['entries']! as List)
-            IndexEntry.fromMap((entry as Map).cast<String, Object?>()),
-        ]),
+        for (final entry in map['entries']! as List)
+          IndexEntry.fromMap((entry as Map).cast<String, Object?>()),
+      ]),
       'want' => WantBlock(map['path']! as String, map['i']! as int),
-      'block' =>
-        BlockPayload(map['path']! as String, map['i']! as int, _bytes(map['d'])),
+      'block' => BlockPayload(
+        map['path']! as String,
+        map['i']! as int,
+        _bytes(map['d']),
+      ),
       'bye' => const Bye(),
       _ => throw FormatException('unknown message type: ${map['t']}'),
     };
   }
 
-  static Uint8List _bytes(Object? value) => Uint8List.fromList((value! as List).cast<int>());
+  static Uint8List _bytes(Object? value) =>
+      Uint8List.fromList((value! as List).cast<int>());
+}
+
+final class OpenLink extends SyncMessage {
+  const OpenLink(this.deviceId, this.folderId);
+
+  final String deviceId;
+  final String folderId;
+
+  @override
+  String get type => 'open';
+
+  @override
+  Map<String, Object?> fields() => {'id': deviceId, 'folder': folderId};
 }
 
 final class Hello extends SyncMessage {
@@ -54,8 +72,9 @@ final class IndexSnapshot extends SyncMessage {
   String get type => 'index';
 
   @override
-  Map<String, Object?> fields() =>
-      {'entries': [for (final entry in entries) entry.toMap()]};
+  Map<String, Object?> fields() => {
+    'entries': [for (final entry in entries) entry.toMap()],
+  };
 }
 
 final class WantBlock extends SyncMessage {

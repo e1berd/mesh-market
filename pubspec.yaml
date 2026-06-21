@@ -57,6 +57,7 @@ dependencies:
   slang_flutter: ^4.0.0
   flutter_localizations:
     sdk: flutter
+  universal_ble: ^2.0.4
   expressive_loading_indicator: ^0.0.1
   animations: ^2.1.2
   motor: ^1.1.0

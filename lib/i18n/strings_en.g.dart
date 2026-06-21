@@ -362,6 +362,9 @@ class Translations$activity$en {
 	/// en: 'Transfers and conflicts will appear here as they happen.'
 	String get emptyHint => 'Transfers and conflicts will appear here as they happen.';
 
+	/// en: 'Connecting'
+	String get eventConnecting => 'Connecting';
+
 	/// en: 'Connected'
 	String get eventConnected => 'Connected';
 
@@ -373,6 +376,15 @@ class Translations$activity$en {
 
 	/// en: 'Sync conflict'
 	String get eventConflict => 'Sync conflict';
+
+	/// en: 'Direct TCP'
+	String get transportTcp => 'Direct TCP';
+
+	/// en: 'Local network'
+	String get transportLan => 'Local network';
+
+	/// en: 'Bluetooth'
+	String get transportBluetooth => 'Bluetooth';
 }
 
 // Path: schedule
@@ -448,6 +460,12 @@ class Translations$settings$en {
 
 	/// en: 'Find peers across networks'
 	String get dhtSubtitle => 'Find peers across networks';
+
+	/// en: 'Bluetooth'
+	String get bluetoothTitle => 'Bluetooth';
+
+	/// en: 'Use nearby Bluetooth when network sync fails'
+	String get bluetoothSubtitle => 'Use nearby Bluetooth when network sync fails';
 
 	/// en: 'Sync in background'
 	String get backgroundTitle => 'Sync in background';
@@ -584,10 +602,14 @@ extension on Translations {
 			'activity.upToDate' => 'All devices up to date',
 			'activity.empty' => 'Nothing syncing',
 			'activity.emptyHint' => 'Transfers and conflicts will appear here as they happen.',
+			'activity.eventConnecting' => 'Connecting',
 			'activity.eventConnected' => 'Connected',
 			'activity.eventDisconnected' => 'Disconnected',
 			'activity.eventReceived' => 'Received a file',
 			'activity.eventConflict' => 'Sync conflict',
+			'activity.transportTcp' => 'Direct TCP',
+			'activity.transportLan' => 'Local network',
+			'activity.transportBluetooth' => 'Bluetooth',
 			'schedule.title' => 'Synchronization',
 			'schedule.syncNow' => 'Sync now',
 			'schedule.syncNowHint' => 'Sync immediately until you turn it off',
@@ -607,6 +629,8 @@ extension on Translations {
 			'settings.lanSubtitle' => 'Find peers on the same network',
 			'settings.dhtTitle' => 'Internet (DHT)',
 			'settings.dhtSubtitle' => 'Find peers across networks',
+			'settings.bluetoothTitle' => 'Bluetooth',
+			'settings.bluetoothSubtitle' => 'Use nearby Bluetooth when network sync fails',
 			'settings.backgroundTitle' => 'Sync in background',
 			'settings.backgroundSubtitle' => 'Keep syncing when app is not focused',
 			'settings.signaling' => 'Signaling (STUN / TURN)',

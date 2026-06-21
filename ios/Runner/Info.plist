@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Point Machine uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Point Machine uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

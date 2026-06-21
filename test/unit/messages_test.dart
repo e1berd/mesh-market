@@ -7,10 +7,20 @@ import 'package:point_machine/transport/messages.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('open link round-trips device and folder id', () {
+    final decoded =
+        SyncMessage.decode(const OpenLink('DEVICE1', 'folder').encode())
+            as OpenLink;
+    expect(decoded.deviceId, equals('DEVICE1'));
+    expect(decoded.folderId, equals('folder'));
+  });
+
   test('hello round-trips device id and signature', () {
-    final decoded = SyncMessage.decode(
-      Hello('DEVICE1', Uint8List.fromList([1, 2, 3])).encode(),
-    ) as Hello;
+    final decoded =
+        SyncMessage.decode(
+              Hello('DEVICE1', Uint8List.fromList([1, 2, 3])).encode(),
+            )
+            as Hello;
     expect(decoded.deviceId, equals('DEVICE1'));
     expect(decoded.signature, equals([1, 2, 3]));
   });
@@ -37,9 +47,11 @@ void main() {
     expect(want.path, equals('f'));
     expect(want.index, equals(2));
 
-    final block = SyncMessage.decode(
-      BlockPayload('f', 2, Uint8List.fromList([9, 9])).encode(),
-    ) as BlockPayload;
+    final block =
+        SyncMessage.decode(
+              BlockPayload('f', 2, Uint8List.fromList([9, 9])).encode(),
+            )
+            as BlockPayload;
     expect(block.sealed, equals([9, 9]));
   });
 }

@@ -11,6 +11,12 @@ class WebRtcLink implements PeerLink {
     _channel.onMessage = (message) {
       if (message.isBinary) _incoming.add(SyncMessage.decode(message.binary));
     };
+    _channel.onDataChannelState = (state) {
+      if (state == RTCDataChannelState.RTCDataChannelClosed ||
+          state == RTCDataChannelState.RTCDataChannelClosing) {
+        _closeIncoming();
+      }
+    };
   }
 
   @override
@@ -29,7 +35,11 @@ class WebRtcLink implements PeerLink {
   @override
   Future<void> close() async {
     await _channel.close();
-    await _incoming.close();
+    await _closeIncoming();
+  }
+
+  Future<void> _closeIncoming() async {
+    if (!_incoming.isClosed) await _incoming.close();
   }
 }
 

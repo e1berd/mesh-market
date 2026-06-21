@@ -30,170 +30,189 @@ class SettingsScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: .stretch,
                 children: [
-            ExpressiveSection(
-              title: context.t.settings.appearance,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: LayoutBuilder(
-                    builder: (context, c) {
-                      final w = _segmentWidth(c.maxWidth, 3);
-                      return M3EToggleButtonGroup(
-                        actions: [
-                          M3EToggleButtonGroupAction(
-                            icon: const Icon(Icons.brightness_auto_rounded),
-                            width: w,
-                          ),
-                          M3EToggleButtonGroupAction(
-                            icon: const Icon(Icons.light_mode_rounded),
-                            width: w,
-                          ),
-                          M3EToggleButtonGroupAction(
-                            icon: const Icon(Icons.dark_mode_rounded),
-                            width: w,
-                          ),
-                        ],
-                        type: .connected,
-                        size: .sm,
-                        style: .tonal,
-                        overflow: M3EButtonGroupOverflow.none,
-                        selectedIndex: config.themeMode.index,
-                        onSelectedIndexChanged: (i) {
-                          if (i != null) {
-                            notifier.setThemeMode(ThemeMode.values[i]);
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ),
-                _PalettePicker(
-                  selectedId: config.themeSchemeId,
-                  onSelected: notifier.setThemeScheme,
-                ),
-              ],
-            ),
-            ExpressiveSection(
-              title: context.t.settings.languageTitle,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                  child: Column(
-                    crossAxisAlignment: .stretch,
+                  ExpressiveSection(
+                    title: context.t.settings.appearance,
                     children: [
-                      Text(context.t.settings.languageSubtitle)
-                          .size(14)
-                          .color(colors.onSurface)
-                          .padding(bottom: 12),
-                      LayoutBuilder(
-                        builder: (context, c) {
-                          final w = _segmentWidth(c.maxWidth, 2);
-                          return M3EToggleButtonGroup(
-                            actions: [
-                              M3EToggleButtonGroupAction(
-                                label: Text(context.t.settings.languageEnglish),
-                                width: w,
-                              ),
-                              M3EToggleButtonGroupAction(
-                                label: Text(context.t.settings.languageRussian),
-                                width: w,
-                              ),
-                            ],
-                            type: .connected,
-                            size: .sm,
-                            style: .tonal,
-                            overflow: M3EButtonGroupOverflow.none,
-                            selectedIndex:
-                                LocaleSettings.currentLocale == AppLocale.en
-                                ? 0
-                                : 1,
-                            onSelectedIndexChanged: (i) {
-                              if (i != null) {
-                                LocaleSettings.setLocale(
-                                  i == 0 ? AppLocale.en : AppLocale.ru,
-                                );
-                              }
-                            },
-                          );
-                        },
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: LayoutBuilder(
+                          builder: (context, c) {
+                            final w = _segmentWidth(c.maxWidth, 3);
+                            return M3EToggleButtonGroup(
+                              actions: [
+                                M3EToggleButtonGroupAction(
+                                  icon: const Icon(
+                                    Icons.brightness_auto_rounded,
+                                  ),
+                                  width: w,
+                                ),
+                                M3EToggleButtonGroupAction(
+                                  icon: const Icon(Icons.light_mode_rounded),
+                                  width: w,
+                                ),
+                                M3EToggleButtonGroupAction(
+                                  icon: const Icon(Icons.dark_mode_rounded),
+                                  width: w,
+                                ),
+                              ],
+                              type: .connected,
+                              size: .sm,
+                              style: .tonal,
+                              overflow: M3EButtonGroupOverflow.none,
+                              selectedIndex: config.themeMode.index,
+                              onSelectedIndexChanged: (i) {
+                                if (i != null) {
+                                  notifier.setThemeMode(ThemeMode.values[i]);
+                                }
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      _PalettePicker(
+                        selectedId: config.themeSchemeId,
+                        onSelected: notifier.setThemeScheme,
                       ),
                     ],
                   ),
-                ),
-              ],
+                  ExpressiveSection(
+                    title: context.t.settings.languageTitle,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                        child: Column(
+                          crossAxisAlignment: .stretch,
+                          children: [
+                            Text(context.t.settings.languageSubtitle)
+                                .size(14)
+                                .color(colors.onSurface)
+                                .padding(bottom: 12),
+                            LayoutBuilder(
+                              builder: (context, c) {
+                                final w = _segmentWidth(c.maxWidth, 2);
+                                return M3EToggleButtonGroup(
+                                  actions: [
+                                    M3EToggleButtonGroupAction(
+                                      label: Text(
+                                        context.t.settings.languageEnglish,
+                                      ),
+                                      width: w,
+                                    ),
+                                    M3EToggleButtonGroupAction(
+                                      label: Text(
+                                        context.t.settings.languageRussian,
+                                      ),
+                                      width: w,
+                                    ),
+                                  ],
+                                  type: .connected,
+                                  size: .sm,
+                                  style: .tonal,
+                                  overflow: M3EButtonGroupOverflow.none,
+                                  selectedIndex:
+                                      LocaleSettings.currentLocale ==
+                                          AppLocale.en
+                                      ? 0
+                                      : 1,
+                                  onSelectedIndexChanged: (i) {
+                                    if (i != null) {
+                                      LocaleSettings.setLocale(
+                                        i == 0 ? AppLocale.en : AppLocale.ru,
+                                      );
+                                    }
+                                  },
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  ExpressiveSection(
+                    title: context.t.settings.discovery,
+                    children: [
+                      _SettingTile(
+                        icon: Icons.wifi_rounded,
+                        title: context.t.settings.lanTitle,
+                        subtitle: context.t.settings.lanSubtitle,
+                        trailing: Switch(
+                          value: config.lanDiscovery,
+                          onChanged: notifier.toggleLanDiscovery,
+                        ),
+                      ),
+                      _SettingTile(
+                        icon: Icons.public_rounded,
+                        title: context.t.settings.dhtTitle,
+                        subtitle: context.t.settings.dhtSubtitle,
+                        trailing: Switch(
+                          value: config.dhtDiscovery,
+                          onChanged: notifier.toggleDhtDiscovery,
+                        ),
+                      ),
+                      _SettingTile(
+                        icon: Icons.bluetooth_rounded,
+                        title: context.t.settings.bluetoothTitle,
+                        subtitle: context.t.settings.bluetoothSubtitle,
+                        trailing: Switch(
+                          value: config.bluetoothDiscovery,
+                          onChanged: notifier.toggleBluetoothDiscovery,
+                        ),
+                      ),
+                      _SettingTile(
+                        icon: Icons.sync_rounded,
+                        title: context.t.settings.backgroundTitle,
+                        subtitle: context.t.settings.backgroundSubtitle,
+                        trailing: Switch(
+                          value: config.syncInBackground,
+                          onChanged: notifier.toggleBackground,
+                        ),
+                      ),
+                    ],
+                  ),
+                  ExpressiveSection(
+                    title: context.t.settings.signaling,
+                    children: [
+                      if (config.iceServers.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                          child: Text(context.t.settings.defaultStun)
+                              .size(14)
+                              .color(colors.onSurfaceVariant)
+                              .align(.center),
+                        ),
+                      for (var i = 0; i < config.iceServers.length; i++)
+                        _SettingTile(
+                          icon: config.iceServers[i].isTurn
+                              ? Icons.dns_rounded
+                              : Icons.lan_rounded,
+                          title: config.iceServers[i].url,
+                          subtitle: config.iceServers[i].isTurn
+                              ? 'TURN'
+                              : 'STUN',
+                          trailing: IconButton(
+                            icon: const Icon(Icons.close_rounded, size: 20),
+                            onPressed: () => notifier.removeIceServer(i),
+                          ),
+                        ),
+                    ],
+                  ),
+                  ExpressiveReveal(
+                    child: M3EButton.icon(
+                      onPressed: () async {
+                        final server = await showIceServerDialog(context);
+                        if (server != null) notifier.addIceServer(server);
+                      },
+                      icon: const Icon(Icons.add_rounded),
+                      label: Text(context.t.settings.addServer),
+                      style: .tonal,
+                      size: .md,
+                    ).padding(horizontal: 16, top: 4),
+                  ),
+                ],
+              ),
             ),
-            ExpressiveSection(
-              title: context.t.settings.discovery,
-              children: [
-                _SettingTile(
-                  icon: Icons.wifi_rounded,
-                  title: context.t.settings.lanTitle,
-                  subtitle: context.t.settings.lanSubtitle,
-                  trailing: Switch(
-                    value: config.lanDiscovery,
-                    onChanged: notifier.toggleLanDiscovery,
-                  ),
-                ),
-                _SettingTile(
-                  icon: Icons.public_rounded,
-                  title: context.t.settings.dhtTitle,
-                  subtitle: context.t.settings.dhtSubtitle,
-                  trailing: Switch(
-                    value: config.dhtDiscovery,
-                    onChanged: notifier.toggleDhtDiscovery,
-                  ),
-                ),
-                _SettingTile(
-                  icon: Icons.sync_rounded,
-                  title: context.t.settings.backgroundTitle,
-                  subtitle: context.t.settings.backgroundSubtitle,
-                  trailing: Switch(
-                    value: config.syncInBackground,
-                    onChanged: notifier.toggleBackground,
-                  ),
-                ),
-              ],
-            ),
-            ExpressiveSection(
-              title: context.t.settings.signaling,
-              children: [
-                if (config.iceServers.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                    child: Text(
-                      context.t.settings.defaultStun,
-                    ).size(14).color(colors.onSurfaceVariant).align(.center),
-                  ),
-                for (var i = 0; i < config.iceServers.length; i++)
-                  _SettingTile(
-                    icon: config.iceServers[i].isTurn
-                        ? Icons.dns_rounded
-                        : Icons.lan_rounded,
-                    title: config.iceServers[i].url,
-                    subtitle: config.iceServers[i].isTurn ? 'TURN' : 'STUN',
-                    trailing: IconButton(
-                      icon: const Icon(Icons.close_rounded, size: 20),
-                      onPressed: () => notifier.removeIceServer(i),
-                    ),
-                  ),
-              ],
-            ),
-            ExpressiveReveal(
-              child: M3EButton.icon(
-                onPressed: () async {
-                  final server = await showIceServerDialog(context);
-                  if (server != null) notifier.addIceServer(server);
-                },
-                icon: const Icon(Icons.add_rounded),
-                label: Text(context.t.settings.addServer),
-                style: .tonal,
-                size: .md,
-              ).padding(horizontal: 16, top: 4),
-            ),
-          ],
-        ),
-      ),
-    );
+          );
         },
       ),
     );
@@ -287,8 +306,16 @@ class _PaletteCardState extends State<_PaletteCard>
     );
   }
 
-  double get _scaleTarget => _pressed ? .96 : _isActive || widget.selected ? 1 : .98;
-  double get _radiusTarget => _pressed ? 18 : _isActive || widget.selected ? 28 : 22;
+  double get _scaleTarget => _pressed
+      ? .96
+      : _isActive || widget.selected
+      ? 1
+      : .98;
+  double get _radiusTarget => _pressed
+      ? 18
+      : _isActive || widget.selected
+      ? 28
+      : 22;
   bool get _isActive => _hovered || _focused || _pressed;
 
   @override
@@ -372,15 +399,32 @@ class _PaletteCardState extends State<_PaletteCard>
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: widget.onTap,
-                  onHover: (v) { _hovered = v; _updateState(); },
-                  onFocusChange: (v) { _focused = v; _updateState(); },
-                  onTapDown: (_) { _pressed = true; _updateState(); },
-                  onTapUp: (_) { _pressed = false; _updateState(); },
-                  onTapCancel: () { _pressed = false; _updateState(); },
+                  onHover: (v) {
+                    _hovered = v;
+                    _updateState();
+                  },
+                  onFocusChange: (v) {
+                    _focused = v;
+                    _updateState();
+                  },
+                  onTapDown: (_) {
+                    _pressed = true;
+                    _updateState();
+                  },
+                  onTapUp: (_) {
+                    _pressed = false;
+                    _updateState();
+                  },
+                  onTapCancel: () {
+                    _pressed = false;
+                    _updateState();
+                  },
                   customBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(radius),
                   ),
-                  overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+                  overlayColor: const WidgetStatePropertyAll(
+                    Colors.transparent,
+                  ),
                   child: Stack(
                     fit: StackFit.expand,
                     children: [

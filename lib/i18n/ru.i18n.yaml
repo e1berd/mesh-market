@@ -98,10 +98,14 @@ activity:
   upToDate: Все устройства актуальны
   empty: Ничего не синхронизируется
   emptyHint: Передачи и конфликты будут отображаться здесь по мере возникновения.
+  eventConnecting: Подключение
   eventConnected: Подключено
   eventDisconnected: Отключено
   eventReceived: Получен файл
   eventConflict: Конфликт синхронизации
+  transportTcp: Прямой TCP
+  transportLan: Локальная сеть
+  transportBluetooth: Bluetooth
 
 schedule:
   title: Синхронизация
@@ -126,6 +130,8 @@ settings:
   lanSubtitle: Найти устройства в одной сети
   dhtTitle: Интернет (DHT)
   dhtSubtitle: Найти устройства через интернет
+  bluetoothTitle: Bluetooth
+  bluetoothSubtitle: Использовать Bluetooth рядом, если сеть недоступна
   backgroundTitle: Синхронизация в фоне
   backgroundSubtitle: Продолжать синхронизацию при свернутом приложении
 

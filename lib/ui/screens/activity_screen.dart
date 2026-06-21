@@ -38,7 +38,8 @@ class ActivityScreen extends ConsumerWidget {
                     child: ExpressiveReveal(
                       child: M3ECardList(
                         itemCount: events.length,
-                        itemBuilder: (ctx, i) => _row(context, events[i], names),
+                        itemBuilder: (ctx, i) =>
+                            _row(context, events[i], names),
                         outerRadius: 32,
                         innerRadius: 12,
                         gap: 0,
@@ -54,7 +55,11 @@ class ActivityScreen extends ConsumerWidget {
     );
   }
 
-  Widget _row(BuildContext context, SyncEvent event, Map<String, String> names) {
+  Widget _row(
+    BuildContext context,
+    SyncEvent event,
+    Map<String, String> names,
+  ) {
     final colors = context.colors;
     final (icon, background, foreground) = _appearance(context, event.kind);
     return Row(
@@ -70,11 +75,10 @@ class ActivityScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: .start,
             children: [
-              Text(_title(context, event.kind))
-                  .size(14)
-                  .weight(.w700)
-                  .color(colors.onSurface),
-              Text(_subtitle(event, names))
+              Text(
+                _title(context, event.kind),
+              ).size(14).weight(.w700).color(colors.onSurface),
+              Text(_subtitle(context, event, names))
                   .size(12)
                   .color(colors.onSurfaceVariant)
                   .maxLines(1)
@@ -82,22 +86,43 @@ class ActivityScreen extends ConsumerWidget {
             ],
           ),
         ),
-        Text(_time(event.at)).size(11).weight(.w600).color(colors.onSurfaceVariant),
+        Text(
+          _time(event.at),
+        ).size(11).weight(.w600).color(colors.onSurfaceVariant),
       ],
     );
   }
 
   String _title(BuildContext context, SyncEventKind kind) => switch (kind) {
-        SyncEventKind.connected => context.t.activity.eventConnected,
-        SyncEventKind.disconnected => context.t.activity.eventDisconnected,
-        SyncEventKind.received => context.t.activity.eventReceived,
-        SyncEventKind.conflict => context.t.activity.eventConflict,
-      };
+    SyncEventKind.connecting => context.t.activity.eventConnecting,
+    SyncEventKind.connected => context.t.activity.eventConnected,
+    SyncEventKind.disconnected => context.t.activity.eventDisconnected,
+    SyncEventKind.received => context.t.activity.eventReceived,
+    SyncEventKind.conflict => context.t.activity.eventConflict,
+  };
 
-  String _subtitle(SyncEvent event, Map<String, String> names) {
-    final peer = event.peerId == null ? null : names[event.peerId] ?? event.peerId;
-    return event.path ?? peer ?? '';
+  String _subtitle(
+    BuildContext context,
+    SyncEvent event,
+    Map<String, String> names,
+  ) {
+    final peer = event.peerId == null
+        ? null
+        : names[event.peerId] ?? event.peerId;
+    final transport = event.transport == null
+        ? null
+        : _transportLabel(context, event.transport!);
+    final parts = [?event.path, ?peer, ?transport];
+    return parts.join(' · ');
   }
+
+  String _transportLabel(BuildContext context, String transport) =>
+      switch (transport) {
+        'tcp' => context.t.activity.transportTcp,
+        'lan' => context.t.activity.transportLan,
+        'bluetooth' => context.t.activity.transportBluetooth,
+        _ => transport,
+      };
 
   String _time(DateTime at) {
     final local = at.toLocal();
@@ -105,29 +130,37 @@ class ActivityScreen extends ConsumerWidget {
         '${local.minute.toString().padLeft(2, '0')}';
   }
 
-  (IconData, Color, Color) _appearance(BuildContext context, SyncEventKind kind) {
+  (IconData, Color, Color) _appearance(
+    BuildContext context,
+    SyncEventKind kind,
+  ) {
     final colors = context.colors;
     return switch (kind) {
+      SyncEventKind.connecting => (
+        Icons.sync_rounded,
+        colors.secondaryContainer,
+        colors.onSecondaryContainer,
+      ),
       SyncEventKind.received => (
-          Icons.download_done_rounded,
-          colors.primaryContainer,
-          colors.onPrimaryContainer,
-        ),
+        Icons.download_done_rounded,
+        colors.primaryContainer,
+        colors.onPrimaryContainer,
+      ),
       SyncEventKind.conflict => (
-          Icons.warning_amber_rounded,
-          colors.errorContainer,
-          colors.onErrorContainer,
-        ),
+        Icons.warning_amber_rounded,
+        colors.errorContainer,
+        colors.onErrorContainer,
+      ),
       SyncEventKind.connected => (
-          Icons.link_rounded,
-          colors.tertiaryContainer,
-          colors.onTertiaryContainer,
-        ),
+        Icons.link_rounded,
+        colors.tertiaryContainer,
+        colors.onTertiaryContainer,
+      ),
       SyncEventKind.disconnected => (
-          Icons.link_off_rounded,
-          colors.surfaceContainerHighest,
-          colors.onSurfaceVariant,
-        ),
+        Icons.link_off_rounded,
+        colors.surfaceContainerHighest,
+        colors.onSurfaceVariant,
+      ),
     };
   }
 }
@@ -144,6 +177,7 @@ class _ScheduleControls extends ConsumerWidget {
     final colors = context.colors;
     final config = ref.watch(configProvider);
     final active = ref.watch(syncActiveProvider).value ?? false;
+    final activeTransports = _activeTransports(ref.watch(syncEventsProvider));
     final notifier = ref.read(configProvider.notifier);
 
     return Padding(
@@ -155,45 +189,57 @@ class _ScheduleControls extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
           child: Column(
-        crossAxisAlignment: .stretch,
-        children: [
-          Row(
+            crossAxisAlignment: .stretch,
             children: [
-              Expanded(
-                child: Text(context.t.schedule.title).size(18).weight(.w800),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      context.t.schedule.title,
+                    ).size(18).weight(.w800),
+                  ),
+                  _statusPill(context, active, activeTransports),
+                ],
               ),
-              _statusPill(context, active),
-            ],
-          ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.t.schedule.syncNow),
-            subtitle: Text(context.t.schedule.syncNowHint),
-            value: config.syncNow,
-            onChanged: notifier.setSyncNow,
-          ),
-          const Divider(height: 12),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.t.schedule.scheduleTitle),
-            subtitle: Text(context.t.schedule.scheduleHint),
-            value: config.scheduleEnabled,
-            onChanged: notifier.setScheduleEnabled,
-          ),
-          if (config.scheduleEnabled)
-            Row(
-              children: [
-                Expanded(
-                  child: _timeField(context, ref, context.t.schedule.from,
-                      config.scheduleStart, start: true),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _timeField(context, ref, context.t.schedule.to,
-                      config.scheduleEnd, start: false),
-                ),
-              ],
-            ).padding(top: 8, bottom: 8),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.t.schedule.syncNow),
+                subtitle: Text(context.t.schedule.syncNowHint),
+                value: config.syncNow,
+                onChanged: notifier.setSyncNow,
+              ),
+              const Divider(height: 12),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.t.schedule.scheduleTitle),
+                subtitle: Text(context.t.schedule.scheduleHint),
+                value: config.scheduleEnabled,
+                onChanged: notifier.setScheduleEnabled,
+              ),
+              if (config.scheduleEnabled)
+                Row(
+                  children: [
+                    Expanded(
+                      child: _timeField(
+                        context,
+                        ref,
+                        context.t.schedule.from,
+                        config.scheduleStart,
+                        start: true,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _timeField(
+                        context,
+                        ref,
+                        context.t.schedule.to,
+                        config.scheduleEnd,
+                        start: false,
+                      ),
+                    ),
+                  ],
+                ).padding(top: 8, bottom: 8),
             ],
           ),
         ),
@@ -201,12 +247,23 @@ class _ScheduleControls extends ConsumerWidget {
     );
   }
 
-  Widget _statusPill(BuildContext context, bool active) {
+  Widget _statusPill(
+    BuildContext context,
+    bool active,
+    List<String> activeTransports,
+  ) {
     final colors = context.colors;
-    final background =
-        active ? colors.primaryContainer : colors.surfaceContainerHighest;
-    final foreground =
-        active ? colors.onPrimaryContainer : colors.onSurfaceVariant;
+    final background = active
+        ? colors.primaryContainer
+        : colors.surfaceContainerHighest;
+    final foreground = active
+        ? colors.onPrimaryContainer
+        : colors.onSurfaceVariant;
+    final label = activeTransports.isEmpty
+        ? (active ? context.t.schedule.active : context.t.schedule.paused)
+        : activeTransports
+              .map((transport) => _transportLabel(context, transport))
+              .join(', ');
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
@@ -216,17 +273,25 @@ class _ScheduleControls extends ConsumerWidget {
       child: Row(
         mainAxisSize: .min,
         children: [
-          Icon(active ? Icons.sync_rounded : Icons.pause_rounded,
-              size: 16, color: foreground),
+          Icon(
+            active ? Icons.sync_rounded : Icons.pause_rounded,
+            size: 16,
+            color: foreground,
+          ),
           const SizedBox(width: 6),
-          Text(active ? context.t.schedule.active : context.t.schedule.paused)
-              .size(12)
-              .weight(.w700)
-              .color(foreground),
+          Text(label).size(12).weight(.w700).color(foreground),
         ],
       ),
     );
   }
+
+  String _transportLabel(BuildContext context, String transport) =>
+      switch (transport) {
+        'tcp' => context.t.activity.transportTcp,
+        'lan' => context.t.activity.transportLan,
+        'bluetooth' => context.t.activity.transportBluetooth,
+        _ => transport,
+      };
 
   Widget _timeField(
     BuildContext context,
@@ -245,7 +310,9 @@ class _ScheduleControls extends ConsumerWidget {
         if (picked == null) return;
         final config = ref.read(configProvider);
         final value = picked.hour * 60 + picked.minute;
-        ref.read(configProvider.notifier).setSchedule(
+        ref
+            .read(configProvider.notifier)
+            .setSchedule(
               start ? value : config.scheduleStart,
               start ? config.scheduleEnd : value,
             );
@@ -261,13 +328,34 @@ class _ScheduleControls extends ConsumerWidget {
           children: [
             Text(label).size(11).weight(.w600).color(colors.onSurfaceVariant),
             const SizedBox(height: 2),
-            Text(_formatMinutes(minutes))
-                .size(22)
-                .weight(.w800)
-                .color(colors.onSurface),
+            Text(
+              _formatMinutes(minutes),
+            ).size(22).weight(.w800).color(colors.onSurface),
           ],
         ),
       ),
     );
   }
+}
+
+List<String> _activeTransports(List<SyncEvent> events) {
+  final active = <String, String>{};
+  for (final event in events.reversed) {
+    if (event.peerId == null ||
+        event.folderId == null ||
+        event.transport == null) {
+      continue;
+    }
+    final key = '${event.peerId}/${event.folderId}';
+    switch (event.kind) {
+      case SyncEventKind.connecting:
+      case SyncEventKind.connected:
+        active[key] = event.transport!;
+      case SyncEventKind.disconnected:
+        active.remove(key);
+      case SyncEventKind.received || SyncEventKind.conflict:
+        break;
+    }
+  }
+  return active.values.toSet().toList()..sort();
 }

@@ -197,10 +197,14 @@ class _Translations$activity$ru implements Translations$activity$en {
 	@override String get upToDate => 'Все устройства актуальны';
 	@override String get empty => 'Ничего не синхронизируется';
 	@override String get emptyHint => 'Передачи и конфликты будут отображаться здесь по мере возникновения.';
+	@override String get eventConnecting => 'Подключение';
 	@override String get eventConnected => 'Подключено';
 	@override String get eventDisconnected => 'Отключено';
 	@override String get eventReceived => 'Получен файл';
 	@override String get eventConflict => 'Конфликт синхронизации';
+	@override String get transportTcp => 'Прямой TCP';
+	@override String get transportLan => 'Локальная сеть';
+	@override String get transportBluetooth => 'Bluetooth';
 }
 
 // Path: schedule
@@ -238,6 +242,8 @@ class _Translations$settings$ru implements Translations$settings$en {
 	@override String get lanSubtitle => 'Найти устройства в одной сети';
 	@override String get dhtTitle => 'Интернет (DHT)';
 	@override String get dhtSubtitle => 'Найти устройства через интернет';
+	@override String get bluetoothTitle => 'Bluetooth';
+	@override String get bluetoothSubtitle => 'Использовать Bluetooth рядом, если сеть недоступна';
 	@override String get backgroundTitle => 'Синхронизация в фоне';
 	@override String get backgroundSubtitle => 'Продолжать синхронизацию при свернутом приложении';
 	@override String get signaling => 'Сигналинг (STUN / TURN)';
@@ -350,10 +356,14 @@ extension on TranslationsRu {
 			'activity.upToDate' => 'Все устройства актуальны',
 			'activity.empty' => 'Ничего не синхронизируется',
 			'activity.emptyHint' => 'Передачи и конфликты будут отображаться здесь по мере возникновения.',
+			'activity.eventConnecting' => 'Подключение',
 			'activity.eventConnected' => 'Подключено',
 			'activity.eventDisconnected' => 'Отключено',
 			'activity.eventReceived' => 'Получен файл',
 			'activity.eventConflict' => 'Конфликт синхронизации',
+			'activity.transportTcp' => 'Прямой TCP',
+			'activity.transportLan' => 'Локальная сеть',
+			'activity.transportBluetooth' => 'Bluetooth',
 			'schedule.title' => 'Синхронизация',
 			'schedule.syncNow' => 'Синхронизировать сейчас',
 			'schedule.syncNowHint' => 'Включить синхронизацию немедленно, пока не выключите',
@@ -373,6 +383,8 @@ extension on TranslationsRu {
 			'settings.lanSubtitle' => 'Найти устройства в одной сети',
 			'settings.dhtTitle' => 'Интернет (DHT)',
 			'settings.dhtSubtitle' => 'Найти устройства через интернет',
+			'settings.bluetoothTitle' => 'Bluetooth',
+			'settings.bluetoothSubtitle' => 'Использовать Bluetooth рядом, если сеть недоступна',
 			'settings.backgroundTitle' => 'Синхронизация в фоне',
 			'settings.backgroundSubtitle' => 'Продолжать синхронизацию при свернутом приложении',
 			'settings.signaling' => 'Сигналинг (STUN / TURN)',

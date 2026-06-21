@@ -96,10 +96,14 @@ activity:
   upToDate: All devices up to date
   empty: Nothing syncing
   emptyHint: Transfers and conflicts will appear here as they happen.
+  eventConnecting: Connecting
   eventConnected: Connected
   eventDisconnected: Disconnected
   eventReceived: Received a file
   eventConflict: Sync conflict
+  transportTcp: Direct TCP
+  transportLan: Local network
+  transportBluetooth: Bluetooth
 
 schedule:
   title: Synchronization
@@ -124,6 +128,8 @@ settings:
   lanSubtitle: Find peers on the same network
   dhtTitle: Internet (DHT)
   dhtSubtitle: Find peers across networks
+  bluetoothTitle: Bluetooth
+  bluetoothSubtitle: Use nearby Bluetooth when network sync fails
   backgroundTitle: Sync in background
   backgroundSubtitle: Keep syncing when app is not focused
 

@@ -26,9 +26,7 @@ class ConfigNotifier extends Notifier<AppConfig> {
     final json = _prefs?.getString(_prefsKey);
     if (json != null) {
       state = AppConfig.fromJson(
-        Map<String, dynamic>.from(
-          jsonDecode(json) as Map<String, dynamic>,
-        ),
+        Map<String, dynamic>.from(jsonDecode(json) as Map<String, dynamic>),
       );
     }
   }
@@ -58,6 +56,11 @@ class ConfigNotifier extends Notifier<AppConfig> {
     _save();
   }
 
+  void toggleBluetoothDiscovery(bool value) {
+    state = state.copyWith(bluetoothDiscovery: value);
+    _save();
+  }
+
   void toggleBackground(bool value) {
     state = state.copyWith(syncInBackground: value);
     _save();
@@ -74,7 +77,10 @@ class ConfigNotifier extends Notifier<AppConfig> {
   }
 
   void setSchedule(int startMinutes, int endMinutes) {
-    state = state.copyWith(scheduleStart: startMinutes, scheduleEnd: endMinutes);
+    state = state.copyWith(
+      scheduleStart: startMinutes,
+      scheduleEnd: endMinutes,
+    );
     _save();
   }
 
@@ -84,9 +90,7 @@ class ConfigNotifier extends Notifier<AppConfig> {
   }
 
   void removeIceServer(int index) {
-    state = state.copyWith(
-      iceServers: [...state.iceServers]..removeAt(index),
-    );
+    state = state.copyWith(iceServers: [...state.iceServers]..removeAt(index));
     _save();
   }
 }
