@@ -44,6 +44,8 @@ final syncServiceProvider = FutureProvider<SyncService>((ref) async {
     onIncomingShare: (share, fromDeviceId) =>
         ref.read(incomingShareProvider.notifier).request(share, fromDeviceId),
     onEvent: (event) => ref.read(syncEventsProvider.notifier).add(event),
+    onFolderChanged: (folderId) =>
+        ref.invalidate(folderFileCountProvider(folderId)),
   );
   await service.start();
   ref.onDispose(service.stop);

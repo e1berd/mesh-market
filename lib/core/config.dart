@@ -50,4 +50,35 @@ class AppConfig {
     dhtDiscovery: dhtDiscovery ?? this.dhtDiscovery,
     syncInBackground: syncInBackground ?? this.syncInBackground,
   );
+
+  Map<String, dynamic> toJson() => {
+    'themeMode': themeMode.index,
+    'themeSchemeId': themeSchemeId,
+    'iceServers': iceServers
+        .map((s) => {
+          'url': s.url,
+          if (s.username != null) 'username': s.username,
+          if (s.credential != null) 'credential': s.credential,
+        })
+        .toList(),
+    'lanDiscovery': lanDiscovery,
+    'dhtDiscovery': dhtDiscovery,
+    'syncInBackground': syncInBackground,
+  };
+
+  factory AppConfig.fromJson(Map<String, dynamic> json) => AppConfig(
+    themeMode: ThemeMode.values[json['themeMode'] as int? ?? 0],
+    themeSchemeId: json['themeSchemeId'] as String? ?? 'violet',
+    iceServers: (json['iceServers'] as List<dynamic>?)
+            ?.map((s) => IceServer(
+              url: s['url'] as String,
+              username: s['username'] as String?,
+              credential: s['credential'] as String?,
+            ))
+            .toList() ??
+        defaultIceServers,
+    lanDiscovery: json['lanDiscovery'] as bool? ?? true,
+    dhtDiscovery: json['dhtDiscovery'] as bool? ?? true,
+    syncInBackground: json['syncInBackground'] as bool? ?? true,
+  );
 }

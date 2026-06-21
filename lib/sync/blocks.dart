@@ -11,6 +11,9 @@ int blockCountFor(int length) => length == 0 ? 0 : (length + blockSize - 1) ~/ b
 
 Future<List<String>> hashBlocks(Uint8List data) => Isolate.run(() => _hash(data));
 
+Future<String> hashBytes(List<int> bytes) async =>
+    hexEncode((await Sha256().hash(bytes)).bytes);
+
 Future<List<String>> _hash(Uint8List data) async {
   final sha256 = Sha256();
   final hashes = <String>[];

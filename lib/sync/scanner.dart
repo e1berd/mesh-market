@@ -19,7 +19,11 @@ class FolderScanner {
     final present = <String>{};
     for (final path in await store.paths()) {
       present.add(path);
-      await _scanFile(path);
+      try {
+        await _scanFile(path);
+      } on Object {
+        continue;
+      }
     }
     for (final entry in await index.all()) {
       if (!entry.meta.deleted && !present.contains(entry.meta.path)) {
@@ -39,8 +43,7 @@ class FolderScanner {
       return;
     }
 
-    final bytes = await store.readRange(path, 0, size);
-    final hashes = await hashBlocks(bytes);
+    final hashes = await _hashFile(path, size);
     final version =
         (existing?.version ?? VersionVector.empty).increment(deviceId);
     await index.put(IndexEntry(
@@ -52,6 +55,14 @@ class FolderScanner {
       ),
       version,
     ));
+  }
+
+  Future<List<String>> _hashFile(String path, int size) async {
+    final hashes = <String>[];
+    for (var offset = 0; offset < size; offset += blockSize) {
+      hashes.add(await hashBytes(await store.readRange(path, offset, blockSize)));
+    }
+    return hashes;
   }
 
   Future<void> _markDeleted(IndexEntry entry) async {

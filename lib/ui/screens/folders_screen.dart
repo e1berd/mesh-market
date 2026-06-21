@@ -74,12 +74,41 @@ class FoldersScreen extends ConsumerWidget {
                           gap: 12,
                           color: colors.surfaceContainerHigh,
                           padding: const EdgeInsets.all(20),
+                          backgroundBorderRadius: 32,
+                          secondaryBackgroundBorderRadius: 32,
+                          background:
+                              _deleteBackground(context, Alignment.centerLeft),
+                          secondaryBackground:
+                              _deleteBackground(context, Alignment.centerRight),
                         ),
                         listPadding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
                       ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _deleteBackground(BuildContext context, Alignment alignment) {
+    final colors = context.colors;
+    return Container(
+      alignment: alignment,
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      decoration: BoxDecoration(
+        color: colors.errorContainer,
+        borderRadius: BorderRadius.circular(32),
+      ),
+      child: Row(
+        mainAxisSize: .min,
+        children: [
+          Icon(Icons.delete_rounded, color: colors.onErrorContainer),
+          const SizedBox(width: 10),
+          Text(context.t.folders.remove)
+              .size(14)
+              .weight(.w700)
+              .color(colors.onErrorContainer),
         ],
       ),
     );
@@ -98,14 +127,29 @@ class FoldersScreen extends ConsumerWidget {
   }
 }
 
-class _FolderTile extends ConsumerWidget {
+class _FolderTile extends ConsumerStatefulWidget {
   const _FolderTile({required this.folder, required this.onRemove});
 
   final FolderConfig folder;
   final Future<void> Function() onRemove;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_FolderTile> createState() => _FolderTileState();
+}
+
+class _FolderTileState extends ConsumerState<_FolderTile> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(foldersProvider.notifier).scan(widget.folder);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final folder = widget.folder;
+    final onRemove = widget.onRemove;
     final count = ref.watch(folderFileCountProvider(folder.id));
     final colors = context.colors;
 

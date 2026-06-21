@@ -20,9 +20,13 @@ class IoFileStore implements FileStore {
 
   @override
   Future<List<String>> paths() async {
+    if (!await root.exists()) return const [];
     final prefix = root.path.length + 1;
     final result = <String>[];
-    await for (final entry in root.list(recursive: true, followLinks: false)) {
+    final entries = root.list(recursive: true, followLinks: false).handleError(
+          (Object _) {},
+        );
+    await for (final entry in entries) {
       if (entry is File) result.add(entry.path.substring(prefix));
     }
     return result;

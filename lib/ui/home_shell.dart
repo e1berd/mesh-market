@@ -280,13 +280,14 @@ class _ExpressiveRailDestinationState extends State<_ExpressiveRailDestination>
       button: true,
       selected: widget.selected,
       label: widget.destination.titleLabel,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        child: GestureDetector(
-          onTapDown: (_) => setState(() => _pressed = true),
-          onTapUp: (_) => setState(() => _pressed = false),
-          onTapCancel: () => setState(() => _pressed = false),
-          onTap: widget.onTap,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTap: widget.onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: AnimatedBuilder(
             animation: Listenable.merge([_widthCtrl, _scaleCtrl, _iconScaleCtrl]),
             child: _RailLabel(widget.destination.navLabel, selected: widget.selected),

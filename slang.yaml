@@ -5,3 +5,6 @@ fallback_strategy: base
 translate_var: t
 enum_name: AppLocale
 namespaces: false
+
+flutter:
+  localize: true

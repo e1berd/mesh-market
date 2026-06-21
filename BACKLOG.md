@@ -60,7 +60,9 @@ Tracked gaps and follow-ups. Phases refer to the implementation plan.
   local (engine `_consider`, covered by test).
 - [ ] Deletion propagation: covered in `_consider`, add an explicit test.
 - [ ] Transfer resume after disconnect (re-request only missing blocks across sessions).
-- [ ] Large files are read fully into memory in scanner/serve; stream instead for big files.
+- [x] Scanner streams files block-by-block (no full-file load); recursive listing is
+  resilient to unreadable entries. Directory watcher (`SyncService`) re-scans on change
+  (debounced) and re-announces to connected peers for live sync.
 
 ## UI / UX (second agent's domain)
 - [ ] Copy-Device-ID buttons are placeholders (`onPressed: () {}`).

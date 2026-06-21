@@ -1,33 +1,77 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/config.dart';
+
+const _prefsKey = 'app_config';
 
 final configProvider = NotifierProvider<ConfigNotifier, AppConfig>(
   ConfigNotifier.new,
 );
 
 class ConfigNotifier extends Notifier<AppConfig> {
+  SharedPreferences? _prefs;
+
   @override
-  AppConfig build() => const AppConfig();
+  AppConfig build() {
+    _load();
+    return const AppConfig();
+  }
 
-  void setThemeMode(ThemeMode mode) => state = state.copyWith(themeMode: mode);
+  Future<void> _load() async {
+    _prefs = await SharedPreferences.getInstance();
+    final json = _prefs?.getString(_prefsKey);
+    if (json != null) {
+      state = AppConfig.fromJson(
+        Map<String, dynamic>.from(
+          jsonDecode(json) as Map<String, dynamic>,
+        ),
+      );
+    }
+  }
 
-  void setThemeScheme(String id) => state = state.copyWith(themeSchemeId: id);
+  Future<void> _save() async {
+    _prefs ??= await SharedPreferences.getInstance();
+    await _prefs!.setString(_prefsKey, jsonEncode(state.toJson()));
+  }
 
-  void toggleLanDiscovery(bool value) =>
-      state = state.copyWith(lanDiscovery: value);
+  void setThemeMode(ThemeMode mode) {
+    state = state.copyWith(themeMode: mode);
+    _save();
+  }
 
-  void toggleDhtDiscovery(bool value) =>
-      state = state.copyWith(dhtDiscovery: value);
+  void setThemeScheme(String id) {
+    state = state.copyWith(themeSchemeId: id);
+    _save();
+  }
 
-  void toggleBackground(bool value) =>
-      state = state.copyWith(syncInBackground: value);
+  void toggleLanDiscovery(bool value) {
+    state = state.copyWith(lanDiscovery: value);
+    _save();
+  }
 
-  void addIceServer(IceServer server) =>
-      state = state.copyWith(iceServers: [...state.iceServers, server]);
+  void toggleDhtDiscovery(bool value) {
+    state = state.copyWith(dhtDiscovery: value);
+    _save();
+  }
 
-  void removeIceServer(int index) => state = state.copyWith(
-    iceServers: [...state.iceServers]..removeAt(index),
-  );
+  void toggleBackground(bool value) {
+    state = state.copyWith(syncInBackground: value);
+    _save();
+  }
+
+  void addIceServer(IceServer server) {
+    state = state.copyWith(iceServers: [...state.iceServers, server]);
+    _save();
+  }
+
+  void removeIceServer(int index) {
+    state = state.copyWith(
+      iceServers: [...state.iceServers]..removeAt(index),
+    );
+    _save();
+  }
 }

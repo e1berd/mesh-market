@@ -15,10 +15,12 @@ import '../transport/lan_beacon.dart';
 import '../transport/lan_signaling.dart';
 import '../transport/negotiator.dart';
 import '../transport/pairing_code.dart';
+import '../transport/peer_link.dart';
 import '../transport/signaling.dart';
 import '../transport/swarm.dart';
 import 'engine.dart';
 import 'index.dart';
+import 'scanner.dart';
 import 'sync_event.dart';
 
 class FolderRuntime {
@@ -46,6 +48,7 @@ class SyncService {
     required this.onPaired,
     required this.onIncomingShare,
     this.onEvent,
+    this.onFolderChanged,
   });
 
   final DeviceIdentity identity;
@@ -57,10 +60,13 @@ class SyncService {
   final void Function(PairingPayload peer) onPaired;
   final Future<bool> Function(FolderShare share, String fromDeviceId) onIncomingShare;
   final void Function(SyncEvent event)? onEvent;
+  final void Function(String folderId)? onFolderChanged;
 
   final _dhts = <DhtDiscovery>[];
   final _subscriptions = <StreamSubscription<dynamic>>[];
   final _active = <String>{};
+  final _sessions = <({String folderId, SyncEngine engine, PeerLink link})>[];
+  final _debounce = <String, Timer>{};
 
   late final PairingPayload _self = PairingPayload.ofDevice(identity, deviceName);
   late final LanSignalingServer _signaling;
@@ -93,6 +99,43 @@ class SyncService {
         } on Object {
           continue;
         }
+      }
+    }
+
+    for (final folder in folders) {
+      unawaited(_rescan(folder));
+      _watch(folder);
+    }
+  }
+
+  void _watch(FolderRuntime folder) {
+    try {
+      _subscriptions.add(
+        Directory(folder.config.localPath)
+            .watch(recursive: true)
+            .listen((_) => _scheduleRescan(folder)),
+      );
+    } on Object {
+      return;
+    }
+  }
+
+  void _scheduleRescan(FolderRuntime folder) {
+    _debounce[folder.config.id]?.cancel();
+    _debounce[folder.config.id] =
+        Timer(const Duration(milliseconds: 700), () => _rescan(folder));
+  }
+
+  Future<void> _rescan(FolderRuntime folder) async {
+    await FolderScanner(
+      deviceId: identity.id,
+      index: folder.index,
+      store: folder.store,
+    ).scan();
+    onFolderChanged?.call(folder.config.id);
+    for (final session in _sessions) {
+      if (session.folderId == folder.config.id) {
+        await session.engine.announce(session.link);
       }
     }
   }
@@ -263,17 +306,21 @@ class SyncService {
       swarmSecret: folder.config.swarmSecret,
     ));
     final context = (peerId: peer.deviceId, folderId: folder.config.id);
+    final engine = SyncEngine(
+      index: folder.index,
+      store: folder.store,
+      cipher: cipher,
+      onEvent: (event) => onEvent?.call(
+          event.withContext(peerId: context.peerId, folderId: context.folderId)),
+    );
+    final session = (folderId: folder.config.id, engine: engine, link: link);
+    _sessions.add(session);
     onEvent?.call(SyncEvent(SyncEventKind.connected,
         peerId: context.peerId, folderId: context.folderId));
     try {
-      await SyncEngine(
-        index: folder.index,
-        store: folder.store,
-        cipher: cipher,
-        onEvent: (event) => onEvent?.call(
-            event.withContext(peerId: context.peerId, folderId: context.folderId)),
-      ).sync(link);
+      await engine.sync(link);
     } finally {
+      _sessions.remove(session);
       onEvent?.call(SyncEvent(SyncEventKind.disconnected,
           peerId: context.peerId, folderId: context.folderId));
     }
@@ -294,6 +341,9 @@ class SyncService {
   }
 
   Future<void> stop() async {
+    for (final timer in _debounce.values) {
+      timer.cancel();
+    }
     for (final subscription in _subscriptions) {
       await subscription.cancel();
     }
