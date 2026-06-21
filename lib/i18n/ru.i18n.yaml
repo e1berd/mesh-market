@@ -38,12 +38,12 @@ folders:
   scanning: Сканирование...
   fileCount:
     zero: Нет файлов
-    one: '{count} файл'
-    few: '{count} файла'
-    many: '{count} файлов'
-    other: '{count} файла'
+    one: '{n} файл'
+    few: '{n} файла'
+    many: '{n} файлов'
+    other: '{n} файла'
   scan: Сканировать
-  scanned: 'Просканировано файлов: {$count}'
+  scanned: 'Просканировано файлов: {count}'
   alreadyAdded: Папка уже добавлена
   remove: Удалить папку
 
@@ -53,7 +53,7 @@ pair:
   scanInstruction: Направьте камеру на QR-код другого устройства
   toggleFlashlight: Включить фонарик
   selfPairError: Нельзя связать устройство с самим собой
-  paired: 'Устройство {$name} связано'
+  paired: 'Устройство {name} связано'
   invalidQr: Этот QR-код не является кодом point-machine
   nearbyTitle: Устройства рядом
   nearbySearching: Поиск устройств в вашей сети…
@@ -64,7 +64,7 @@ pair:
   pairFailed: Не удалось связаться с устройством
   storedLocally: Сохранено — связь завершится, когда оба устройства будут в одной сети
   incomingTitle: Запрос на связь
-  incomingBody: '{$name} хочет связаться. Проверьте, что код совпадает на обоих устройствах.'
+  incomingBody: '{name} хочет связаться. Проверьте, что код совпадает на обоих устройствах.'
   verificationCode: Код проверки
   accept: Принять
   reject: Отклонить
@@ -84,8 +84,17 @@ pair:
   pauseScan: Приостановить поиск
   resumeScan: Возобновить поиск
 
+share:
+  incomingTitle: Запрос на доступ к папке
+  incomingBody: '{name} хочет открыть вам доступ к папке «{folder}». Выберите, куда её сохранить.'
+  choose: Выбрать папку
+  accept: Принять
+  reject: Отклонить
+  accepted: 'Папка «{folder}» добавлена'
+  declined: Запрос отклонён
+
 activity:
-  syncedToday: 'Синхронизировано сегодня: {$bytes}'
+  syncedToday: 'Синхронизировано сегодня: {bytes}'
   upToDate: Все устройства актуальны
   empty: Ничего не синхронизируется
   emptyHint: Передачи и конфликты будут отображаться здесь по мере возникновения.
@@ -93,6 +102,17 @@ activity:
   eventDisconnected: Отключено
   eventReceived: Получен файл
   eventConflict: Конфликт синхронизации
+
+schedule:
+  title: Синхронизация
+  syncNow: Синхронизировать сейчас
+  syncNowHint: Включить синхронизацию немедленно, пока не выключите
+  scheduleTitle: Ежедневное расписание
+  scheduleHint: Синхронизировать каждый день в этом окне
+  from: С
+  to: До
+  active: Идёт синхронизация
+  paused: На паузе
 
 settings:
   appearance: Внешний вид

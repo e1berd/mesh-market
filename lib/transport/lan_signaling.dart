@@ -16,14 +16,19 @@ class SocketSignalChannel implements SignalChannel {
   final Socket _socket;
   final _incoming = StreamController<SignalMessage>.broadcast();
   late final StreamSubscription<String> _subscription;
+  Future<void> _sendQueue = Future.value();
 
   @override
   Stream<SignalMessage> get incoming => _incoming.stream;
 
   @override
-  Future<void> send(SignalMessage message) async {
-    _socket.write('${message.encode()}\n');
-    await _socket.flush();
+  Future<void> send(SignalMessage message) {
+    final result = _sendQueue.then((_) async {
+      _socket.write('${message.encode()}\n');
+      await _socket.flush();
+    });
+    _sendQueue = result.catchError((Object _) {});
+    return result;
   }
 
   @override
@@ -60,7 +65,11 @@ class LanSignalingServer {
   Stream<SignalChannel> get connections => _connections.stream;
 
   Future<void> start() async {
-    final server = await ServerSocket.bind(InternetAddress.anyIPv4, port);
+    final server = await ServerSocket.bind(
+      InternetAddress.anyIPv4,
+      port,
+      shared: true,
+    );
     server.listen((socket) => _connections.add(SocketSignalChannel(socket)));
     _server = server;
   }

@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../transport/lan_beacon.dart';
 import 'sync_provider.dart';
 
-final nearbyDevicesProvider = StreamProvider<List<LanPeer>>((ref) async* {
+final nearbyDevicesProvider = StreamProvider.autoDispose<List<LanPeer>>((
+  ref,
+) async* {
   final service = await ref.watch(syncServiceProvider.future);
   final seen = <String, (LanPeer, DateTime)>{};
   yield const [];

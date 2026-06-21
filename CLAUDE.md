@@ -13,7 +13,7 @@ UDP/DHT or true background work).
 - Discovery: `multicast_dns` (LAN), `bittorrent_dht` (WAN), QR pairing (`mobile_scanner` / `qr_flutter`).
 - Crypto: `cryptography` (Ed25519, X25519, XChaCha20-Poly1305).
 - Storage/index: `dart:io` + `sembast`. State: `flutter_riverpod`.
-- Background: `flutter_background_service`, `workmanager`, `tray_manager`, `window_manager`.
+- Background: `flutter_background_service`, `workmanager`, `nativeapi`.
 
 ## Cardinal rule
 **Material 3 Expressive, latest spec, everywhere.** Every screen, component, motion, shape,

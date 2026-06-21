@@ -4,7 +4,15 @@
       "Bash(flutter --version)",
       "WebFetch(domain:pub.dev)",
       "Bash(dart run *)",
-      "Bash(dart analyze *)"
+      "Bash(dart analyze *)",
+      "Bash(/home/l/flutter/bin/dart run *)",
+      "Bash(grep -nE \"\\\\{|\\\\$\" lib/i18n/en.i18n.yaml)",
+      "Bash(/home/l/flutter/bin/dart analyze *)",
+      "Bash(/home/l/flutter/bin/dart test *)",
+      "Bash(grep -nE \"\\\\{|\\\\\\\\\\\\$\" lib/i18n/en.i18n.yaml)",
+      "Bash(grep -nE \"\\\\{|\\\\\\\\\\\\$\" lib/i18n/ru.i18n.yaml)",
+      "Bash(sed -i 's/{$name}/{name}/g; s/{$bytes}/{bytes}/g' lib/i18n/en.i18n.yaml lib/i18n/ru.i18n.yaml)",
+      "Bash(sed -i 's/'\\\\''$n /'\\\\''{n} /g; s/: $count$/: {count}/' lib/i18n/ru.i18n.yaml)"
     ]
   }
 }

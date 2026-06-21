@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import '../core/config.dart';
@@ -15,6 +16,10 @@ Future<WebRtcLink> negotiate({
   final connection = await createSyncConnection(iceServers);
   final opened = Completer<RTCDataChannel>();
 
+  connection.onIceConnectionState =
+      (state) => debugPrint('[pm.rtc] ice $peerId $state');
+  connection.onConnectionState =
+      (state) => debugPrint('[pm.rtc] conn $peerId $state');
   connection.onIceCandidate = (candidate) => channel.send(
         IceSignal(candidate.candidate, candidate.sdpMid, candidate.sdpMLineIndex),
       );
@@ -64,10 +69,18 @@ Future<WebRtcLink> negotiate({
     }
   });
 
-  final dataChannel = await opened.future;
-  Timer(const Duration(seconds: 3), () {
-    subscription.cancel();
-    channel.close();
-  });
-  return WebRtcLink(peerId, dataChannel);
+  try {
+    final dataChannel =
+        await opened.future.timeout(const Duration(seconds: 25));
+    Timer(const Duration(seconds: 3), () {
+      subscription.cancel();
+      channel.close();
+    });
+    return WebRtcLink(peerId, dataChannel);
+  } on Object {
+    await subscription.cancel();
+    await connection.close();
+    await channel.close();
+    rethrow;
+  }
 }

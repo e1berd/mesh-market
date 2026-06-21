@@ -1,4 +1,5 @@
 import 'package:declar_ui/declar_ui.dart';
+import 'package:expressive_loading_indicator/expressive_loading_indicator.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:m3e_core/m3e_core.dart';
@@ -95,21 +96,28 @@ class FoldersScreen extends ConsumerWidget {
     final colors = context.colors;
     return Container(
       alignment: alignment,
-      padding: const EdgeInsets.symmetric(horizontal: 28),
       decoration: BoxDecoration(
         color: colors.errorContainer,
         borderRadius: BorderRadius.circular(32),
       ),
-      child: Row(
-        mainAxisSize: .min,
-        children: [
-          Icon(Icons.delete_rounded, color: colors.onErrorContainer),
-          const SizedBox(width: 10),
-          Text(context.t.folders.remove)
-              .size(14)
-              .weight(.w700)
-              .color(colors.onErrorContainer),
-        ],
+      child: OverflowBox(
+        alignment: alignment,
+        minWidth: 0,
+        maxWidth: double.infinity,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Row(
+            mainAxisSize: .min,
+            children: [
+              Icon(Icons.delete_rounded, color: colors.onErrorContainer),
+              const SizedBox(width: 10),
+              Text(context.t.folders.remove)
+                  .size(14)
+                  .weight(.w700)
+                  .color(colors.onErrorContainer),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -138,12 +146,20 @@ class _FolderTile extends ConsumerStatefulWidget {
 }
 
 class _FolderTileState extends ConsumerState<_FolderTile> {
+  bool _scanning = true;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(foldersProvider.notifier).scan(widget.folder);
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scan());
+  }
+
+  Future<void> _scan() async {
+    try {
+      await ref.read(foldersProvider.notifier).scan(widget.folder);
+    } finally {
+      if (mounted) setState(() => _scanning = false);
+    }
   }
 
   @override
@@ -223,14 +239,30 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
               const SizedBox(width: 8),
               Expanded(
                 child: ExpressiveSwitcher(
-                  child: Text(
-                    count.when(
-                      data: (n) => context.t.folders.fileCount(n: n),
-                      loading: () => context.t.folders.scanning,
-                      error: (_, _) => '-',
-                    ),
-                    key: ValueKey(count.toString()),
-                  ).size(13).weight(.w600).color(colors.onSurfaceVariant),
+                  child: (_scanning || count.isLoading)
+                      ? Row(
+                          key: const ValueKey('folder-scanning'),
+                          mainAxisSize: .min,
+                          children: [
+                            const ExpressiveLoadingIndicator(
+                              constraints:
+                                  BoxConstraints.tightFor(width: 18, height: 18),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(context.t.folders.scanning)
+                                .size(13)
+                                .weight(.w600)
+                                .color(colors.onSurfaceVariant),
+                          ],
+                        )
+                      : Text(
+                          count.when(
+                            data: (n) => context.t.folders.fileCount(n: n),
+                            loading: () => context.t.folders.scanning,
+                            error: (_, _) => '-',
+                          ),
+                          key: ValueKey('folder-count-${count.value}'),
+                        ).size(13).weight(.w600).color(colors.onSurfaceVariant),
                 ),
               ),
               M3EButton(
@@ -360,12 +392,10 @@ class _FolderAccessSheet extends ConsumerWidget {
 
   void _toggleAccess(
       WidgetRef ref, FolderConfig folder, PairingPayload peer, bool granted) {
-    final notifier = ref.read(foldersProvider.notifier);
     if (granted) {
-      notifier.addPeer(folder.id, peer.deviceId);
       ref.read(shareControllerProvider).shareWith(folder, peer);
     } else {
-      notifier.removePeer(folder.id, peer.deviceId);
+      ref.read(foldersProvider.notifier).removePeer(folder.id, peer.deviceId);
     }
   }
 }

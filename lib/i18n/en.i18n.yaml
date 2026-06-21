@@ -38,10 +38,10 @@ folders:
   scanning: Scanning...
   fileCount:
     zero: No files
-    one: '{count} file'
-    other: '{count} files'
+    one: '{n} file'
+    other: '{n} files'
   scan: Scan
-  scanned: 'Scanned {$count} files'
+  scanned: 'Scanned {count} files'
   alreadyAdded: Folder already added
   remove: Remove folder
 
@@ -51,7 +51,7 @@ pair:
   scanInstruction: Point the camera at another device QR code
   toggleFlashlight: Toggle flashlight
   selfPairError: Cannot pair this device with itself
-  paired: 'Device {$name} paired'
+  paired: 'Device {name} paired'
   invalidQr: This QR code is not a point-machine device
   nearbyTitle: Nearby devices
   nearbySearching: Looking for devices on your network…
@@ -62,7 +62,7 @@ pair:
   pairFailed: Could not reach that device
   storedLocally: Saved — pairing finishes when both devices are on the same network
   incomingTitle: Pairing request
-  incomingBody: '{$name} wants to pair. Check the code matches on both devices.'
+  incomingBody: '{name} wants to pair. Check the code matches on both devices.'
   verificationCode: Verification code
   accept: Accept
   reject: Reject
@@ -82,8 +82,17 @@ pair:
   pauseScan: Pause scanning
   resumeScan: Resume scanning
 
+share:
+  incomingTitle: Folder share request
+  incomingBody: '{name} wants to share the folder “{folder}” with you. Choose where to save it.'
+  choose: Choose location
+  accept: Accept
+  reject: Reject
+  accepted: 'Folder “{folder}” added'
+  declined: Share declined
+
 activity:
-  syncedToday: '{$bytes} synced today'
+  syncedToday: '{bytes} synced today'
   upToDate: All devices up to date
   empty: Nothing syncing
   emptyHint: Transfers and conflicts will appear here as they happen.
@@ -91,6 +100,17 @@ activity:
   eventDisconnected: Disconnected
   eventReceived: Received a file
   eventConflict: Sync conflict
+
+schedule:
+  title: Synchronization
+  syncNow: Sync now
+  syncNowHint: Sync immediately until you turn it off
+  scheduleTitle: Daily schedule
+  scheduleHint: Sync every day during this window
+  from: From
+  to: To
+  active: Syncing now
+  paused: Paused
 
 settings:
   appearance: Appearance

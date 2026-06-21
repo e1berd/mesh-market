@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 import '../core/pairing.dart';
 
 class LanPeer {
@@ -45,6 +47,13 @@ class LanBeacon {
   }
 
   Future<RawDatagramSocket> _bind() async {
+    if (Platform.isAndroid || Platform.isIOS) {
+      return RawDatagramSocket.bind(
+        InternetAddress.anyIPv4,
+        beaconPort,
+        reuseAddress: true,
+      );
+    }
     try {
       return await RawDatagramSocket.bind(
         InternetAddress.anyIPv4,
@@ -84,9 +93,14 @@ class LanBeacon {
   void _announce() {
     final data =
         utf8.encode(jsonEncode({...payload.toJson(), 'port': servicePort}));
-    _socket
-      ?..send(data, _group, beaconPort)
-      ..send(data, _broadcast, beaconPort);
+    try {
+      final multicast = _socket?.send(data, _group, beaconPort) ?? -1;
+      final broadcast = _socket?.send(data, _broadcast, beaconPort) ?? -1;
+      debugPrint('[pm.beacon] announce mcast=$multicast bcast=$broadcast '
+          'port=$servicePort');
+    } on Object catch (error) {
+      debugPrint('[pm.beacon] announce failed: $error');
+    }
   }
 
   void _onEvent(RawSocketEvent event) {
@@ -94,7 +108,10 @@ class LanBeacon {
     final datagram = _socket?.receive();
     if (datagram == null) return;
     final peer = _parse(datagram.data, datagram.address);
-    if (peer != null && peer.deviceId != payload.deviceId) _peers.add(peer);
+    if (peer != null && peer.deviceId != payload.deviceId) {
+      debugPrint('[pm.beacon] rx ${peer.deviceId} @${datagram.address.address}');
+      _peers.add(peer);
+    }
   }
 
   LanPeer? _parse(List<int> data, InternetAddress address) {

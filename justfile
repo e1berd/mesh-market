@@ -7,7 +7,6 @@ setup:
     sudo apt update
     sudo apt install -y build-essential clang cmake ninja-build pkg-config \
         libgtk-3-dev liblzma-dev \
-        libayatana-appindicator3-dev \
         curl file git unzip xz-utils zip libglu1-mesa
 
 get:

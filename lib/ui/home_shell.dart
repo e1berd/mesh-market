@@ -1,9 +1,15 @@
 import 'package:declar_ui/declar_ui.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:m3e_core/m3e_core.dart';
 import 'package:motor/motor.dart';
 
+import '../core/pairing.dart';
 import '../i18n/strings.g.dart';
+import '../state/folders_provider.dart';
+import '../state/incoming_share_provider.dart';
+import '../state/peers_provider.dart';
+import '../state/sync_provider.dart';
 import 'screens/activity_screen.dart';
 import 'screens/devices_screen.dart';
 import 'screens/folders_screen.dart';
@@ -80,11 +86,66 @@ class HomeShell extends ConsumerStatefulWidget {
 
 class _HomeShellState extends ConsumerState<HomeShell> {
   int _index = 0;
+  final _handledShares = <IncomingShare>{};
 
   void _select(int next) => setState(() => _index = next);
 
+  Future<void> _confirmShare(IncomingShare pending) async {
+    final t = context.t;
+    final peers = ref.read(pairedPeersProvider).value ?? const <PairingPayload>[];
+    var name = pending.fromDeviceId;
+    for (final peer in peers) {
+      if (peer.deviceId == pending.fromDeviceId) {
+        name = peer.name;
+        break;
+      }
+    }
+
+    final accept = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(t.share.incomingTitle),
+        content: Text(
+          t.share.incomingBody(name: name, folder: pending.share.label),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(t.share.reject),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(t.share.accept),
+          ),
+        ],
+      ),
+    );
+
+    final path =
+        accept == true ? await FilePicker.platform.getDirectoryPath() : null;
+    final granted = path != null;
+    if (granted) {
+      await ref
+          .read(foldersProvider.notifier)
+          .acceptShare(pending.share, path, pending.fromDeviceId);
+    }
+    ref.read(incomingShareProvider.notifier).resolve(pending, granted);
+    _handledShares.remove(pending);
+    if (granted && mounted) {
+      context.showSnackBar(t.share.accepted(folder: pending.share.label));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.watch(syncServiceProvider);
+
+    ref.listen<List<IncomingShare>>(incomingShareProvider, (_, next) {
+      for (final pending in next) {
+        if (_handledShares.add(pending)) _confirmShare(pending);
+      }
+    });
+
     final destinations = _destinations(context.t);
     final active = destinations[_index];
     final colors = context.colors;

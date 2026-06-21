@@ -63,6 +63,21 @@ class ConfigNotifier extends Notifier<AppConfig> {
     _save();
   }
 
+  void setSyncNow(bool value) {
+    state = state.copyWith(syncNow: value);
+    _save();
+  }
+
+  void setScheduleEnabled(bool value) {
+    state = state.copyWith(scheduleEnabled: value);
+    _save();
+  }
+
+  void setSchedule(int startMinutes, int endMinutes) {
+    state = state.copyWith(scheduleStart: startMinutes, scheduleEnd: endMinutes);
+    _save();
+  }
+
   void addIceServer(IceServer server) {
     state = state.copyWith(iceServers: [...state.iceServers, server]);
     _save();

@@ -26,6 +26,10 @@ class AppConfig {
     this.lanDiscovery = true,
     this.dhtDiscovery = true,
     this.syncInBackground = true,
+    this.syncNow = false,
+    this.scheduleEnabled = false,
+    this.scheduleStart = 720,
+    this.scheduleEnd = 750,
   });
 
   final ThemeMode themeMode;
@@ -34,6 +38,10 @@ class AppConfig {
   final bool lanDiscovery;
   final bool dhtDiscovery;
   final bool syncInBackground;
+  final bool syncNow;
+  final bool scheduleEnabled;
+  final int scheduleStart;
+  final int scheduleEnd;
 
   AppConfig copyWith({
     ThemeMode? themeMode,
@@ -42,6 +50,10 @@ class AppConfig {
     bool? lanDiscovery,
     bool? dhtDiscovery,
     bool? syncInBackground,
+    bool? syncNow,
+    bool? scheduleEnabled,
+    int? scheduleStart,
+    int? scheduleEnd,
   }) => AppConfig(
     themeMode: themeMode ?? this.themeMode,
     themeSchemeId: themeSchemeId ?? this.themeSchemeId,
@@ -49,6 +61,10 @@ class AppConfig {
     lanDiscovery: lanDiscovery ?? this.lanDiscovery,
     dhtDiscovery: dhtDiscovery ?? this.dhtDiscovery,
     syncInBackground: syncInBackground ?? this.syncInBackground,
+    syncNow: syncNow ?? this.syncNow,
+    scheduleEnabled: scheduleEnabled ?? this.scheduleEnabled,
+    scheduleStart: scheduleStart ?? this.scheduleStart,
+    scheduleEnd: scheduleEnd ?? this.scheduleEnd,
   );
 
   Map<String, dynamic> toJson() => {
@@ -64,6 +80,10 @@ class AppConfig {
     'lanDiscovery': lanDiscovery,
     'dhtDiscovery': dhtDiscovery,
     'syncInBackground': syncInBackground,
+    'syncNow': syncNow,
+    'scheduleEnabled': scheduleEnabled,
+    'scheduleStart': scheduleStart,
+    'scheduleEnd': scheduleEnd,
   };
 
   factory AppConfig.fromJson(Map<String, dynamic> json) => AppConfig(
@@ -80,5 +100,9 @@ class AppConfig {
     lanDiscovery: json['lanDiscovery'] as bool? ?? true,
     dhtDiscovery: json['dhtDiscovery'] as bool? ?? true,
     syncInBackground: json['syncInBackground'] as bool? ?? true,
+    syncNow: json['syncNow'] as bool? ?? false,
+    scheduleEnabled: json['scheduleEnabled'] as bool? ?? false,
+    scheduleStart: json['scheduleStart'] as int? ?? 720,
+    scheduleEnd: json['scheduleEnd'] as int? ?? 750,
   );
 }

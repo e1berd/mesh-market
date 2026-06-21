@@ -49,7 +49,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$devices$en devices = Translations$devices$en._(_root);
 	late final Translations$folders$en folders = Translations$folders$en._(_root);
 	late final Translations$pair$en pair = Translations$pair$en._(_root);
+	late final Translations$share$en share = Translations$share$en._(_root);
 	late final Translations$activity$en activity = Translations$activity$en._(_root);
+	late final Translations$schedule$en schedule = Translations$schedule$en._(_root);
 	late final Translations$settings$en settings = Translations$settings$en._(_root);
 	late final Translations$iceDialog$en iceDialog = Translations$iceDialog$en._(_root);
 }
@@ -176,18 +178,18 @@ class Translations$folders$en {
 	/// en: 'Scanning...'
 	String get scanning => 'Scanning...';
 
-	/// en: '(zero) {No files} (one) {{count} file} (other) {{count} files}'
+	/// en: '(zero) {No files} (one) {{n} file} (other) {{n} files}'
 	String fileCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
 		zero: 'No files',
-		one: '{count} file',
-		other: '{count} files',
+		one: '${n} file',
+		other: '${n} files',
 	);
 
 	/// en: 'Scan'
 	String get scan => 'Scan';
 
-	/// en: 'Scanned {$count} files'
-	String scanned({required Object count}) => 'Scanned {${count}} files';
+	/// en: 'Scanned {count} files'
+	String scanned({required Object count}) => 'Scanned ${count} files';
 
 	/// en: 'Folder already added'
 	String get alreadyAdded => 'Folder already added';
@@ -219,8 +221,8 @@ class Translations$pair$en {
 	/// en: 'Cannot pair this device with itself'
 	String get selfPairError => 'Cannot pair this device with itself';
 
-	/// en: 'Device {$name} paired'
-	String paired({required Object name}) => 'Device {${name}} paired';
+	/// en: 'Device {name} paired'
+	String paired({required Object name}) => 'Device ${name} paired';
 
 	/// en: 'This QR code is not a point-machine device'
 	String get invalidQr => 'This QR code is not a point-machine device';
@@ -252,8 +254,8 @@ class Translations$pair$en {
 	/// en: 'Pairing request'
 	String get incomingTitle => 'Pairing request';
 
-	/// en: '{$name} wants to pair. Check the code matches on both devices.'
-	String incomingBody({required Object name}) => '{${name}} wants to pair. Check the code matches on both devices.';
+	/// en: '{name} wants to pair. Check the code matches on both devices.'
+	String incomingBody({required Object name}) => '${name} wants to pair. Check the code matches on both devices.';
 
 	/// en: 'Verification code'
 	String get verificationCode => 'Verification code';
@@ -310,6 +312,36 @@ class Translations$pair$en {
 	String get resumeScan => 'Resume scanning';
 }
 
+// Path: share
+class Translations$share$en {
+	Translations$share$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Folder share request'
+	String get incomingTitle => 'Folder share request';
+
+	/// en: '{name} wants to share the folder “{folder}” with you. Choose where to save it.'
+	String incomingBody({required Object name, required Object folder}) => '${name} wants to share the folder “${folder}” with you. Choose where to save it.';
+
+	/// en: 'Choose location'
+	String get choose => 'Choose location';
+
+	/// en: 'Accept'
+	String get accept => 'Accept';
+
+	/// en: 'Reject'
+	String get reject => 'Reject';
+
+	/// en: 'Folder “{folder}” added'
+	String accepted({required Object folder}) => 'Folder “${folder}” added';
+
+	/// en: 'Share declined'
+	String get declined => 'Share declined';
+}
+
 // Path: activity
 class Translations$activity$en {
 	Translations$activity$en._(this._root);
@@ -318,8 +350,8 @@ class Translations$activity$en {
 
 	// Translations
 
-	/// en: '{$bytes} synced today'
-	String syncedToday({required Object bytes}) => '{${bytes}} synced today';
+	/// en: '{bytes} synced today'
+	String syncedToday({required Object bytes}) => '${bytes} synced today';
 
 	/// en: 'All devices up to date'
 	String get upToDate => 'All devices up to date';
@@ -341,6 +373,42 @@ class Translations$activity$en {
 
 	/// en: 'Sync conflict'
 	String get eventConflict => 'Sync conflict';
+}
+
+// Path: schedule
+class Translations$schedule$en {
+	Translations$schedule$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Synchronization'
+	String get title => 'Synchronization';
+
+	/// en: 'Sync now'
+	String get syncNow => 'Sync now';
+
+	/// en: 'Sync immediately until you turn it off'
+	String get syncNowHint => 'Sync immediately until you turn it off';
+
+	/// en: 'Daily schedule'
+	String get scheduleTitle => 'Daily schedule';
+
+	/// en: 'Sync every day during this window'
+	String get scheduleHint => 'Sync every day during this window';
+
+	/// en: 'From'
+	String get from => 'From';
+
+	/// en: 'To'
+	String get to => 'To';
+
+	/// en: 'Syncing now'
+	String get active => 'Syncing now';
+
+	/// en: 'Paused'
+	String get paused => 'Paused';
 }
 
 // Path: settings
@@ -465,9 +533,9 @@ extension on Translations {
 			'folders.emptyHint' => 'Add a folder to start syncing across your devices.',
 			'folders.errorLoad' => 'Could not load folders',
 			'folders.scanning' => 'Scanning...',
-			'folders.fileCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, zero: 'No files', one: '{count} file', other: '{count} files', ), 
+			'folders.fileCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, zero: 'No files', one: '${n} file', other: '${n} files', ), 
 			'folders.scan' => 'Scan',
-			'folders.scanned' => ({required Object count}) => 'Scanned {${count}} files',
+			'folders.scanned' => ({required Object count}) => 'Scanned ${count} files',
 			'folders.alreadyAdded' => 'Folder already added',
 			'folders.remove' => 'Remove folder',
 			'pair.scanHint' => 'Scan this code on another device',
@@ -475,7 +543,7 @@ extension on Translations {
 			'pair.scanInstruction' => 'Point the camera at another device QR code',
 			'pair.toggleFlashlight' => 'Toggle flashlight',
 			'pair.selfPairError' => 'Cannot pair this device with itself',
-			'pair.paired' => ({required Object name}) => 'Device {${name}} paired',
+			'pair.paired' => ({required Object name}) => 'Device ${name} paired',
 			'pair.invalidQr' => 'This QR code is not a point-machine device',
 			'pair.nearbyTitle' => 'Nearby devices',
 			'pair.nearbySearching' => 'Looking for devices on your network…',
@@ -486,7 +554,7 @@ extension on Translations {
 			'pair.pairFailed' => 'Could not reach that device',
 			'pair.storedLocally' => 'Saved — pairing finishes when both devices are on the same network',
 			'pair.incomingTitle' => 'Pairing request',
-			'pair.incomingBody' => ({required Object name}) => '{${name}} wants to pair. Check the code matches on both devices.',
+			'pair.incomingBody' => ({required Object name}) => '${name} wants to pair. Check the code matches on both devices.',
 			'pair.verificationCode' => 'Verification code',
 			'pair.accept' => 'Accept',
 			'pair.reject' => 'Reject',
@@ -505,7 +573,14 @@ extension on Translations {
 			'pair.scanPaused' => 'Scanning paused',
 			'pair.pauseScan' => 'Pause scanning',
 			'pair.resumeScan' => 'Resume scanning',
-			'activity.syncedToday' => ({required Object bytes}) => '{${bytes}} synced today',
+			'share.incomingTitle' => 'Folder share request',
+			'share.incomingBody' => ({required Object name, required Object folder}) => '${name} wants to share the folder “${folder}” with you. Choose where to save it.',
+			'share.choose' => 'Choose location',
+			'share.accept' => 'Accept',
+			'share.reject' => 'Reject',
+			'share.accepted' => ({required Object folder}) => 'Folder “${folder}” added',
+			'share.declined' => 'Share declined',
+			'activity.syncedToday' => ({required Object bytes}) => '${bytes} synced today',
 			'activity.upToDate' => 'All devices up to date',
 			'activity.empty' => 'Nothing syncing',
 			'activity.emptyHint' => 'Transfers and conflicts will appear here as they happen.',
@@ -513,6 +588,15 @@ extension on Translations {
 			'activity.eventDisconnected' => 'Disconnected',
 			'activity.eventReceived' => 'Received a file',
 			'activity.eventConflict' => 'Sync conflict',
+			'schedule.title' => 'Synchronization',
+			'schedule.syncNow' => 'Sync now',
+			'schedule.syncNowHint' => 'Sync immediately until you turn it off',
+			'schedule.scheduleTitle' => 'Daily schedule',
+			'schedule.scheduleHint' => 'Sync every day during this window',
+			'schedule.from' => 'From',
+			'schedule.to' => 'To',
+			'schedule.active' => 'Syncing now',
+			'schedule.paused' => 'Paused',
 			'settings.appearance' => 'Appearance',
 			'settings.languageTitle' => 'Language',
 			'settings.languageSubtitle' => 'Interface language',

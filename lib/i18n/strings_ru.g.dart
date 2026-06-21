@@ -43,7 +43,9 @@ class TranslationsRu with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$devices$ru devices = _Translations$devices$ru._(_root);
 	@override late final _Translations$folders$ru folders = _Translations$folders$ru._(_root);
 	@override late final _Translations$pair$ru pair = _Translations$pair$ru._(_root);
+	@override late final _Translations$share$ru share = _Translations$share$ru._(_root);
 	@override late final _Translations$activity$ru activity = _Translations$activity$ru._(_root);
+	@override late final _Translations$schedule$ru schedule = _Translations$schedule$ru._(_root);
 	@override late final _Translations$settings$ru settings = _Translations$settings$ru._(_root);
 	@override late final _Translations$iceDialog$ru iceDialog = _Translations$iceDialog$ru._(_root);
 }
@@ -113,13 +115,13 @@ class _Translations$folders$ru implements Translations$folders$en {
 	@override String get scanning => 'Сканирование...';
 	@override String fileCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n,
 		zero: 'Нет файлов',
-		one: '{count} файл',
-		few: '{count} файла',
-		many: '{count} файлов',
-		other: '{count} файла',
+		one: '${n} файл',
+		few: '${n} файла',
+		many: '${n} файлов',
+		other: '${n} файла',
 	);
 	@override String get scan => 'Сканировать';
-	@override String scanned({required Object count}) => 'Просканировано файлов: {${count}}';
+	@override String scanned({required Object count}) => 'Просканировано файлов: ${count}';
 	@override String get alreadyAdded => 'Папка уже добавлена';
 	@override String get remove => 'Удалить папку';
 }
@@ -136,7 +138,7 @@ class _Translations$pair$ru implements Translations$pair$en {
 	@override String get scanInstruction => 'Направьте камеру на QR-код другого устройства';
 	@override String get toggleFlashlight => 'Включить фонарик';
 	@override String get selfPairError => 'Нельзя связать устройство с самим собой';
-	@override String paired({required Object name}) => 'Устройство {${name}} связано';
+	@override String paired({required Object name}) => 'Устройство ${name} связано';
 	@override String get invalidQr => 'Этот QR-код не является кодом point-machine';
 	@override String get nearbyTitle => 'Устройства рядом';
 	@override String get nearbySearching => 'Поиск устройств в вашей сети…';
@@ -147,7 +149,7 @@ class _Translations$pair$ru implements Translations$pair$en {
 	@override String get pairFailed => 'Не удалось связаться с устройством';
 	@override String get storedLocally => 'Сохранено — связь завершится, когда оба устройства будут в одной сети';
 	@override String get incomingTitle => 'Запрос на связь';
-	@override String incomingBody({required Object name}) => '{${name}} хочет связаться. Проверьте, что код совпадает на обоих устройствах.';
+	@override String incomingBody({required Object name}) => '${name} хочет связаться. Проверьте, что код совпадает на обоих устройствах.';
 	@override String get verificationCode => 'Код проверки';
 	@override String get accept => 'Принять';
 	@override String get reject => 'Отклонить';
@@ -168,6 +170,22 @@ class _Translations$pair$ru implements Translations$pair$en {
 	@override String get resumeScan => 'Возобновить поиск';
 }
 
+// Path: share
+class _Translations$share$ru implements Translations$share$en {
+	_Translations$share$ru._(this._root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get incomingTitle => 'Запрос на доступ к папке';
+	@override String incomingBody({required Object name, required Object folder}) => '${name} хочет открыть вам доступ к папке «${folder}». Выберите, куда её сохранить.';
+	@override String get choose => 'Выбрать папку';
+	@override String get accept => 'Принять';
+	@override String get reject => 'Отклонить';
+	@override String accepted({required Object folder}) => 'Папка «${folder}» добавлена';
+	@override String get declined => 'Запрос отклонён';
+}
+
 // Path: activity
 class _Translations$activity$ru implements Translations$activity$en {
 	_Translations$activity$ru._(this._root);
@@ -175,7 +193,7 @@ class _Translations$activity$ru implements Translations$activity$en {
 	final TranslationsRu _root; // ignore: unused_field
 
 	// Translations
-	@override String syncedToday({required Object bytes}) => 'Синхронизировано сегодня: {${bytes}}';
+	@override String syncedToday({required Object bytes}) => 'Синхронизировано сегодня: ${bytes}';
 	@override String get upToDate => 'Все устройства актуальны';
 	@override String get empty => 'Ничего не синхронизируется';
 	@override String get emptyHint => 'Передачи и конфликты будут отображаться здесь по мере возникновения.';
@@ -183,6 +201,24 @@ class _Translations$activity$ru implements Translations$activity$en {
 	@override String get eventDisconnected => 'Отключено';
 	@override String get eventReceived => 'Получен файл';
 	@override String get eventConflict => 'Конфликт синхронизации';
+}
+
+// Path: schedule
+class _Translations$schedule$ru implements Translations$schedule$en {
+	_Translations$schedule$ru._(this._root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Синхронизация';
+	@override String get syncNow => 'Синхронизировать сейчас';
+	@override String get syncNowHint => 'Включить синхронизацию немедленно, пока не выключите';
+	@override String get scheduleTitle => 'Ежедневное расписание';
+	@override String get scheduleHint => 'Синхронизировать каждый день в этом окне';
+	@override String get from => 'С';
+	@override String get to => 'До';
+	@override String get active => 'Идёт синхронизация';
+	@override String get paused => 'На паузе';
 }
 
 // Path: settings
@@ -263,9 +299,9 @@ extension on TranslationsRu {
 			'folders.emptyHint' => 'Добавьте папку для синхронизации между устройствами.',
 			'folders.errorLoad' => 'Не удалось загрузить папки',
 			'folders.scanning' => 'Сканирование...',
-			'folders.fileCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, zero: 'Нет файлов', one: '{count} файл', few: '{count} файла', many: '{count} файлов', other: '{count} файла', ), 
+			'folders.fileCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, zero: 'Нет файлов', one: '${n} файл', few: '${n} файла', many: '${n} файлов', other: '${n} файла', ), 
 			'folders.scan' => 'Сканировать',
-			'folders.scanned' => ({required Object count}) => 'Просканировано файлов: {${count}}',
+			'folders.scanned' => ({required Object count}) => 'Просканировано файлов: ${count}',
 			'folders.alreadyAdded' => 'Папка уже добавлена',
 			'folders.remove' => 'Удалить папку',
 			'pair.scanHint' => 'Отсканируйте этот код на другом устройстве',
@@ -273,7 +309,7 @@ extension on TranslationsRu {
 			'pair.scanInstruction' => 'Направьте камеру на QR-код другого устройства',
 			'pair.toggleFlashlight' => 'Включить фонарик',
 			'pair.selfPairError' => 'Нельзя связать устройство с самим собой',
-			'pair.paired' => ({required Object name}) => 'Устройство {${name}} связано',
+			'pair.paired' => ({required Object name}) => 'Устройство ${name} связано',
 			'pair.invalidQr' => 'Этот QR-код не является кодом point-machine',
 			'pair.nearbyTitle' => 'Устройства рядом',
 			'pair.nearbySearching' => 'Поиск устройств в вашей сети…',
@@ -284,7 +320,7 @@ extension on TranslationsRu {
 			'pair.pairFailed' => 'Не удалось связаться с устройством',
 			'pair.storedLocally' => 'Сохранено — связь завершится, когда оба устройства будут в одной сети',
 			'pair.incomingTitle' => 'Запрос на связь',
-			'pair.incomingBody' => ({required Object name}) => '{${name}} хочет связаться. Проверьте, что код совпадает на обоих устройствах.',
+			'pair.incomingBody' => ({required Object name}) => '${name} хочет связаться. Проверьте, что код совпадает на обоих устройствах.',
 			'pair.verificationCode' => 'Код проверки',
 			'pair.accept' => 'Принять',
 			'pair.reject' => 'Отклонить',
@@ -303,7 +339,14 @@ extension on TranslationsRu {
 			'pair.scanPaused' => 'Поиск приостановлен',
 			'pair.pauseScan' => 'Приостановить поиск',
 			'pair.resumeScan' => 'Возобновить поиск',
-			'activity.syncedToday' => ({required Object bytes}) => 'Синхронизировано сегодня: {${bytes}}',
+			'share.incomingTitle' => 'Запрос на доступ к папке',
+			'share.incomingBody' => ({required Object name, required Object folder}) => '${name} хочет открыть вам доступ к папке «${folder}». Выберите, куда её сохранить.',
+			'share.choose' => 'Выбрать папку',
+			'share.accept' => 'Принять',
+			'share.reject' => 'Отклонить',
+			'share.accepted' => ({required Object folder}) => 'Папка «${folder}» добавлена',
+			'share.declined' => 'Запрос отклонён',
+			'activity.syncedToday' => ({required Object bytes}) => 'Синхронизировано сегодня: ${bytes}',
 			'activity.upToDate' => 'Все устройства актуальны',
 			'activity.empty' => 'Ничего не синхронизируется',
 			'activity.emptyHint' => 'Передачи и конфликты будут отображаться здесь по мере возникновения.',
@@ -311,6 +354,15 @@ extension on TranslationsRu {
 			'activity.eventDisconnected' => 'Отключено',
 			'activity.eventReceived' => 'Получен файл',
 			'activity.eventConflict' => 'Конфликт синхронизации',
+			'schedule.title' => 'Синхронизация',
+			'schedule.syncNow' => 'Синхронизировать сейчас',
+			'schedule.syncNowHint' => 'Включить синхронизацию немедленно, пока не выключите',
+			'schedule.scheduleTitle' => 'Ежедневное расписание',
+			'schedule.scheduleHint' => 'Синхронизировать каждый день в этом окне',
+			'schedule.from' => 'С',
+			'schedule.to' => 'До',
+			'schedule.active' => 'Идёт синхронизация',
+			'schedule.paused' => 'На паузе',
 			'settings.appearance' => 'Внешний вид',
 			'settings.languageTitle' => 'Язык',
 			'settings.languageSubtitle' => 'Язык интерфейса',

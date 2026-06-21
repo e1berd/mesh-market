@@ -31,7 +31,7 @@ class PairScreen extends ConsumerStatefulWidget {
 class _PairScreenState extends ConsumerState<PairScreen> {
   final _handled = <IncomingPair>{};
   bool _revealed = false;
-  bool _scanning = true;
+  bool _scanning = false;
 
   @override
   Widget build(BuildContext context) {
@@ -391,6 +391,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
   }
 
   List<LanPeer> _candidates(String selfId) {
+    if (!_scanning) return const [];
     final nearby = ref.watch(nearbyDevicesProvider).value ?? const <LanPeer>[];
     final paired = ref.watch(pairedPeersProvider).value ?? const <PairingPayload>[];
     final pairedIds = {for (final peer in paired) peer.deviceId};

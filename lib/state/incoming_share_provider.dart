@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/folder_share.dart';
@@ -25,6 +26,14 @@ class IncomingShareNotifier extends Notifier<List<IncomingShare>> {
   List<IncomingShare> build() => const [];
 
   Future<bool> request(FolderShare share, String fromDeviceId) {
+    debugPrint('[pm.share] request "${share.label}" from $fromDeviceId');
+    for (final existing in state) {
+      if (existing.share.folderId == share.folderId &&
+          existing.fromDeviceId == fromDeviceId) {
+        debugPrint('[pm.share] duplicate share ignored');
+        return Future.value(false);
+      }
+    }
     final completer = Completer<bool>();
     final pending = IncomingShare(share, fromDeviceId, completer);
     state = [...state, pending];
