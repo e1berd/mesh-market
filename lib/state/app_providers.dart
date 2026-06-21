@@ -9,29 +9,40 @@ import '../i18n/strings.g.dart';
 
 const _prefsKey = 'app_config';
 
+SharedPreferences? _initialPrefs;
+AppConfig? _initialConfig;
+
 final configProvider = NotifierProvider<ConfigNotifier, AppConfig>(
   ConfigNotifier.new,
 );
+
+Future<AppConfig> loadInitialConfig() async {
+  final prefs = await SharedPreferences.getInstance();
+  final config = _readConfig(prefs);
+  _initialPrefs = prefs;
+  _initialConfig = config;
+  await _applyLocale(config);
+  return config;
+}
 
 class ConfigNotifier extends Notifier<AppConfig> {
   SharedPreferences? _prefs;
 
   @override
   AppConfig build() {
+    final initial = _initialConfig;
+    if (initial != null) {
+      _prefs = _initialPrefs;
+      return initial;
+    }
     _load();
     return const AppConfig();
   }
 
   Future<void> _load() async {
     _prefs = await SharedPreferences.getInstance();
-    final json = _prefs?.getString(_prefsKey);
-    if (json != null) {
-      state = AppConfig.fromJson(
-        Map<String, dynamic>.from(jsonDecode(json) as Map<String, dynamic>),
-      );
-    }
-    final code = state.localeCode;
-    if (code != null) LocaleSettings.setLocaleRawSync(code);
+    state = _readConfig(_prefs!);
+    await _applyLocale(state);
   }
 
   void setLocale(AppLocale locale) {
@@ -107,4 +118,17 @@ class ConfigNotifier extends Notifier<AppConfig> {
     state = state.copyWith(iceServers: [...state.iceServers]..removeAt(index));
     _save();
   }
+}
+
+AppConfig _readConfig(SharedPreferences prefs) {
+  final json = prefs.getString(_prefsKey);
+  if (json == null) return const AppConfig();
+  return AppConfig.fromJson(
+    Map<String, dynamic>.from(jsonDecode(json) as Map<String, dynamic>),
+  );
+}
+
+Future<void> _applyLocale(AppConfig config) async {
+  final code = config.localeCode;
+  if (code != null) await LocaleSettings.setLocaleRaw(code);
 }
