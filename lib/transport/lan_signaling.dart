@@ -28,19 +28,17 @@ class SocketSignalChannel implements SignalChannel {
       try {
         _socket.write('${message.encode()}\n');
         await _socket.flush();
-      } on Object {}
+      } on Object {
+        return;
+      }
     });
     return _sendQueue;
   }
 
   @override
   Future<void> close() async {
-    try {
-      _socket.destroy();
-    } on Object {}
-    try {
-      await _subscription.cancel();
-    } on Object {}
+    _socket.destroy();
+    await _subscription.cancel().catchError((Object _) {});
     _closeIncoming();
   }
 

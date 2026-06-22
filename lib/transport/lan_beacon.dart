@@ -119,9 +119,7 @@ class LanBeacon {
   }
 
   Future<void> _rebind() async {
-    try {
-      _socket?.close();
-    } on Object {}
+    _socket?.close();
     try {
       final socket = await _bind();
       socket.broadcastEnabled = true;

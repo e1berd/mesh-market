@@ -32,21 +32,24 @@ class DeviceNameNotifier extends AsyncNotifier<String> {
   Future<String> build() async {
     final dir = await appDataDir();
     _file = File(p.join(dir.path, 'device_name.json'));
-    if (await _file.exists()) {
-      try {
-        final json =
-            jsonDecode(await _file.readAsString()) as Map<String, dynamic>;
-        final stored = _sanitize(json['name'] as String? ?? '');
-        if (stored.isNotEmpty) return stored;
-      } on Object {
-        // Fall through to a freshly generated name.
-      }
-    }
+    final stored = await _readStored();
+    if (stored != null && stored.isNotEmpty) return stored;
 
     final identity = await ref.watch(identityProvider.future);
     final generated = randomDeviceName(identity.id);
     await _write(generated);
     return generated;
+  }
+
+  Future<String?> _readStored() async {
+    if (!await _file.exists()) return null;
+    try {
+      final json =
+          jsonDecode(await _file.readAsString()) as Map<String, dynamic>;
+      return _sanitize(json['name'] as String? ?? '');
+    } on Object {
+      return null;
+    }
   }
 
   Future<void> rename(String name) async {
@@ -64,14 +67,16 @@ class DeviceNameNotifier extends AsyncNotifier<String> {
 }
 
 String defaultDeviceName() {
-  try {
-    final hostname = _sanitize(Platform.localHostname);
-    if (_isUsableHostname(hostname)) return hostname;
-  } on Object {
-    // Fall through to the app-level default.
-  }
+  final hostname = _hostname();
+  return _isUsableHostname(hostname) ? hostname : 'Point Machine';
+}
 
-  return 'Point Machine';
+String _hostname() {
+  try {
+    return _sanitize(Platform.localHostname);
+  } on Object {
+    return '';
+  }
 }
 
 String _sanitize(String name) {

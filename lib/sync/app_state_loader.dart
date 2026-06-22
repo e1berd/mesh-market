@@ -19,20 +19,23 @@ Future<DeviceIdentity> loadIdentity(Directory dir) =>
 
 Future<String> loadDeviceName(Directory dir) async {
   final file = File(p.join(dir.path, 'device_name.json'));
-  if (await file.exists()) {
-    try {
-      final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-      final stored = (json['name'] as String? ?? '').trim();
-      if (stored.isNotEmpty) return stored;
-    } on Object {
-      // Fall through to a generated name.
-    }
-  }
+  final stored = await _readDeviceName(file);
+  if (stored != null && stored.isNotEmpty) return stored;
 
   final identity = await loadIdentity(dir);
   final generated = randomDeviceName(identity.id);
   await file.writeAsString(jsonEncode({'name': generated}));
   return generated;
+}
+
+Future<String?> _readDeviceName(File file) async {
+  if (!await file.exists()) return null;
+  try {
+    final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+    return (json['name'] as String? ?? '').trim();
+  } on Object {
+    return null;
+  }
 }
 
 Future<AppConfig> loadConfig() async {
