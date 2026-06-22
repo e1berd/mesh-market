@@ -10,7 +10,6 @@ import '../../core/identity.dart';
 import '../../core/pairing.dart';
 import '../../i18n/strings.g.dart';
 import '../../state/identity_provider.dart';
-import '../../state/incoming_pair_provider.dart';
 import '../../state/nearby_devices_provider.dart';
 import '../../state/pairing_controller.dart';
 import '../../state/peers_provider.dart';
@@ -29,18 +28,11 @@ class PairScreen extends ConsumerStatefulWidget {
 }
 
 class _PairScreenState extends ConsumerState<PairScreen> {
-  final _handled = <IncomingPair>{};
   bool _revealed = false;
   bool _scanning = false;
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<List<IncomingPair>>(incomingPairProvider, (_, next) {
-      for (final pending in next) {
-        if (_handled.add(pending)) _confirm(pending);
-      }
-    });
-
     final identity = ref.watch(identityProvider);
     final name = ref.watch(deviceNameProvider);
 
@@ -561,40 +553,6 @@ class _PairScreenState extends ConsumerState<PairScreen> {
     }
   }
 
-  Future<void> _confirm(IncomingPair pending) async {
-    final colors = context.colors;
-    final accept = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(context.t.pair.incomingTitle),
-        content: Column(
-          mainAxisSize: .min,
-          children: [
-            Text(context.t.pair.incomingBody(name: pending.payload.name)),
-            const SizedBox(height: 18),
-            Text(
-              context.t.pair.verificationCode,
-            ).size(12).weight(.w700).color(colors.onSurfaceVariant),
-            Text(
-              pending.code,
-            ).size(34).weight(.w800).color(colors.primary).letterSpacing(4),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(context.t.pair.reject),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(context.t.pair.accept),
-          ),
-        ],
-      ),
-    );
-    ref.read(incomingPairProvider.notifier).resolve(pending, accept ?? false);
-    _handled.remove(pending);
-  }
 }
 
 class _PairingScannerPage extends StatefulWidget {

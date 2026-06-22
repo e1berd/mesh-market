@@ -9,6 +9,7 @@ import '../i18n/strings.g.dart';
 import '../platform/storage_access.dart';
 import '../state/app_providers.dart';
 import '../state/folders_provider.dart';
+import '../state/incoming_pair_provider.dart';
 import '../state/incoming_share_provider.dart';
 import '../state/peers_provider.dart';
 import '../state/sync_provider.dart';
@@ -89,8 +90,45 @@ class HomeShell extends ConsumerStatefulWidget {
 class _HomeShellState extends ConsumerState<HomeShell> {
   int _index = 0;
   final _handledShares = <IncomingShare>{};
+  final _handledPairs = <IncomingPair>{};
 
   void _select(int next) => setState(() => _index = next);
+
+  Future<void> _confirmPair(IncomingPair pending) async {
+    final t = context.t;
+    final colors = context.colors;
+    final accept = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(t.pair.incomingTitle),
+        content: Column(
+          mainAxisSize: .min,
+          children: [
+            Text(t.pair.incomingBody(name: pending.payload.name)),
+            const SizedBox(height: 18),
+            Text(
+              t.pair.verificationCode,
+            ).size(12).weight(.w700).color(colors.onSurfaceVariant),
+            Text(
+              pending.code,
+            ).size(34).weight(.w800).color(colors.primary).letterSpacing(4),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(t.pair.reject),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(t.pair.accept),
+          ),
+        ],
+      ),
+    );
+    ref.read(incomingPairProvider.notifier).resolve(pending, accept ?? false);
+    _handledPairs.remove(pending);
+  }
 
   Future<void> _confirmShare(IncomingShare pending) async {
     final t = context.t;
@@ -149,6 +187,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     ref.listen<List<IncomingShare>>(incomingShareProvider, (_, next) {
       for (final pending in next) {
         if (_handledShares.add(pending)) _confirmShare(pending);
+      }
+    });
+
+    ref.listen<List<IncomingPair>>(incomingPairProvider, (_, next) {
+      for (final pending in next) {
+        if (_handledPairs.add(pending)) _confirmPair(pending);
       }
     });
 

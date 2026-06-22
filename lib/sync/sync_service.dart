@@ -281,12 +281,14 @@ class SyncService {
       port: peer.port,
       syncPort: peer.syncPort,
     );
-    final known = _peerById(peer.deviceId) != null;
+    final existing = _peerById(peer.deviceId);
+    final known = existing != null;
     _log(
       'lan peer ${peer.deviceId} @${peer.address.address}:${peer.port} '
       'known=$known active=$_syncActive',
     );
     if (!known) return;
+    if (existing.name != peer.payload.name) onPaired(peer.payload);
     unawaited(_pushShares(peer));
     if (!_syncActive) return;
     for (final folder in folders) {
@@ -362,6 +364,11 @@ class SyncService {
   }
 
   Future<bool> pairViaCode(String code) async {
+    final nearby = _seen[code];
+    if (nearby != null && await pairAt(nearby.address, nearby.port)) {
+      return true;
+    }
+
     final infohash = await infohashFor(utf8.encode('point-machine/pair/$code'));
     final dht = DhtDiscovery(
       infohash: infohash,

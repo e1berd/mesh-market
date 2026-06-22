@@ -25,9 +25,16 @@ class IncomingPairNotifier extends Notifier<List<IncomingPair>> {
   List<IncomingPair> build() => const [];
 
   Future<bool> request(PairingPayload payload, String code) {
+    for (final existing in state) {
+      if (existing.payload.deviceId == payload.deviceId) existing.respond(false);
+    }
     final completer = Completer<bool>();
     final pending = IncomingPair(payload, code, completer);
-    state = [...state, pending];
+    state = [
+      for (final p in state)
+        if (p.payload.deviceId != payload.deviceId) p,
+      pending,
+    ];
     return completer.future
         .timeout(const Duration(seconds: 60), onTimeout: () => false)
         .whenComplete(() => state = [...state]..remove(pending));

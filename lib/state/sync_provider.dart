@@ -9,6 +9,7 @@ import '../platform/sync_controller.dart';
 import 'app_providers.dart';
 import 'events_provider.dart';
 import 'folders_provider.dart';
+import 'identity_provider.dart';
 import 'incoming_pair_provider.dart';
 import 'incoming_share_provider.dart';
 import 'peers_provider.dart';
@@ -90,6 +91,13 @@ final syncBindingProvider = FutureProvider<void>((ref) async {
   );
   ref.listen(pairedPeersProvider, (_, next) {
     if (next.value != null) controller.reloadPeers();
+  });
+  ref.listen(deviceNameProvider, (prev, next) {
+    final before = prev?.value;
+    final after = next.value;
+    if (before != null && after != null && before != after) {
+      controller.reloadConfig();
+    }
   });
   ref.listen(
     configProvider.select(

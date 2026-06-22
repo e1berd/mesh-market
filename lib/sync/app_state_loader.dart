@@ -6,6 +6,7 @@ import 'package:sembast/sembast_io.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/config.dart';
+import '../core/device_name.dart';
 import '../core/folder_codec.dart';
 import '../core/identity.dart';
 import '../core/models.dart';
@@ -24,18 +25,14 @@ Future<String> loadDeviceName(Directory dir) async {
       final stored = (json['name'] as String? ?? '').trim();
       if (stored.isNotEmpty) return stored;
     } on Object {
-      // Fall through to the host name default.
+      // Fall through to a generated name.
     }
   }
-  try {
-    final host = Platform.localHostname.trim();
-    if (host.isNotEmpty && !host.toLowerCase().startsWith('localhost')) {
-      return host;
-    }
-  } on Object {
-    // Fall through to the app default.
-  }
-  return 'Point Machine';
+
+  final identity = await loadIdentity(dir);
+  final generated = randomDeviceName(identity.id);
+  await file.writeAsString(jsonEncode({'name': generated}));
+  return generated;
 }
 
 Future<AppConfig> loadConfig() async {

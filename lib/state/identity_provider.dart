@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:sembast/sembast_io.dart';
 
+import '../core/device_name.dart';
 import '../core/identity.dart';
 import '../core/paths.dart';
 
@@ -31,16 +32,21 @@ class DeviceNameNotifier extends AsyncNotifier<String> {
   Future<String> build() async {
     final dir = await appDataDir();
     _file = File(p.join(dir.path, 'device_name.json'));
-    if (!await _file.exists()) return defaultDeviceName();
-
-    try {
-      final json =
-          jsonDecode(await _file.readAsString()) as Map<String, dynamic>;
-      final stored = _sanitize(json['name'] as String? ?? '');
-      return stored.isEmpty ? defaultDeviceName() : stored;
-    } on Object {
-      return defaultDeviceName();
+    if (await _file.exists()) {
+      try {
+        final json =
+            jsonDecode(await _file.readAsString()) as Map<String, dynamic>;
+        final stored = _sanitize(json['name'] as String? ?? '');
+        if (stored.isNotEmpty) return stored;
+      } on Object {
+        // Fall through to a freshly generated name.
+      }
     }
+
+    final identity = await ref.watch(identityProvider.future);
+    final generated = randomDeviceName(identity.id);
+    await _write(generated);
+    return generated;
   }
 
   Future<void> rename(String name) async {
@@ -49,9 +55,12 @@ class DeviceNameNotifier extends AsyncNotifier<String> {
       throw const FormatException('Device name cannot be empty');
     }
 
-    await _file.writeAsString(jsonEncode({'name': next}));
+    await _write(next);
     state = AsyncData(next);
   }
+
+  Future<void> _write(String name) =>
+      _file.writeAsString(jsonEncode({'name': name}));
 }
 
 String defaultDeviceName() {
