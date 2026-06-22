@@ -2,13 +2,7 @@
 
 # Mesh Market
 
-**Serverless file sync — including peer discovery.**
-
-No cloud. No relay. No application-owned servers anywhere — not even for finding peers.
-
-🔍 **LAN** — devices discover each other over mDNS multicast. Zero infrastructure.  
-🌐 **WAN** — peers are found through **BitTorrent Mainline DHT** using an infohash derived from the folder swarm secret. SDP and ICE candidates are exchanged directly over that DHT transport to negotiate a hole-punched WebRTC data channel.  
-🔒 **Every block** is sealed with XChaCha20-Poly1305 before it leaves the device. File bytes never touch DHT nodes, STUN servers, or any third party.
+Mesh Market syncs folders directly between a user's own devices with no central server. On a local network, devices find each other over mDNS multicast. Over the internet, peers are located through **BitTorrent Mainline DHT** using an infohash derived from the folder swarm secret; SDP and ICE candidates are then exchanged over that DHT transport to establish a hole-punched WebRTC data channel. Every file block is encrypted with XChaCha20-Poly1305 before leaving the device.
 
 `Flutter` · `Android` · `iOS` · `Linux` · `macOS` · `Windows`
 
