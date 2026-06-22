@@ -19,6 +19,14 @@ static void first_frame_cb(MyApplication* self, FlView* view) {
   gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
 }
 
+// Closing the window only hides it so the process keeps running and continues
+// syncing in the background. The app is quit explicitly from the tray.
+static gboolean on_window_delete(GtkWidget* window, GdkEvent* event,
+                                 gpointer user_data) {
+  gtk_widget_hide(window);
+  return TRUE;
+}
+
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
@@ -65,8 +73,8 @@ static void my_application_activate(GApplication* application) {
     gtk_window_set_default_icon_from_file(icon_path, &icon_error);
   }
 
-  g_signal_connect_swapped(window, "delete-event",
-                           G_CALLBACK(gtk_widget_destroy), window);
+  g_signal_connect(window, "delete-event", G_CALLBACK(on_window_delete),
+                   nullptr);
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(
