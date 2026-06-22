@@ -26,7 +26,11 @@
       "Bash(ps -o lstart= -C gnome-shell)",
       "Read(//usr/share/applications/**)",
       "Bash(nohup ./mesh_market)",
-      "Bash(just *)"
+      "Bash(just *)",
+      "Bash(git -C /home/l/Документы/point-machine ls-files --error-unmatch .android-sdk/ndk)",
+      "Bash(git -C /home/l/Документы/point-machine ls-files .android-sdk/)",
+      "Bash(git -C /home/l/Документы/point-machine ls-files \"*.html\")",
+      "Bash(git *)"
     ]
   }
 }
