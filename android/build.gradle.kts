@@ -16,6 +16,11 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 subprojects {
+    afterEvaluate {
+        extensions.findByType(com.android.build.api.dsl.LibraryExtension::class.java)?.let { ext ->
+            if ((ext.compileSdk ?: 0) < 36) ext.compileSdk = 36
+        }
+    }
     project.evaluationDependsOn(":app")
 }
 
