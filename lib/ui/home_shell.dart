@@ -222,12 +222,9 @@ class _HomeShellState extends ConsumerState<HomeShell> {
                     padding: const EdgeInsets.fromLTRB(24, 28, 24, 4),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: ExpressiveSwitcher(
-                        child: Text(
-                          active.titleLabel,
-                          key: ValueKey(active.titleLabel),
-                        ).size(28).weight(.w800).letterSpacing(0),
-                      ),
+                      child: Text(
+                        active.titleLabel,
+                      ).size(28).weight(.w800).letterSpacing(0),
                     ),
                   ),
                   Expanded(child: pages),

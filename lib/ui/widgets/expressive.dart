@@ -159,21 +159,14 @@ class ExpressiveLazyStack extends StatefulWidget {
   State<ExpressiveLazyStack> createState() => _ExpressiveLazyStackState();
 }
 
-class _ExpressiveLazyStackState extends State<ExpressiveLazyStack>
-    with SingleTickerProviderStateMixin {
+class _ExpressiveLazyStackState extends State<ExpressiveLazyStack> {
   final _visited = <int>{};
   final _cache = <int, Widget>{};
-  late final AnimationController _fade;
 
   @override
   void initState() {
     super.initState();
     _visited.add(widget.index);
-    _fade = AnimationController(
-      vsync: this,
-      duration: expressiveFastDuration,
-      value: 1,
-    );
     WidgetsBinding.instance.addPostFrameCallback((_) => _warmNext());
   }
 
@@ -189,34 +182,22 @@ class _ExpressiveLazyStackState extends State<ExpressiveLazyStack>
   @override
   void didUpdateWidget(ExpressiveLazyStack oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.index != widget.index) {
-      _visited.add(widget.index);
-      _fade.forward(from: 0);
-    }
-  }
-
-  @override
-  void dispose() {
-    _fade.dispose();
-    super.dispose();
+    if (oldWidget.index != widget.index) _visited.add(widget.index);
   }
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _fade,
-      child: IndexedStack(
-        index: widget.index,
-        children: [
-          for (var i = 0; i < widget.length; i++)
-            _visited.contains(i)
-                ? _cache.putIfAbsent(
-                    i,
-                    () => RepaintBoundary(child: widget.itemBuilder(i)),
-                  )
-                : const SizedBox.shrink(),
-        ],
-      ),
+    return IndexedStack(
+      index: widget.index,
+      children: [
+        for (var i = 0; i < widget.length; i++)
+          _visited.contains(i)
+              ? _cache.putIfAbsent(
+                  i,
+                  () => RepaintBoundary(child: widget.itemBuilder(i)),
+                )
+              : const SizedBox.shrink(),
+      ],
     );
   }
 }
