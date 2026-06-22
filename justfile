@@ -6,8 +6,8 @@ default:
 setup:
     sudo apt update
     sudo apt install -y build-essential clang cmake ninja-build pkg-config \
-        libgtk-3-dev liblzma-dev \
-        curl file git unzip xz-utils zip libglu1-mesa
+      libgtk-3-dev liblzma-dev \
+      curl file git unzip xz-utils zip libglu1-mesa
 
 get:
     flutter pub get
@@ -22,18 +22,18 @@ test:
     dart test test/unit
 
 run platform="linux":
-    flutter run -d {{platform}}
+    flutter run -d {{ platform }}
 
 build target="linux":
     #!/usr/bin/env bash
     set -euo pipefail
-    if [ "{{target}}" = "deb" ]; then
-        just deb
-    elif [ "{{target}}" = "apk" ]; then
-        flutter build apk --release
-        echo "APK: build/app/outputs/flutter-apk/app-release.apk"
+    if [ "{{ target }}" = "deb" ]; then
+      just deb
+    elif [ "{{ target }}" = "apk" ]; then
+      flutter build apk --release
+      echo "APK: build/app/outputs/flutter-apk/app-release.apk"
     else
-        flutter build {{target}}
+      flutter build {{ target }}
     fi
 
 deb:
@@ -52,13 +52,13 @@ deb:
 
     rm -rf build/deb
     mkdir -p "$root/DEBIAN" "$root/usr/lib/$pkg" "$root/usr/bin" \
-        "$root/usr/share/applications" \
-        "$root/usr/share/icons/hicolor/512x512/apps"
+      "$root/usr/share/applications" \
+      "$root/usr/share/icons/hicolor/512x512/apps"
 
     cp -r "$bundle/." "$root/usr/lib/$pkg/"
     ln -sf "/usr/lib/$pkg/$binary" "$root/usr/bin/$pkg"
     cp assets/icon/orbit-1024.png \
-        "$root/usr/share/icons/hicolor/512x512/apps/$appid.png"
+      "$root/usr/share/icons/hicolor/512x512/apps/$appid.png"
 
     cat > "$root/usr/share/applications/$appid.desktop" <<EOF
     [Desktop Entry]
@@ -100,7 +100,7 @@ dmg:
     rm -rf build/dmg
     mkdir -p build/dmg
     hdiutil create -volname "Point Machine" -srcfolder "$app" \
-        -ov -format UDZO "$dmg"
+      -ov -format UDZO "$dmg"
     echo "Built $dmg"
 
 buy:
@@ -108,33 +108,33 @@ buy:
     set -euo pipefail
     version="$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')"
     case "$(uname -s)" in
-      Linux)
-        just deb
-        deb="build/deb/point-machine_${version}_amd64.deb"
-        sudo dpkg -i "$deb" || sudo apt-get install -f -y
-        sudo update-desktop-database -q 2>/dev/null || true
-        sudo gtk-update-icon-cache -q /usr/share/icons/hicolor 2>/dev/null || true
-        echo "Installed point-machine $version"
-        ;;
-      Darwin)
-        just dmg
-        app="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' | head -1)"
-        rm -rf "/Applications/$(basename "$app")"
-        cp -R "$app" /Applications/
-        echo "Installed $(basename "$app") to /Applications"
-        ;;
-      MINGW*|MSYS*|CYGWIN*|Windows*)
-        flutter build windows --release
-        dest="$LOCALAPPDATA/Programs/PointMachine"
-        rm -rf "$dest"
-        mkdir -p "$dest"
-        cp -R build/windows/x64/runner/Release/. "$dest/"
-        echo "Installed Point Machine to $dest"
-        ;;
-      *)
-        echo "Unsupported platform: $(uname -s)" >&2
-        exit 1
-        ;;
+     Linux)
+      just deb
+      deb="build/deb/point-machine_${version}_amd64.deb"
+      sudo dpkg -i "$deb" || sudo apt-get install -f -y
+      sudo update-desktop-database -q 2>/dev/null || true
+      sudo gtk-update-icon-cache -q /usr/share/icons/hicolor 2>/dev/null || true
+      echo "Installed point-machine $version"
+      ;;
+     Darwin)
+      just dmg
+      app="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' | head -1)"
+      rm -rf "/Applications/$(basename "$app")"
+      cp -R "$app" /Applications/
+      echo "Installed $(basename "$app") to /Applications"
+      ;;
+     MINGW*|MSYS*|CYGWIN*|Windows*)
+      flutter build windows --release
+      dest="$LOCALAPPDATA/Programs/PointMachine"
+      rm -rf "$dest"
+      mkdir -p "$dest"
+      cp -R build/windows/x64/runner/Release/. "$dest/"
+      echo "Installed Point Machine to $dest"
+      ;;
+     *)
+      echo "Unsupported platform: $(uname -s)" >&2
+      exit 1
+      ;;
     esac
 
 clean:
