@@ -12,7 +12,12 @@
       "Bash(grep -nE \"\\\\{|\\\\\\\\\\\\$\" lib/i18n/en.i18n.yaml)",
       "Bash(grep -nE \"\\\\{|\\\\\\\\\\\\$\" lib/i18n/ru.i18n.yaml)",
       "Bash(sed -i 's/{$name}/{name}/g; s/{$bytes}/{bytes}/g' lib/i18n/en.i18n.yaml lib/i18n/ru.i18n.yaml)",
-      "Bash(sed -i 's/'\\\\''$n /'\\\\''{n} /g; s/: $count$/: {count}/' lib/i18n/ru.i18n.yaml)"
+      "Bash(sed -i 's/'\\\\''$n /'\\\\''{n} /g; s/: $count$/: {count}/' lib/i18n/ru.i18n.yaml)",
+      "Bash(unzip -o orbit-iconset.zip -d /tmp/orbit-iconset)",
+      "Read(//tmp/**)",
+      "Bash(identify -version)",
+      "WebFetch(domain:github.com)",
+      "Bash(timeout 60 dart pub get)"
     ]
   }
 }

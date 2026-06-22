@@ -1,0 +1,9 @@
+<svg viewBox="0 0 1024 1024" width="1024" height="1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Orbit app icon">
+  <title>Orbit app icon</title>
+  <style>/* Любая тема Material 3 Expressive: поменяй две переменные */
+    svg { --container:#3A3C41; --on-container:#ECECEE; }</style>
+  <rect x="0" y="0" width="1024" height="1024" rx="230" fill="var(--container)"/>
+  <circle cx="512" cy="512" r="195" fill="none" stroke="var(--on-container)" stroke-width="56"/>
+  <g fill="var(--on-container)" stroke="var(--container)" stroke-width="24">
+    <circle cx="650" cy="374" r="78"/><circle cx="374" cy="650" r="78"/></g>
+</svg>
