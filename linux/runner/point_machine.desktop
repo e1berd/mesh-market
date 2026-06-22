@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Point Machine
+Comment=Serverless peer-to-peer file synchronizer
+Exec=point_machine
+Icon=tech.hammerhead.point_machine
+Terminal=false
+Type=Application
+Categories=Utility;Network;FileTransfer;
+StartupWMClass=tech.hammerhead.point_machine

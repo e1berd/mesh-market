@@ -17,7 +17,15 @@
       "Read(//tmp/**)",
       "Bash(identify -version)",
       "WebFetch(domain:github.com)",
-      "Bash(timeout 60 dart pub get)"
+      "Bash(timeout 60 dart pub get)",
+      "Bash(flutter config *)",
+      "Bash(flutter devices *)",
+      "Bash(flutter build *)",
+      "Bash(chmod +x tool/build_deb.sh)",
+      "Bash(bash tool/build_deb.sh)",
+      "Bash(ps -o lstart= -C gnome-shell)",
+      "Read(//usr/share/applications/**)",
+      "Bash(nohup ./point_machine)"
     ]
   }
 }
