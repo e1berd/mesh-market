@@ -40,7 +40,9 @@ Future<void> _initBackgroundService() async {
   if (Platform.isAndroid) {
     try {
       await Permission.notification.request();
-    } on Object {}
+    } on Object catch (error, stack) {
+      debugPrint('[pm.bg] notification permission request failed: $error\n$stack');
+    }
   }
 
   final service = FlutterBackgroundService();

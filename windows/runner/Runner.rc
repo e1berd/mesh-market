@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "tech.hammerhead" "\0"
-            VALUE "FileDescription", "point_machine" "\0"
+            VALUE "FileDescription", "Point Machine" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "point_machine" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 tech.hammerhead. All rights reserved." "\0"
             VALUE "OriginalFilename", "point_machine.exe" "\0"
-            VALUE "ProductName", "point_machine" "\0"
+            VALUE "ProductName", "Point Machine" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

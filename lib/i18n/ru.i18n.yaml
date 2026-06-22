@@ -62,7 +62,7 @@ pair:
   toggleFlashlight: Включить фонарик
   selfPairError: Нельзя связать устройство с самим собой
   paired: 'Устройство {name} связано'
-  invalidQr: Этот QR-код не является кодом point-machine
+  invalidQr: Этот QR-код не является кодом Point Machine
   nearbyTitle: Устройства рядом
   nearbySearching: Поиск устройств в вашей сети…
   pairAction: Связать

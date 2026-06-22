@@ -19,7 +19,7 @@ class PointMachineApp extends ConsumerWidget {
     );
     return TranslationProvider(
       child: MaterialApp(
-        title: 'point-machine',
+        title: 'Point Machine',
         theme: pointTheme(.light, themeConfig.schemeId),
         darkTheme: pointTheme(.dark, themeConfig.schemeId),
         themeMode: themeConfig.mode,

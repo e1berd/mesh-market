@@ -248,8 +248,8 @@ class Translations$pair$en {
 	/// en: 'Device {name} paired'
 	String paired({required Object name}) => 'Device ${name} paired';
 
-	/// en: 'This QR code is not a point-machine device'
-	String get invalidQr => 'This QR code is not a point-machine device';
+	/// en: 'This QR code is not a Point Machine device'
+	String get invalidQr => 'This QR code is not a Point Machine device';
 
 	/// en: 'Nearby devices'
 	String get nearbyTitle => 'Nearby devices';
@@ -621,7 +621,7 @@ extension on Translations {
 			'pair.toggleFlashlight' => 'Toggle flashlight',
 			'pair.selfPairError' => 'Cannot pair this device with itself',
 			'pair.paired' => ({required Object name}) => 'Device ${name} paired',
-			'pair.invalidQr' => 'This QR code is not a point-machine device',
+			'pair.invalidQr' => 'This QR code is not a Point Machine device',
 			'pair.nearbyTitle' => 'Nearby devices',
 			'pair.nearbySearching' => 'Looking for devices on your network…',
 			'pair.pairAction' => 'Pair',

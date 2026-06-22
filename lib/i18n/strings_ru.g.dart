@@ -147,7 +147,7 @@ class _Translations$pair$ru implements Translations$pair$en {
 	@override String get toggleFlashlight => 'Включить фонарик';
 	@override String get selfPairError => 'Нельзя связать устройство с самим собой';
 	@override String paired({required Object name}) => 'Устройство ${name} связано';
-	@override String get invalidQr => 'Этот QR-код не является кодом point-machine';
+	@override String get invalidQr => 'Этот QR-код не является кодом Point Machine';
 	@override String get nearbyTitle => 'Устройства рядом';
 	@override String get nearbySearching => 'Поиск устройств в вашей сети…';
 	@override String get pairAction => 'Связать';
@@ -341,7 +341,7 @@ extension on TranslationsRu {
 			'pair.toggleFlashlight' => 'Включить фонарик',
 			'pair.selfPairError' => 'Нельзя связать устройство с самим собой',
 			'pair.paired' => ({required Object name}) => 'Устройство ${name} связано',
-			'pair.invalidQr' => 'Этот QR-код не является кодом point-machine',
+			'pair.invalidQr' => 'Этот QR-код не является кодом Point Machine',
 			'pair.nearbyTitle' => 'Устройства рядом',
 			'pair.nearbySearching' => 'Поиск устройств в вашей сети…',
 			'pair.pairAction' => 'Связать',
