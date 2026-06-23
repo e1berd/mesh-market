@@ -1,0 +1,28 @@
+name: pm_offline
+description: Offline near-field transport bridges for mesh-market.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.12.2
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: tech.hammerhead.pm_offline
+        pluginClass: PmOfflinePlugin
+      ios:
+        pluginClass: PmOfflinePlugin
+        sharedDarwinSource: true
+      macos:
+        pluginClass: PmOfflinePlugin
+        sharedDarwinSource: true

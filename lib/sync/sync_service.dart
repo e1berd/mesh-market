@@ -14,8 +14,10 @@ import '../crypto/folder_key.dart';
 import '../storage/file_store.dart';
 import '../transport/bluetooth_transport.dart';
 import '../transport/dht.dart';
+import '../transport/ip_link_bringup.dart';
 import '../transport/lan_beacon.dart';
 import '../transport/lan_signaling.dart';
+import '../transport/multipeer_transport.dart';
 import '../transport/negotiator.dart';
 import '../transport/pairing_code.dart';
 import '../transport/peer_link.dart';
@@ -23,6 +25,8 @@ import '../transport/signaling.dart';
 import '../transport/sync_transport.dart';
 import '../transport/swarm.dart';
 import '../transport/tcp_transport.dart';
+import '../transport/wifi_aware_transport.dart';
+import '../transport/wifi_direct_transport.dart';
 import 'engine.dart';
 import 'index.dart';
 import 'scanner.dart';
@@ -83,10 +87,29 @@ class SyncService {
   late final DirectTcpTransport _tcp = DirectTcpTransport(
     deviceId: identity.id,
   );
+  late final IpLinkBringup _bringup = IpLinkBringup(_tcp);
   late final BluetoothTransport _bluetooth = BluetoothTransport(
     deviceId: identity.id,
     deviceName: deviceName,
   );
+  late final WifiDirectTransport _wifiDirect = WifiDirectTransport(
+    deviceId: identity.id,
+    deviceName: deviceName,
+    bringup: _bringup,
+    syncPort: () => _tcp.boundPort,
+  );
+  late final WifiAwareTransport _wifiAware = WifiAwareTransport(
+    deviceId: identity.id,
+    bringup: _bringup,
+    syncPort: () => _tcp.boundPort,
+  );
+  late final MultipeerTransport _multipeer = MultipeerTransport(
+    deviceId: identity.id,
+  );
+  bool _wifiDirectSupported = false;
+  bool _wifiAwareSupported = false;
+  bool _multipeerSupported = false;
+  Timer? _offlineTimer;
   bool _syncActive = false;
 
   late final PairingPayload _self = PairingPayload.ofDevice(
@@ -146,8 +169,91 @@ class SyncService {
         _log('bluetooth failed: $error');
       }
     }
+    await _startOfflineTransports();
+    _startOfflineDialing();
     for (final folder in folders) {
       _activateFolder(folder);
+    }
+  }
+
+  Future<void> _startOfflineTransports() async {
+    _wifiDirectSupported = await WifiDirectTransport.isSupported();
+    _wifiAwareSupported = await WifiAwareTransport.isSupported();
+    _multipeerSupported = await MultipeerTransport.isSupported();
+    if (config.wifiDirectDiscovery && _wifiDirectSupported) {
+      try {
+        await _wifiDirect.start();
+      } on Object catch (error) {
+        _log('wifiDirect failed: $error');
+      }
+    }
+    if (config.wifiAwareDiscovery && _wifiAwareSupported) {
+      try {
+        await _wifiAware.start();
+      } on Object catch (error) {
+        _log('wifiAware failed: $error');
+      }
+    }
+    if (config.multipeerDiscovery && _multipeerSupported) {
+      try {
+        await _multipeer.start();
+        _subscriptions.add(_multipeer.incoming.listen(_acceptMultipeer));
+      } on Object catch (error) {
+        _log('multipeer failed: $error');
+      }
+    }
+  }
+
+  bool get _offlineEnabled =>
+      config.bluetoothDiscovery ||
+      (config.wifiDirectDiscovery && _wifiDirectSupported) ||
+      (config.multipeerDiscovery && _multipeerSupported) ||
+      (config.wifiAwareDiscovery && _wifiAwareSupported);
+
+  void _startOfflineDialing() {
+    _offlineTimer?.cancel();
+    if (!_offlineEnabled) return;
+    _offlineTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+      if (_syncActive) unawaited(_dialOfflineAllGranted());
+    });
+  }
+
+  Future<void> _dialOfflineAllGranted() async {
+    for (final peer in peers) {
+      for (final folder in folders) {
+        if (folder.config.peerIds.contains(peer.deviceId) &&
+            _canStart(peer.deviceId, folder.config.id)) {
+          await _dialOffline(peer, folder);
+        }
+      }
+    }
+  }
+
+  Future<void> _dialOffline(PairingPayload peer, FolderRuntime folder) async {
+    final key = '${peer.deviceId}/${folder.config.id}';
+    if (_active.contains(key)) return;
+    _active.add(key);
+    try {
+      final target = SyncTransportTarget(
+        peerId: peer.deviceId,
+        folderId: folder.config.id,
+        folderLabel: folder.config.label,
+      );
+      final result = await _transportCoordinator.open(
+        target,
+        _offlineCandidates(folder: folder, peer: peer),
+      );
+      await _runLink(
+        folder: folder,
+        peer: peer,
+        link: result.link,
+        transport: result.kind.id,
+        transportLabel: result.kind.label,
+      );
+    } on Object catch (error) {
+      _log('offline dial "${folder.config.label}" failed: $error');
+    } finally {
+      _active.remove(key);
     }
   }
 
@@ -254,7 +360,10 @@ class SyncService {
     if (_syncActive == active) return;
     _syncActive = active;
     _log('sync active=$active');
-    if (active) _dialAllGranted();
+    if (active) {
+      _dialAllGranted();
+      if (_offlineEnabled) unawaited(_dialOfflineAllGranted());
+    }
   }
 
   void _dialAllGranted() {
@@ -687,6 +796,41 @@ class SyncService {
     }
   }
 
+  Future<void> _acceptMultipeer(MultipeerIncomingLink incoming) async {
+    final key = '${incoming.peerId}/${incoming.folderId}';
+    var activeAdded = false;
+    try {
+      final folder = _folderById(incoming.folderId);
+      final peer = _peerById(incoming.peerId);
+      final allowed =
+          _syncActive &&
+          folder != null &&
+          peer != null &&
+          folder.config.peerIds.contains(peer.deviceId);
+      _log(
+        'multipeer incoming "${folder?.config.label ?? incoming.folderId}" '
+        'from ${incoming.peerId} allowed=$allowed active=${_active.contains(key)}',
+      );
+      if (!allowed || _active.contains(key)) {
+        await incoming.link.close();
+        return;
+      }
+      _active.add(key);
+      activeAdded = true;
+      await _runLink(
+        folder: folder,
+        peer: peer,
+        link: incoming.link,
+        transport: SyncTransportKind.multipeer.id,
+        transportLabel: SyncTransportKind.multipeer.label,
+      );
+    } on Object catch (error) {
+      _log('multipeer incoming failed: $error');
+    } finally {
+      if (activeAdded) _active.remove(key);
+    }
+  }
+
   Future<void> _acceptTcp(DirectTcpIncomingLink incoming) async {
     final key = '${incoming.peerId}/${incoming.folderId}';
     var activeAdded = false;
@@ -783,29 +927,112 @@ class SyncService {
       },
     );
 
-    yield SyncTransportCandidate(
-      descriptor: SyncTransportDescriptor(
-        kind: SyncTransportKind.bluetooth,
-        priority: 20,
-        available: config.bluetoothDiscovery,
-      ),
-      open: () {
-        onAttempt(SyncTransportKind.bluetooth.id);
-        onEvent?.call(
-          SyncEvent(
-            SyncEventKind.connecting,
-            peerId: peer.deviceId,
-            folderId: folder.config.id,
-            transport: SyncTransportKind.bluetooth.id,
-          ),
-        );
-        return _bluetooth.open(
-          peerId: peer.deviceId,
-          folderId: folder.config.id,
-        );
-      },
+    yield _offlineCandidate(
+      SyncTransportKind.wifiDirect,
+      12,
+      config.wifiDirectDiscovery && _wifiDirectSupported,
+      peer,
+      folder,
+      () => _wifiDirect.open(peerId: peer.deviceId, folderId: folder.config.id),
+      onAttempt: onAttempt,
+    );
+
+    yield _offlineCandidate(
+      SyncTransportKind.multipeer,
+      13,
+      config.multipeerDiscovery && _multipeerSupported,
+      peer,
+      folder,
+      () => _multipeer.open(peerId: peer.deviceId, folderId: folder.config.id),
+      onAttempt: onAttempt,
+    );
+
+    yield _offlineCandidate(
+      SyncTransportKind.wifiAware,
+      14,
+      config.wifiAwareDiscovery && _wifiAwareSupported,
+      peer,
+      folder,
+      () => _wifiAware.open(peerId: peer.deviceId, folderId: folder.config.id),
+      onAttempt: onAttempt,
+    );
+
+    yield _offlineCandidate(
+      SyncTransportKind.bluetooth,
+      20,
+      config.bluetoothDiscovery,
+      peer,
+      folder,
+      () => _bluetooth.open(peerId: peer.deviceId, folderId: folder.config.id),
+      onAttempt: onAttempt,
     );
   }
+
+  Iterable<SyncTransportCandidate> _offlineCandidates({
+    required FolderRuntime folder,
+    required PairingPayload peer,
+  }) sync* {
+    yield _offlineCandidate(
+      SyncTransportKind.wifiDirect,
+      12,
+      config.wifiDirectDiscovery && _wifiDirectSupported,
+      peer,
+      folder,
+      () => _wifiDirect.open(peerId: peer.deviceId, folderId: folder.config.id),
+    );
+    yield _offlineCandidate(
+      SyncTransportKind.multipeer,
+      13,
+      config.multipeerDiscovery && _multipeerSupported,
+      peer,
+      folder,
+      () => _multipeer.open(peerId: peer.deviceId, folderId: folder.config.id),
+    );
+    yield _offlineCandidate(
+      SyncTransportKind.wifiAware,
+      14,
+      config.wifiAwareDiscovery && _wifiAwareSupported,
+      peer,
+      folder,
+      () => _wifiAware.open(peerId: peer.deviceId, folderId: folder.config.id),
+    );
+    yield _offlineCandidate(
+      SyncTransportKind.bluetooth,
+      20,
+      config.bluetoothDiscovery,
+      peer,
+      folder,
+      () => _bluetooth.open(peerId: peer.deviceId, folderId: folder.config.id),
+    );
+  }
+
+  SyncTransportCandidate _offlineCandidate(
+    SyncTransportKind kind,
+    int priority,
+    bool available,
+    PairingPayload peer,
+    FolderRuntime folder,
+    Future<PeerLink> Function() open, {
+    void Function(String transport)? onAttempt,
+  }) => SyncTransportCandidate(
+    descriptor: SyncTransportDescriptor(
+      kind: kind,
+      priority: priority,
+      available: available,
+    ),
+    open: () {
+      onAttempt?.call(kind.id);
+      onEvent?.call(
+        SyncEvent(
+          SyncEventKind.connecting,
+          peerId: peer.deviceId,
+          folderId: folder.config.id,
+          transport: kind.id,
+        ),
+      );
+      return open();
+    },
+  );
 
   PairingPayload? _peerById(String deviceId) {
     for (final peer in peers) {
@@ -829,6 +1056,7 @@ class SyncService {
   }
 
   Future<void> stop() async {
+    _offlineTimer?.cancel();
     for (final timer in _debounce.values) {
       timer.cancel();
     }
@@ -840,6 +1068,9 @@ class SyncService {
       await dht.stop();
     }
     await _bluetooth.stop();
+    await _wifiDirect.stop();
+    await _wifiAware.stop();
+    await _multipeer.stop();
     await _tcp.stop();
     await _signaling.stop();
   }

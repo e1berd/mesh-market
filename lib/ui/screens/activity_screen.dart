@@ -243,6 +243,9 @@ String _transportLabel(BuildContext context, String transport) =>
     switch (transport) {
       'tcp' => context.t.activity.transportTcp,
       'lan' => context.t.activity.transportLan,
+      'wifi-direct' => context.t.activity.transportWifiDirect,
+      'multipeer' => context.t.activity.transportMultipeer,
+      'wifi-aware' => context.t.activity.transportWifiAware,
       'bluetooth' => context.t.activity.transportBluetooth,
       _ => transport,
     };
@@ -250,6 +253,9 @@ String _transportLabel(BuildContext context, String transport) =>
 IconData _transportIcon(String transport) => switch (transport) {
   'tcp' => Icons.settings_ethernet_rounded,
   'lan' => Icons.router_rounded,
+  'wifi-direct' => Icons.wifi_tethering_rounded,
+  'multipeer' => Icons.devices_rounded,
+  'wifi-aware' => Icons.cell_tower_rounded,
   'bluetooth' => Icons.bluetooth_rounded,
   _ => Icons.hub_rounded,
 };
@@ -425,6 +431,9 @@ class _ScheduleControls extends ConsumerWidget {
       switch (transport) {
         'tcp' => context.t.activity.transportTcp,
         'lan' => context.t.activity.transportLan,
+        'wifi-direct' => context.t.activity.transportWifiDirect,
+        'multipeer' => context.t.activity.transportMultipeer,
+        'wifi-aware' => context.t.activity.transportWifiAware,
         'bluetooth' => context.t.activity.transportBluetooth,
         _ => transport,
       };

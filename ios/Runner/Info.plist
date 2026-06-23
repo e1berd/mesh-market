@@ -30,6 +30,15 @@
 	<string>Mesh Market uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Mesh Market uses Bluetooth to sync files with nearby paired devices when the network is unavailable.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Mesh Market discovers and syncs with your nearby paired devices over the local network.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_mesh-market._tcp</string>
+		<string>_mesh-market._udp</string>
+	</array>
+	<key>NFCReaderUsageDescription</key>
+	<string>Mesh Market reads NFC tags to pair with another device by tapping them together.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

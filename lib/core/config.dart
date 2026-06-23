@@ -26,6 +26,11 @@ class AppConfig {
     this.lanDiscovery = true,
     this.dhtDiscovery = true,
     this.bluetoothDiscovery = true,
+    this.wifiDirectDiscovery = false,
+    this.multipeerDiscovery = false,
+    this.wifiAwareDiscovery = false,
+    this.hotspotFallback = false,
+    this.nfcPairing = false,
     this.syncInBackground = true,
     this.syncNow = true,
     this.scheduleEnabled = false,
@@ -41,6 +46,11 @@ class AppConfig {
   final bool lanDiscovery;
   final bool dhtDiscovery;
   final bool bluetoothDiscovery;
+  final bool wifiDirectDiscovery;
+  final bool multipeerDiscovery;
+  final bool wifiAwareDiscovery;
+  final bool hotspotFallback;
+  final bool nfcPairing;
   final bool syncInBackground;
   final bool syncNow;
   final bool scheduleEnabled;
@@ -56,6 +66,11 @@ class AppConfig {
     bool? lanDiscovery,
     bool? dhtDiscovery,
     bool? bluetoothDiscovery,
+    bool? wifiDirectDiscovery,
+    bool? multipeerDiscovery,
+    bool? wifiAwareDiscovery,
+    bool? hotspotFallback,
+    bool? nfcPairing,
     bool? syncInBackground,
     bool? syncNow,
     bool? scheduleEnabled,
@@ -70,6 +85,11 @@ class AppConfig {
     lanDiscovery: lanDiscovery ?? this.lanDiscovery,
     dhtDiscovery: dhtDiscovery ?? this.dhtDiscovery,
     bluetoothDiscovery: bluetoothDiscovery ?? this.bluetoothDiscovery,
+    wifiDirectDiscovery: wifiDirectDiscovery ?? this.wifiDirectDiscovery,
+    multipeerDiscovery: multipeerDiscovery ?? this.multipeerDiscovery,
+    wifiAwareDiscovery: wifiAwareDiscovery ?? this.wifiAwareDiscovery,
+    hotspotFallback: hotspotFallback ?? this.hotspotFallback,
+    nfcPairing: nfcPairing ?? this.nfcPairing,
     syncInBackground: syncInBackground ?? this.syncInBackground,
     syncNow: syncNow ?? this.syncNow,
     scheduleEnabled: scheduleEnabled ?? this.scheduleEnabled,
@@ -94,6 +114,11 @@ class AppConfig {
     'lanDiscovery': lanDiscovery,
     'dhtDiscovery': dhtDiscovery,
     'bluetoothDiscovery': bluetoothDiscovery,
+    'wifiDirectDiscovery': wifiDirectDiscovery,
+    'multipeerDiscovery': multipeerDiscovery,
+    'wifiAwareDiscovery': wifiAwareDiscovery,
+    'hotspotFallback': hotspotFallback,
+    'nfcPairing': nfcPairing,
     'syncInBackground': syncInBackground,
     'syncNow': syncNow,
     'scheduleEnabled': scheduleEnabled,
@@ -120,6 +145,11 @@ class AppConfig {
     lanDiscovery: json['lanDiscovery'] as bool? ?? true,
     dhtDiscovery: json['dhtDiscovery'] as bool? ?? true,
     bluetoothDiscovery: json['bluetoothDiscovery'] as bool? ?? true,
+    wifiDirectDiscovery: json['wifiDirectDiscovery'] as bool? ?? false,
+    multipeerDiscovery: json['multipeerDiscovery'] as bool? ?? false,
+    wifiAwareDiscovery: json['wifiAwareDiscovery'] as bool? ?? false,
+    hotspotFallback: json['hotspotFallback'] as bool? ?? false,
+    nfcPairing: json['nfcPairing'] as bool? ?? false,
     syncInBackground: json['syncInBackground'] as bool? ?? true,
     syncNow: json['syncNow'] as bool? ?? true,
     scheduleEnabled: json['scheduleEnabled'] as bool? ?? false,

@@ -9,11 +9,14 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../core/identity.dart';
 import '../../core/pairing.dart';
 import '../../i18n/strings.g.dart';
+import '../../state/app_providers.dart';
 import '../../state/identity_provider.dart';
 import '../../state/nearby_devices_provider.dart';
 import '../../state/pairing_controller.dart';
 import '../../state/peers_provider.dart';
+import '../../state/transport_support_provider.dart';
 import '../../transport/lan_beacon.dart';
+import '../../transport/nfc_pairing.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
 import '../widgets/remote_code_field.dart';
@@ -116,6 +119,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
           _yourCode(context, device.id),
           _remote(context, device.id),
           _scanButton(context, device.id),
+          _nfcButton(context, device.id),
           _nearbySection(context, device.id),
         ],
       ),
@@ -501,6 +505,36 @@ class _PairScreenState extends ConsumerState<PairScreen> {
     style: M3EButtonStyle.outlined,
     size: .md,
   );
+
+  Widget _nfcButton(BuildContext context, String selfId) {
+    final support = ref.watch(transportSupportProvider).value;
+    final config = ref.watch(configProvider);
+    if (support == null || !support.nfc || !config.nfcPairing) {
+      return const SizedBox.shrink();
+    }
+    return M3EButton.icon(
+      onPressed: () => _pairViaNfc(context, selfId),
+      icon: const Icon(Icons.nfc_rounded),
+      label: Text(context.t.pair.nfcButton),
+      style: M3EButtonStyle.outlined,
+      size: .md,
+    );
+  }
+
+  Future<void> _pairViaNfc(BuildContext context, String selfId) async {
+    context.showSnackBar(context.t.pair.nfcWaiting);
+    try {
+      final peer = await const NfcPairing().read();
+      if (!context.mounted) return;
+      if (peer.deviceId == selfId) {
+        context.showSnackBar(context.t.pair.selfPairError);
+        return;
+      }
+      await _pair(context, peer);
+    } on Object {
+      if (context.mounted) context.showSnackBar(context.t.pair.nfcFailed);
+    }
+  }
 
   String _mask(String code) {
     final tail = code.length <= 6 ? code : code.substring(code.length - 6);

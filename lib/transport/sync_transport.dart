@@ -1,17 +1,30 @@
 import 'peer_link.dart';
 
-enum SyncTransportKind { directTcp, localNetwork, bluetooth }
+enum SyncTransportKind {
+  directTcp,
+  localNetwork,
+  wifiDirect,
+  multipeer,
+  wifiAware,
+  bluetooth,
+}
 
 extension SyncTransportKindLabel on SyncTransportKind {
   String get id => switch (this) {
     SyncTransportKind.directTcp => 'tcp',
     SyncTransportKind.localNetwork => 'lan',
+    SyncTransportKind.wifiDirect => 'wifi-direct',
+    SyncTransportKind.multipeer => 'multipeer',
+    SyncTransportKind.wifiAware => 'wifi-aware',
     SyncTransportKind.bluetooth => 'bluetooth',
   };
 
   String get label => switch (this) {
     SyncTransportKind.directTcp => 'TCP',
     SyncTransportKind.localNetwork => 'Local network',
+    SyncTransportKind.wifiDirect => 'Wi-Fi Direct',
+    SyncTransportKind.multipeer => 'Multipeer',
+    SyncTransportKind.wifiAware => 'Wi-Fi Aware',
     SyncTransportKind.bluetooth => 'Bluetooth',
   };
 }

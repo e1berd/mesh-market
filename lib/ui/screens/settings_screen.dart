@@ -6,6 +6,11 @@ import 'package:motor/motor.dart';
 import '../../i18n/strings.g.dart';
 import '../../state/activity_log_provider.dart';
 import '../../state/app_providers.dart';
+import 'dart:io';
+
+import 'package:permission_handler/permission_handler.dart';
+
+import '../../transport/hotspot.dart';
 import '../theme.dart';
 import '../widgets/expressive.dart';
 import '../widgets/ice_server_dialog.dart';
@@ -137,6 +142,56 @@ class SettingsScreen extends ConsumerWidget {
               onChanged: notifier.toggleBluetoothDiscovery,
             ),
           ),
+          if (Platform.isAndroid) ...[
+            _SettingTile(
+              icon: Icons.wifi_tethering_rounded,
+              title: context.t.settings.wifiDirectTitle,
+              subtitle: context.t.settings.wifiDirectSubtitle,
+              trailing: Switch(
+                value: config.wifiDirectDiscovery,
+                onChanged: notifier.toggleWifiDirect,
+              ),
+            ),
+            _SettingTile(
+              icon: Icons.cell_tower_rounded,
+              title: context.t.settings.wifiAwareTitle,
+              subtitle: context.t.settings.wifiAwareSubtitle,
+              trailing: Switch(
+                value: config.wifiAwareDiscovery,
+                onChanged: notifier.toggleWifiAware,
+              ),
+            ),
+            _SettingTile(
+              icon: Icons.router_rounded,
+              title: context.t.settings.hotspotTitle,
+              subtitle: context.t.settings.hotspotSubtitle,
+              trailing: Switch(
+                value: config.hotspotFallback,
+                onChanged: notifier.toggleHotspot,
+              ),
+            ),
+            if (config.hotspotFallback) const _HotspotCreateButton(),
+          ],
+          if (Platform.isIOS || Platform.isMacOS)
+            _SettingTile(
+              icon: Icons.devices_rounded,
+              title: context.t.settings.multipeerTitle,
+              subtitle: context.t.settings.multipeerSubtitle,
+              trailing: Switch(
+                value: config.multipeerDiscovery,
+                onChanged: notifier.toggleMultipeer,
+              ),
+            ),
+          if (Platform.isAndroid || Platform.isIOS)
+            _SettingTile(
+              icon: Icons.nfc_rounded,
+              title: context.t.settings.nfcTitle,
+              subtitle: context.t.settings.nfcSubtitle,
+              trailing: Switch(
+                value: config.nfcPairing,
+                onChanged: notifier.toggleNfc,
+              ),
+            ),
           _SettingTile(
             icon: Icons.sync_rounded,
             title: context.t.settings.backgroundTitle,
@@ -645,6 +700,43 @@ class _Swatch extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _HotspotCreateButton extends StatelessWidget {
+  const _HotspotCreateButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t.settings;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: M3EButton.icon(
+          onPressed: () => _create(context),
+          icon: const Icon(Icons.add_rounded),
+          label: Text(t.hotspotCreate),
+          style: .tonal,
+          size: .sm,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _create(BuildContext context) async {
+    final t = context.t.settings;
+    await [Permission.nearbyWifiDevices, Permission.location].request();
+    try {
+      final credentials = await const HotspotController().start();
+      if (!context.mounted || credentials == null) return;
+      context.showSnackBar(
+        '${t.hotspotActive(ssid: credentials.ssid)}\n'
+        '${t.hotspotPassword(password: credentials.passphrase)}',
+      );
+    } on Object {
+      if (context.mounted) context.showSnackBar(t.hotspotFailed);
+    }
   }
 }
 

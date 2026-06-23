@@ -43,6 +43,16 @@ Future<void> _initBackgroundService() async {
     } on Object catch (error, stack) {
       debugPrint('[pm.bg] notification permission request failed: $error\n$stack');
     }
+    try {
+      await [
+        Permission.bluetoothScan,
+        Permission.bluetoothConnect,
+        Permission.bluetoothAdvertise,
+        Permission.nearbyWifiDevices,
+      ].request();
+    } on Object catch (error, stack) {
+      debugPrint('[pm.bg] connectivity permission request failed: $error\n$stack');
+    }
   }
 
   final service = FlutterBackgroundService();

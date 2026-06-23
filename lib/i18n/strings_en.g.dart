@@ -334,6 +334,18 @@ class Translations$pair$en {
 
 	/// en: 'Resume scanning'
 	String get resumeScan => 'Resume scanning';
+
+	/// en: 'Tap to pair'
+	String get nfcButton => 'Tap to pair';
+
+	/// en: 'Hold this device against another to pair'
+	String get nfcHint => 'Hold this device against another to pair';
+
+	/// en: 'Hold the devices together…'
+	String get nfcWaiting => 'Hold the devices together…';
+
+	/// en: 'NFC pairing failed'
+	String get nfcFailed => 'NFC pairing failed';
 }
 
 // Path: share
@@ -412,6 +424,15 @@ class Translations$activity$en {
 
 	/// en: 'Bluetooth'
 	String get transportBluetooth => 'Bluetooth';
+
+	/// en: 'Wi-Fi Direct'
+	String get transportWifiDirect => 'Wi-Fi Direct';
+
+	/// en: 'Multipeer'
+	String get transportMultipeer => 'Multipeer';
+
+	/// en: 'Wi-Fi Aware'
+	String get transportWifiAware => 'Wi-Fi Aware';
 }
 
 // Path: schedule
@@ -493,6 +514,54 @@ class Translations$settings$en {
 
 	/// en: 'Use nearby Bluetooth when network sync fails'
 	String get bluetoothSubtitle => 'Use nearby Bluetooth when network sync fails';
+
+	/// en: 'Offline transports'
+	String get offlineTransports => 'Offline transports';
+
+	/// en: 'Wi-Fi Direct'
+	String get wifiDirectTitle => 'Wi-Fi Direct';
+
+	/// en: 'Fast peer-to-peer over Wi-Fi, no access point'
+	String get wifiDirectSubtitle => 'Fast peer-to-peer over Wi-Fi, no access point';
+
+	/// en: 'Multipeer'
+	String get multipeerTitle => 'Multipeer';
+
+	/// en: 'Apple peer-to-peer over Wi-Fi and Bluetooth'
+	String get multipeerSubtitle => 'Apple peer-to-peer over Wi-Fi and Bluetooth';
+
+	/// en: 'Wi-Fi Aware'
+	String get wifiAwareTitle => 'Wi-Fi Aware';
+
+	/// en: 'Serverless neighbor discovery and data path'
+	String get wifiAwareSubtitle => 'Serverless neighbor discovery and data path';
+
+	/// en: 'Local hotspot'
+	String get hotspotTitle => 'Local hotspot';
+
+	/// en: 'Raise a hotspot so peers can join and sync offline'
+	String get hotspotSubtitle => 'Raise a hotspot so peers can join and sync offline';
+
+	/// en: 'Create hotspot'
+	String get hotspotCreate => 'Create hotspot';
+
+	/// en: 'Stop hotspot'
+	String get hotspotStop => 'Stop hotspot';
+
+	/// en: 'Hotspot active — {ssid}'
+	String hotspotActive({required Object ssid}) => 'Hotspot active — ${ssid}';
+
+	/// en: 'Password: {password}'
+	String hotspotPassword({required Object password}) => 'Password: ${password}';
+
+	/// en: 'Could not start the hotspot'
+	String get hotspotFailed => 'Could not start the hotspot';
+
+	/// en: 'NFC pairing'
+	String get nfcTitle => 'NFC pairing';
+
+	/// en: 'Tap two devices together to pair'
+	String get nfcSubtitle => 'Tap two devices together to pair';
 
 	/// en: 'Sync in background'
 	String get backgroundTitle => 'Sync in background';
@@ -650,6 +719,10 @@ extension on Translations {
 			'pair.scanPaused' => 'Scanning paused',
 			'pair.pauseScan' => 'Pause scanning',
 			'pair.resumeScan' => 'Resume scanning',
+			'pair.nfcButton' => 'Tap to pair',
+			'pair.nfcHint' => 'Hold this device against another to pair',
+			'pair.nfcWaiting' => 'Hold the devices together…',
+			'pair.nfcFailed' => 'NFC pairing failed',
 			'share.incomingTitle' => 'Folder share request',
 			'share.incomingBody' => ({required Object name, required Object folder}) => '${name} wants to share the folder “${folder}” with you. Choose where to save it.',
 			'share.choose' => 'Choose location',
@@ -670,6 +743,9 @@ extension on Translations {
 			'activity.transportTcp' => 'Direct TCP',
 			'activity.transportLan' => 'Local network',
 			'activity.transportBluetooth' => 'Bluetooth',
+			'activity.transportWifiDirect' => 'Wi-Fi Direct',
+			'activity.transportMultipeer' => 'Multipeer',
+			'activity.transportWifiAware' => 'Wi-Fi Aware',
 			'schedule.title' => 'Synchronization',
 			'schedule.syncNow' => 'Sync now',
 			'schedule.syncNowHint' => 'Sync immediately until you turn it off',
@@ -691,6 +767,22 @@ extension on Translations {
 			'settings.dhtSubtitle' => 'Find peers across networks',
 			'settings.bluetoothTitle' => 'Bluetooth',
 			'settings.bluetoothSubtitle' => 'Use nearby Bluetooth when network sync fails',
+			'settings.offlineTransports' => 'Offline transports',
+			'settings.wifiDirectTitle' => 'Wi-Fi Direct',
+			'settings.wifiDirectSubtitle' => 'Fast peer-to-peer over Wi-Fi, no access point',
+			'settings.multipeerTitle' => 'Multipeer',
+			'settings.multipeerSubtitle' => 'Apple peer-to-peer over Wi-Fi and Bluetooth',
+			'settings.wifiAwareTitle' => 'Wi-Fi Aware',
+			'settings.wifiAwareSubtitle' => 'Serverless neighbor discovery and data path',
+			'settings.hotspotTitle' => 'Local hotspot',
+			'settings.hotspotSubtitle' => 'Raise a hotspot so peers can join and sync offline',
+			'settings.hotspotCreate' => 'Create hotspot',
+			'settings.hotspotStop' => 'Stop hotspot',
+			'settings.hotspotActive' => ({required Object ssid}) => 'Hotspot active — ${ssid}',
+			'settings.hotspotPassword' => ({required Object password}) => 'Password: ${password}',
+			'settings.hotspotFailed' => 'Could not start the hotspot',
+			'settings.nfcTitle' => 'NFC pairing',
+			'settings.nfcSubtitle' => 'Tap two devices together to pair',
 			'settings.backgroundTitle' => 'Sync in background',
 			'settings.backgroundSubtitle' => 'Keep syncing when app is not focused',
 			'settings.logsTitle' => 'Activity logs',

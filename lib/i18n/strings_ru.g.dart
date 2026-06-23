@@ -176,6 +176,10 @@ class _Translations$pair$ru implements Translations$pair$en {
 	@override String get scanPaused => 'Поиск приостановлен';
 	@override String get pauseScan => 'Приостановить поиск';
 	@override String get resumeScan => 'Возобновить поиск';
+	@override String get nfcButton => 'Связать касанием';
+	@override String get nfcHint => 'Приложите устройство к другому для связи';
+	@override String get nfcWaiting => 'Держите устройства вместе…';
+	@override String get nfcFailed => 'Не удалось связать через NFC';
 }
 
 // Path: share
@@ -214,6 +218,9 @@ class _Translations$activity$ru implements Translations$activity$en {
 	@override String get transportTcp => 'Прямой TCP';
 	@override String get transportLan => 'Локальная сеть';
 	@override String get transportBluetooth => 'Bluetooth';
+	@override String get transportWifiDirect => 'Wi-Fi Direct';
+	@override String get transportMultipeer => 'Multipeer';
+	@override String get transportWifiAware => 'Wi-Fi Aware';
 }
 
 // Path: schedule
@@ -253,6 +260,22 @@ class _Translations$settings$ru implements Translations$settings$en {
 	@override String get dhtSubtitle => 'Найти устройства через интернет';
 	@override String get bluetoothTitle => 'Bluetooth';
 	@override String get bluetoothSubtitle => 'Использовать Bluetooth рядом, если сеть недоступна';
+	@override String get offlineTransports => 'Офлайн-транспорты';
+	@override String get wifiDirectTitle => 'Wi-Fi Direct';
+	@override String get wifiDirectSubtitle => 'Быстрая связь по Wi-Fi без точки доступа';
+	@override String get multipeerTitle => 'Multipeer';
+	@override String get multipeerSubtitle => 'Связь Apple по Wi-Fi и Bluetooth';
+	@override String get wifiAwareTitle => 'Wi-Fi Aware';
+	@override String get wifiAwareSubtitle => 'Обнаружение и передача без сервера';
+	@override String get hotspotTitle => 'Локальная точка доступа';
+	@override String get hotspotSubtitle => 'Поднять точку доступа, чтобы устройства подключились офлайн';
+	@override String get hotspotCreate => 'Создать точку доступа';
+	@override String get hotspotStop => 'Остановить точку доступа';
+	@override String hotspotActive({required Object ssid}) => 'Точка доступа активна — ${ssid}';
+	@override String hotspotPassword({required Object password}) => 'Пароль: ${password}';
+	@override String get hotspotFailed => 'Не удалось запустить точку доступа';
+	@override String get nfcTitle => 'Связь по NFC';
+	@override String get nfcSubtitle => 'Поднесите два устройства друг к другу для связи';
 	@override String get backgroundTitle => 'Синхронизация в фоне';
 	@override String get backgroundSubtitle => 'Продолжать синхронизацию при свернутом приложении';
 	@override String get logsTitle => 'Логи активности';
@@ -370,6 +393,10 @@ extension on TranslationsRu {
 			'pair.scanPaused' => 'Поиск приостановлен',
 			'pair.pauseScan' => 'Приостановить поиск',
 			'pair.resumeScan' => 'Возобновить поиск',
+			'pair.nfcButton' => 'Связать касанием',
+			'pair.nfcHint' => 'Приложите устройство к другому для связи',
+			'pair.nfcWaiting' => 'Держите устройства вместе…',
+			'pair.nfcFailed' => 'Не удалось связать через NFC',
 			'share.incomingTitle' => 'Запрос на доступ к папке',
 			'share.incomingBody' => ({required Object name, required Object folder}) => '${name} хочет открыть вам доступ к папке «${folder}». Выберите, куда её сохранить.',
 			'share.choose' => 'Выбрать папку',
@@ -390,6 +417,9 @@ extension on TranslationsRu {
 			'activity.transportTcp' => 'Прямой TCP',
 			'activity.transportLan' => 'Локальная сеть',
 			'activity.transportBluetooth' => 'Bluetooth',
+			'activity.transportWifiDirect' => 'Wi-Fi Direct',
+			'activity.transportMultipeer' => 'Multipeer',
+			'activity.transportWifiAware' => 'Wi-Fi Aware',
 			'schedule.title' => 'Синхронизация',
 			'schedule.syncNow' => 'Синхронизировать сейчас',
 			'schedule.syncNowHint' => 'Включить синхронизацию немедленно, пока не выключите',
@@ -411,6 +441,22 @@ extension on TranslationsRu {
 			'settings.dhtSubtitle' => 'Найти устройства через интернет',
 			'settings.bluetoothTitle' => 'Bluetooth',
 			'settings.bluetoothSubtitle' => 'Использовать Bluetooth рядом, если сеть недоступна',
+			'settings.offlineTransports' => 'Офлайн-транспорты',
+			'settings.wifiDirectTitle' => 'Wi-Fi Direct',
+			'settings.wifiDirectSubtitle' => 'Быстрая связь по Wi-Fi без точки доступа',
+			'settings.multipeerTitle' => 'Multipeer',
+			'settings.multipeerSubtitle' => 'Связь Apple по Wi-Fi и Bluetooth',
+			'settings.wifiAwareTitle' => 'Wi-Fi Aware',
+			'settings.wifiAwareSubtitle' => 'Обнаружение и передача без сервера',
+			'settings.hotspotTitle' => 'Локальная точка доступа',
+			'settings.hotspotSubtitle' => 'Поднять точку доступа, чтобы устройства подключились офлайн',
+			'settings.hotspotCreate' => 'Создать точку доступа',
+			'settings.hotspotStop' => 'Остановить точку доступа',
+			'settings.hotspotActive' => ({required Object ssid}) => 'Точка доступа активна — ${ssid}',
+			'settings.hotspotPassword' => ({required Object password}) => 'Пароль: ${password}',
+			'settings.hotspotFailed' => 'Не удалось запустить точку доступа',
+			'settings.nfcTitle' => 'Связь по NFC',
+			'settings.nfcSubtitle' => 'Поднесите два устройства друг к другу для связи',
 			'settings.backgroundTitle' => 'Синхронизация в фоне',
 			'settings.backgroundSubtitle' => 'Продолжать синхронизацию при свернутом приложении',
 			'settings.logsTitle' => 'Логи активности',

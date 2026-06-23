@@ -89,6 +89,10 @@ pair:
   scanPaused: Scanning paused
   pauseScan: Pause scanning
   resumeScan: Resume scanning
+  nfcButton: Tap to pair
+  nfcHint: Hold this device against another to pair
+  nfcWaiting: Hold the devices together…
+  nfcFailed: NFC pairing failed
 
 share:
   incomingTitle: Folder share request
@@ -113,6 +117,9 @@ activity:
   transportTcp: Direct TCP
   transportLan: Local network
   transportBluetooth: Bluetooth
+  transportWifiDirect: Wi-Fi Direct
+  transportMultipeer: Multipeer
+  transportWifiAware: Wi-Fi Aware
 
 schedule:
   title: Synchronization
@@ -139,6 +146,22 @@ settings:
   dhtSubtitle: Find peers across networks
   bluetoothTitle: Bluetooth
   bluetoothSubtitle: Use nearby Bluetooth when network sync fails
+  offlineTransports: Offline transports
+  wifiDirectTitle: Wi-Fi Direct
+  wifiDirectSubtitle: Fast peer-to-peer over Wi-Fi, no access point
+  multipeerTitle: Multipeer
+  multipeerSubtitle: Apple peer-to-peer over Wi-Fi and Bluetooth
+  wifiAwareTitle: Wi-Fi Aware
+  wifiAwareSubtitle: Serverless neighbor discovery and data path
+  hotspotTitle: Local hotspot
+  hotspotSubtitle: Raise a hotspot so peers can join and sync offline
+  hotspotCreate: Create hotspot
+  hotspotStop: Stop hotspot
+  hotspotActive: 'Hotspot active — {ssid}'
+  hotspotPassword: 'Password: {password}'
+  hotspotFailed: Could not start the hotspot
+  nfcTitle: NFC pairing
+  nfcSubtitle: Tap two devices together to pair
   backgroundTitle: Sync in background
   backgroundSubtitle: Keep syncing when app is not focused
   logsTitle: Activity logs

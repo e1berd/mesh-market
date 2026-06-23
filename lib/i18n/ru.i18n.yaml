@@ -91,6 +91,10 @@ pair:
   scanPaused: Поиск приостановлен
   pauseScan: Приостановить поиск
   resumeScan: Возобновить поиск
+  nfcButton: Связать касанием
+  nfcHint: Приложите устройство к другому для связи
+  nfcWaiting: Держите устройства вместе…
+  nfcFailed: Не удалось связать через NFC
 
 share:
   incomingTitle: Запрос на доступ к папке
@@ -115,6 +119,9 @@ activity:
   transportTcp: Прямой TCP
   transportLan: Локальная сеть
   transportBluetooth: Bluetooth
+  transportWifiDirect: Wi-Fi Direct
+  transportMultipeer: Multipeer
+  transportWifiAware: Wi-Fi Aware
 
 schedule:
   title: Синхронизация
@@ -141,6 +148,22 @@ settings:
   dhtSubtitle: Найти устройства через интернет
   bluetoothTitle: Bluetooth
   bluetoothSubtitle: Использовать Bluetooth рядом, если сеть недоступна
+  offlineTransports: Офлайн-транспорты
+  wifiDirectTitle: Wi-Fi Direct
+  wifiDirectSubtitle: Быстрая связь по Wi-Fi без точки доступа
+  multipeerTitle: Multipeer
+  multipeerSubtitle: Связь Apple по Wi-Fi и Bluetooth
+  wifiAwareTitle: Wi-Fi Aware
+  wifiAwareSubtitle: Обнаружение и передача без сервера
+  hotspotTitle: Локальная точка доступа
+  hotspotSubtitle: Поднять точку доступа, чтобы устройства подключились офлайн
+  hotspotCreate: Создать точку доступа
+  hotspotStop: Остановить точку доступа
+  hotspotActive: 'Точка доступа активна — {ssid}'
+  hotspotPassword: 'Пароль: {password}'
+  hotspotFailed: Не удалось запустить точку доступа
+  nfcTitle: Связь по NFC
+  nfcSubtitle: Поднесите два устройства друг к другу для связи
   backgroundTitle: Синхронизация в фоне
   backgroundSubtitle: Продолжать синхронизацию при свернутом приложении
   logsTitle: Логи активности

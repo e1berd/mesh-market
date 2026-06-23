@@ -81,6 +81,31 @@ class ConfigNotifier extends Notifier<AppConfig> {
     _save();
   }
 
+  void toggleWifiDirect(bool value) {
+    state = state.copyWith(wifiDirectDiscovery: value);
+    _save();
+  }
+
+  void toggleMultipeer(bool value) {
+    state = state.copyWith(multipeerDiscovery: value);
+    _save();
+  }
+
+  void toggleWifiAware(bool value) {
+    state = state.copyWith(wifiAwareDiscovery: value);
+    _save();
+  }
+
+  void toggleHotspot(bool value) {
+    state = state.copyWith(hotspotFallback: value);
+    _save();
+  }
+
+  void toggleNfc(bool value) {
+    state = state.copyWith(nfcPairing: value);
+    _save();
+  }
+
   void toggleBackground(bool value) {
     state = state.copyWith(syncInBackground: value);
     _save();

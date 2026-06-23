@@ -59,6 +59,9 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   universal_ble: ^2.0.4
+  nfc_manager: ^3.5.0
+  pm_offline:
+    path: packages/pm_offline
   expressive_loading_indicator: ^0.0.1
   animations: ^2.1.2
   motor: ^1.1.0

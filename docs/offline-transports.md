@@ -312,3 +312,41 @@ Verify on pub.dev at implementation time — maturity shifts.
    platform channel in Kotlin (Android) / Swift (Apple) where no solid package exists. (Never C/C++.)
 4. **Priority ordering confirmed (§3.2):** Wi-Fi Direct / Multipeer rank **above** BLE and **below**
    LAN/WebRTC, so the fast offline paths beat BLE but never pre-empt an available IP path.
+
+---
+
+## 12. Implementation status (delivered)
+
+All five phases are wired. Native bridges live in a **local Flutter plugin** `packages/pm_offline`
+(path dependency) so `DartPluginRegistrant` registers them in the **background sync isolate** too —
+a hand-written `MethodChannel` in `MainActivity` would not reach that isolate. Dart side is
+`dart analyze` clean; loopback + coordinator tests pass (`test/unit/offline_transport_test.dart`).
+
+Mapping:
+- **Wi-Fi Direct / Wi-Fi Aware** → `lib/transport/wifi_direct_transport.dart` /
+  `wifi_aware_transport.dart`, resolve a peer to an IP endpoint via the plugin, then reuse
+  `TcpPeerLink` through `lib/transport/ip_link_bringup.dart`. Inbound arrives on the existing TCP
+  server (`_acceptTcp`). Kotlin: `WifiDirectController.kt` (DNS-SD), `WifiAwareController.kt` (NAN).
+- **Multipeer** → `lib/transport/multipeer_transport.dart` with a framed-less `PeerLink` adapter
+  (MCSession preserves message boundaries). Swift: `darwin/Classes/MultipeerController.swift`.
+- **Soft-AP** → `lib/transport/hotspot.dart` + `SoftApController.kt` (`LocalOnlyHotspot`); reuses the
+  LAN path, surfaced as a Settings action.
+- **NFC** → `lib/transport/nfc_pairing.dart` via `nfc_manager`, routed into the existing pair flow
+  from `pair_screen.dart` (read-only NDEF → `PairingPayload`).
+- **Offline dial trigger** → `SyncService._dialOffline*` (20 s timer + on sync-activate) drives
+  `open()` over offline transports **without** LAN signalling — this is what actually makes BLE/WFD/
+  Multipeer connect with zero IP uplink.
+
+### Required manual steps (cannot be done/verified in a headless Dart env)
+- **iOS**: link `ios/Runner/Runner.entitlements` to the Runner target (Xcode → Signing &
+  Capabilities → *Near Field Communication Tag Reading*), and enable *Multipeer/Local Network*. The
+  plist keys are already added.
+- **Build the native side on a device/CI** — Kotlin/Swift here is reviewed, not compiled.
+- **Wi-Fi Aware** returns a scoped link-local IPv6 (`fe80::…%aware0`); the data-path socket binding
+  needs on-device iteration. It is the lowest-priority sibling, gated behind `isSupported()`.
+
+### Transit security note (for SECURITY / README)
+Non-WebRTC transports (BLE, Multipeer, raw-socket Wi-Fi Direct / Aware / Soft-AP TCP) do **not** get
+WebRTC DTLS. File-byte confidentiality and integrity still hold via the per-folder
+XChaCha20-Poly1305 cipher applied at the engine layer (`SyncService._runLink`). IP-yielding
+transports that reuse `TcpPeerLink` are plaintext on the wire but remain E2E-sealed.
