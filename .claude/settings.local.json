@@ -30,7 +30,8 @@
       "Bash(git -C /home/l/Документы/point-machine ls-files --error-unmatch .android-sdk/ndk)",
       "Bash(git -C /home/l/Документы/point-machine ls-files .android-sdk/)",
       "Bash(git -C /home/l/Документы/point-machine ls-files \"*.html\")",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(echo \"---exit:$?---\")"
     ]
   }
 }
