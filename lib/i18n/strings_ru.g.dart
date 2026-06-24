@@ -258,6 +258,10 @@ class _Translations$settings$ru implements Translations$settings$en {
 	@override String get lanSubtitle => 'Найти устройства в одной сети';
 	@override String get dhtTitle => 'Интернет (DHT)';
 	@override String get dhtSubtitle => 'Найти устройства через интернет';
+	@override String get portMappingTitle => 'Проброс портов роутера';
+	@override String get portMappingSubtitle => 'Открыть путь через роутер (UPnP, NAT-PMP, PCP)';
+	@override String get peerRelayTitle => 'Ретрансляция через устройства';
+	@override String get peerRelaySubtitle => 'Связь через другое ваше устройство, если прямая не удалась';
 	@override String get bluetoothTitle => 'Bluetooth';
 	@override String get bluetoothSubtitle => 'Использовать Bluetooth рядом, если сеть недоступна';
 	@override String get offlineTransports => 'Офлайн-транспорты';
@@ -439,6 +443,10 @@ extension on TranslationsRu {
 			'settings.lanSubtitle' => 'Найти устройства в одной сети',
 			'settings.dhtTitle' => 'Интернет (DHT)',
 			'settings.dhtSubtitle' => 'Найти устройства через интернет',
+			'settings.portMappingTitle' => 'Проброс портов роутера',
+			'settings.portMappingSubtitle' => 'Открыть путь через роутер (UPnP, NAT-PMP, PCP)',
+			'settings.peerRelayTitle' => 'Ретрансляция через устройства',
+			'settings.peerRelaySubtitle' => 'Связь через другое ваше устройство, если прямая не удалась',
 			'settings.bluetoothTitle' => 'Bluetooth',
 			'settings.bluetoothSubtitle' => 'Использовать Bluetooth рядом, если сеть недоступна',
 			'settings.offlineTransports' => 'Офлайн-транспорты',

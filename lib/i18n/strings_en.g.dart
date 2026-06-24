@@ -509,6 +509,18 @@ class Translations$settings$en {
 	/// en: 'Find peers across networks'
 	String get dhtSubtitle => 'Find peers across networks';
 
+	/// en: 'Router port mapping'
+	String get portMappingTitle => 'Router port mapping';
+
+	/// en: 'Open a path through your router (UPnP, NAT-PMP, PCP)'
+	String get portMappingSubtitle => 'Open a path through your router (UPnP, NAT-PMP, PCP)';
+
+	/// en: 'Peer relay'
+	String get peerRelayTitle => 'Peer relay';
+
+	/// en: 'Reach peers through another of your devices when direct fails'
+	String get peerRelaySubtitle => 'Reach peers through another of your devices when direct fails';
+
 	/// en: 'Bluetooth'
 	String get bluetoothTitle => 'Bluetooth';
 
@@ -765,6 +777,10 @@ extension on Translations {
 			'settings.lanSubtitle' => 'Find peers on the same network',
 			'settings.dhtTitle' => 'Internet (DHT)',
 			'settings.dhtSubtitle' => 'Find peers across networks',
+			'settings.portMappingTitle' => 'Router port mapping',
+			'settings.portMappingSubtitle' => 'Open a path through your router (UPnP, NAT-PMP, PCP)',
+			'settings.peerRelayTitle' => 'Peer relay',
+			'settings.peerRelaySubtitle' => 'Reach peers through another of your devices when direct fails',
 			'settings.bluetoothTitle' => 'Bluetooth',
 			'settings.bluetoothSubtitle' => 'Use nearby Bluetooth when network sync fails',
 			'settings.offlineTransports' => 'Offline transports',

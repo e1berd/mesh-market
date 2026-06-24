@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
@@ -18,9 +19,12 @@ import '../transport/ip_link_bringup.dart';
 import '../transport/lan_beacon.dart';
 import '../transport/lan_signaling.dart';
 import '../transport/multipeer_transport.dart';
+import '../transport/nat/port_mapper.dart';
+import '../transport/nat/port_mapping.dart';
 import '../transport/negotiator.dart';
 import '../transport/pairing_code.dart';
 import '../transport/peer_link.dart';
+import '../transport/relay_transport.dart';
 import '../transport/signaling.dart';
 import '../transport/sync_transport.dart';
 import '../transport/swarm.dart';
@@ -80,6 +84,8 @@ class SyncService {
   final _debounce = <String, Timer>{};
   final _seen =
       <String, ({InternetAddress address, int port, int? syncPort})>{};
+  final _endpoints = <String, ({InternetAddress address, int port})>{};
+  final _random = Random.secure();
   final _shared = <String>{};
   final _activated = <String>{};
   final _lastSynced = <String, DateTime>{};
@@ -110,6 +116,7 @@ class SyncService {
   bool _wifiAwareSupported = false;
   bool _multipeerSupported = false;
   Timer? _offlineTimer;
+  Timer? _relayTimer;
   bool _syncActive = false;
 
   late final PairingPayload _self = PairingPayload.ofDevice(
@@ -118,8 +125,21 @@ class SyncService {
   );
   late LanSignalingServer _signaling;
   LanBeacon? _beacon;
+  PortMapper? _signalMap;
+  PortMapper? _dataMap;
+  int? _externalSignalPort;
+  PortMapping? _externalData;
 
   static const _signalingPort = 49322;
+
+  int get _announcePort => _externalSignalPort ?? _signaling.boundPort;
+
+  SignalHello _hello(FolderRuntime folder) => SignalHello(
+    folder.infohash,
+    identity.id,
+    syncPort: _externalData?.externalPort,
+    syncAddress: _externalData?.externalAddress?.address,
+  );
 
   Stream<LanPeer> get nearby => _beacon?.peers ?? const Stream.empty();
 
@@ -160,6 +180,7 @@ class SyncService {
         _log('beacon failed: $error');
       }
     }
+    if (config.portMapping) await _startPortMapping();
     if (config.dhtDiscovery) await _announcePairing();
     if (config.bluetoothDiscovery) {
       try {
@@ -171,8 +192,27 @@ class SyncService {
     }
     await _startOfflineTransports();
     _startOfflineDialing();
+    _startRelayDialing();
     for (final folder in folders) {
       _activateFolder(folder);
+    }
+  }
+
+  Future<void> _startPortMapping() async {
+    final signalPort = _signaling.boundPort;
+    if (signalPort != 0) {
+      final mapper = PortMapper(internalPort: signalPort);
+      _signalMap = mapper;
+      final mapping = await mapper.start();
+      _externalSignalPort = mapping?.externalPort;
+      if (mapping != null) _log('mapped signaling $mapping');
+    }
+    final dataPort = _tcp.boundPort;
+    if (dataPort != 0) {
+      final mapper = PortMapper(internalPort: dataPort);
+      _dataMap = mapper;
+      _externalData = await mapper.start();
+      if (_externalData != null) _log('mapped data $_externalData');
     }
   }
 
@@ -257,6 +297,100 @@ class SyncService {
     }
   }
 
+  void _startRelayDialing() {
+    _relayTimer?.cancel();
+    if (!config.peerRelay) return;
+    _relayTimer = Timer.periodic(const Duration(seconds: 25), (_) {
+      if (_syncActive) unawaited(_dialRelayAllGranted());
+    });
+  }
+
+  Future<void> _dialRelayAllGranted() async {
+    for (final folder in folders) {
+      for (final peerId in folder.config.peerIds) {
+        if (peerId == identity.id) continue;
+        final peer = _peerById(peerId);
+        if (peer == null || !_canStart(peerId, folder.config.id)) continue;
+        await _dialRelay(folder, peer);
+      }
+    }
+  }
+
+  Future<void> _dialRelay(FolderRuntime folder, PairingPayload peer) async {
+    final key = _syncKey(peer.deviceId, folder.config.id);
+    if (!_active.add(key)) return;
+    try {
+      final link = await _openRelay(folder, peer.deviceId);
+      if (link == null) return;
+      await _runLink(
+        folder: folder,
+        peer: peer,
+        link: link,
+        transport: SyncTransportKind.relay.id,
+        transportLabel: SyncTransportKind.relay.label,
+      );
+    } on Object catch (error) {
+      _log('relay dial "${folder.config.label}" failed: $error');
+    } finally {
+      _active.remove(key);
+    }
+  }
+
+  Future<PeerLink?> _openRelay(FolderRuntime folder, String targetId) async {
+    for (final relayId in _relayCandidates(folder, targetId)) {
+      final endpoint = _signalEndpoint(relayId);
+      if (endpoint == null) continue;
+      SignalChannel? channel;
+      try {
+        channel = await connectLanSignaling(endpoint.address, endpoint.port);
+        final token = _relayToken();
+        final reply = channel.incoming
+            .firstWhere((message) {
+              if (message is RelayReady) return message.token == token;
+              if (message is RelayFail) return message.token == token;
+              return false;
+            })
+            .timeout(const Duration(seconds: 15));
+        await channel.send(
+          RelayOpen(token, identity.id, targetId, folder.infohash),
+        );
+        if (await reply is RelayReady) {
+          _log('relay "${folder.config.label}" -> $targetId via $relayId');
+          return RelayPeerLink(
+            peerId: targetId,
+            channel: channel,
+            token: token,
+          );
+        }
+        await channel.close();
+      } on Object {
+        await channel?.close();
+      }
+    }
+    return null;
+  }
+
+  Iterable<String> _relayCandidates(
+    FolderRuntime folder,
+    String targetId,
+  ) sync* {
+    for (final relayId in folder.config.peerIds) {
+      if (relayId == identity.id || relayId == targetId) continue;
+      if (_peerById(relayId) == null) continue;
+      if (_signalEndpoint(relayId) == null) continue;
+      yield relayId;
+    }
+  }
+
+  ({InternetAddress address, int port})? _signalEndpoint(String deviceId) {
+    final lan = _seen[deviceId];
+    if (lan != null) return (address: lan.address, port: lan.port);
+    return _endpoints[deviceId];
+  }
+
+  String _relayToken() =>
+      base64Url.encode(List.generate(16, (_) => _random.nextInt(256)));
+
   void updatePeers(List<PairingPayload> next) {
     peers = next;
     if (_syncActive) _dialAllGranted();
@@ -280,7 +414,7 @@ class SyncService {
         try {
           final dht = DhtDiscovery(
             infohash: folder.infohash,
-            servicePort: _signaling.boundPort,
+            servicePort: _announcePort,
           );
           await dht.start();
           _subscriptions.add(
@@ -347,7 +481,7 @@ class SyncService {
       );
       final beacon = DhtDiscovery(
         infohash: infohash,
-        servicePort: _signaling.boundPort,
+        servicePort: _announcePort,
       );
       await beacon.start();
       _dhts.add(beacon);
@@ -363,6 +497,7 @@ class SyncService {
     if (active) {
       _dialAllGranted();
       if (_offlineEnabled) unawaited(_dialOfflineAllGranted());
+      if (config.peerRelay) unawaited(_dialRelayAllGranted());
     }
   }
 
@@ -481,7 +616,7 @@ class SyncService {
     final infohash = await infohashFor(utf8.encode('mesh-market/pair/$code'));
     final dht = DhtDiscovery(
       infohash: infohash,
-      servicePort: _signaling.boundPort,
+      servicePort: _announcePort,
     );
     await dht.start();
     try {
@@ -503,14 +638,26 @@ class SyncService {
     _log('dial "${folder.config.label}" -> ${address.address}:$port');
     try {
       final channel = await connectLanSignaling(address, port);
-      await channel.send(SignalHello(folder.infohash, identity.id));
+      await channel.send(_hello(folder));
       final hello =
           await channel.incoming
                   .firstWhere((message) => message is SignalHello)
                   .timeout(const Duration(seconds: 10))
               as SignalHello;
       _log('dial got hello from ${hello.deviceId}');
-      await _establish(channel, folder, hello, address, port, syncPort);
+      _endpoints[hello.deviceId] = (address: address, port: port);
+      final peerSyncPort = hello.syncPort ?? syncPort;
+      final peerSyncAddress = hello.syncAddress != null
+          ? InternetAddress.tryParse(hello.syncAddress!) ?? address
+          : address;
+      await _establish(
+        channel,
+        folder,
+        hello,
+        peerSyncAddress,
+        port,
+        peerSyncPort,
+      );
     } on Object catch (error) {
       _log('dial failed: $error');
       return;
@@ -521,7 +668,12 @@ class SyncService {
     try {
       final first = await channel.incoming
           .firstWhere(
-            (m) => m is SignalHello || m is PairRequest || m is ShareRequest,
+            (m) =>
+                m is SignalHello ||
+                m is PairRequest ||
+                m is ShareRequest ||
+                m is RelayOpen ||
+                m is RelayInbound,
           )
           .timeout(const Duration(seconds: 10));
       _log('incoming signal ${first.runtimeType}');
@@ -533,13 +685,21 @@ class SyncService {
         await _handleShare(channel, first);
         return;
       }
+      if (first is RelayOpen) {
+        await _handleRelayOpen(channel, first);
+        return;
+      }
+      if (first is RelayInbound) {
+        await _handleRelayInbound(channel, first);
+        return;
+      }
       final hello = first as SignalHello;
       final folder = _folderByInfohash(hello.infohash);
       if (folder == null) {
         await channel.close();
         return;
       }
-      await channel.send(SignalHello(folder.infohash, identity.id));
+      await channel.send(_hello(folder));
       if (!_canStart(hello.deviceId, folder.config.id)) {
         await channel.close();
         return;
@@ -601,6 +761,78 @@ class SyncService {
       }
     } finally {
       await channel.close();
+    }
+  }
+
+  Future<void> _handleRelayOpen(SignalChannel chA, RelayOpen open) async {
+    final folder = _folderByInfohash(open.infohash);
+    final allowed =
+        config.peerRelay &&
+        folder != null &&
+        _peerById(open.from) != null &&
+        _peerById(open.target) != null &&
+        folder.config.peerIds.contains(open.from) &&
+        folder.config.peerIds.contains(open.target);
+    final endpoint = allowed ? _signalEndpoint(open.target) : null;
+    if (endpoint == null) {
+      await chA.send(RelayFail(open.token));
+      await chA.close();
+      return;
+    }
+    SignalChannel? chB;
+    try {
+      chB = await connectLanSignaling(endpoint.address, endpoint.port);
+      final ready = chB.incoming
+          .firstWhere((m) => m is RelayReady && m.token == open.token)
+          .timeout(const Duration(seconds: 15));
+      await chB.send(RelayInbound(open.token, open.from, open.infohash));
+      await ready;
+      await chA.send(RelayReady(open.token));
+      _log('relay bridge ${open.from} <-> ${open.target}');
+      await bridgeRelay(open.token, chA, chB);
+    } on Object catch (error) {
+      _log('relay bridge failed: $error');
+      await chA.send(RelayFail(open.token));
+      await chA.close();
+      await chB?.close();
+    }
+  }
+
+  Future<void> _handleRelayInbound(
+    SignalChannel channel,
+    RelayInbound inbound,
+  ) async {
+    final folder = _folderByInfohash(inbound.infohash);
+    final peer = _peerById(inbound.from);
+    final allowed =
+        config.peerRelay &&
+        _syncActive &&
+        folder != null &&
+        peer != null &&
+        folder.config.peerIds.contains(peer.deviceId);
+    final key = allowed
+        ? _syncKey(peer.deviceId, folder.config.id)
+        : null;
+    if (key == null || !_active.add(key)) {
+      await channel.close();
+      return;
+    }
+    final link = RelayPeerLink(
+      peerId: peer!.deviceId,
+      channel: channel,
+      token: inbound.token,
+    );
+    await channel.send(RelayReady(inbound.token));
+    try {
+      await _runLink(
+        folder: folder!,
+        peer: peer,
+        link: link,
+        transport: SyncTransportKind.relay.id,
+        transportLabel: SyncTransportKind.relay.label,
+      );
+    } finally {
+      _active.remove(key);
     }
   }
 
@@ -879,7 +1111,7 @@ class SyncService {
       descriptor: SyncTransportDescriptor(
         kind: SyncTransportKind.directTcp,
         priority: 5,
-        available: config.lanDiscovery && address != null && syncPort != null,
+        available: address != null && syncPort != null,
       ),
       open: () {
         onAttempt(SyncTransportKind.directTcp.id);
@@ -1057,6 +1289,7 @@ class SyncService {
 
   Future<void> stop() async {
     _offlineTimer?.cancel();
+    _relayTimer?.cancel();
     for (final timer in _debounce.values) {
       timer.cancel();
     }
@@ -1064,6 +1297,8 @@ class SyncService {
       await subscription.cancel();
     }
     await _beacon?.stop();
+    await _signalMap?.dispose();
+    await _dataMap?.dispose();
     for (final dht in _dhts) {
       await dht.stop();
     }

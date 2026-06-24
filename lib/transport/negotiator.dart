@@ -53,7 +53,15 @@ Future<WebRtcLink> negotiate({
             PairRequest() ||
             PairResponse() ||
             ShareRequest() ||
-            ShareResponse():
+            ShareResponse() ||
+            RelayOpen() ||
+            RelayInbound() ||
+            RelayReady() ||
+            RelayFail() ||
+            RelayFrame() ||
+            RelayEnd() ||
+            PunchOffer() ||
+            PunchAnswer():
         return;
       case SdpSignal sdp when sdp.isOffer:
         await connection.setRemoteDescription(RTCSessionDescription(sdp.sdp, 'offer'));

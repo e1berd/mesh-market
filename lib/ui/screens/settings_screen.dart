@@ -134,6 +134,33 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           _SettingTile(
+            icon: Icons.router_rounded,
+            title: context.t.settings.portMappingTitle,
+            subtitle: context.t.settings.portMappingSubtitle,
+            trailing: Switch(
+              value: config.portMapping,
+              onChanged: notifier.togglePortMapping,
+            ),
+          ),
+          _SettingTile(
+            icon: Icons.hub_rounded,
+            title: context.t.settings.peerRelayTitle,
+            subtitle: context.t.settings.peerRelaySubtitle,
+            trailing: Switch(
+              value: config.peerRelay,
+              onChanged: notifier.togglePeerRelay,
+            ),
+          ),
+          _SettingTile(
+            icon: Icons.bolt_rounded,
+            title: context.t.settings.holePunchTitle,
+            subtitle: context.t.settings.holePunchSubtitle,
+            trailing: Switch(
+              value: config.holePunch,
+              onChanged: notifier.toggleHolePunch,
+            ),
+          ),
+          _SettingTile(
             icon: Icons.bluetooth_rounded,
             title: context.t.settings.bluetoothTitle,
             subtitle: context.t.settings.bluetoothSubtitle,

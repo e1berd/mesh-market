@@ -12,12 +12,13 @@ import '../sync/sync_event.dart';
 import 'app_providers.dart';
 
 final activityLogPathProvider = FutureProvider<String>((ref) async {
+  final fallback = p.join((await appDataDir()).path, 'activity.log');
+  if (Platform.isAndroid || Platform.isIOS) return fallback;
   final configured = ref.watch(
     configProvider.select((config) => config.activityLogPath),
   );
   if (configured != null && configured.trim().isNotEmpty) return configured;
-  final dir = await appDataDir();
-  return p.join(dir.path, 'activity.log');
+  return fallback;
 });
 
 final activityLogControllerProvider = Provider<ActivityLogController>(
@@ -71,15 +72,16 @@ class ActivityLogController {
       bytes: bytes,
     );
     if (selected == null || selected.trim().isEmpty) return null;
-    ref.read(configProvider.notifier).setActivityLogPath(selected);
-    ref.invalidate(activityLogPathProvider);
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      ref.read(configProvider.notifier).setActivityLogPath(selected);
+      ref.invalidate(activityLogPathProvider);
+    }
     return selected;
   }
 
   Future<bool> openLocation() async {
     final logPath = await path();
     final file = File(logPath);
-    await file.parent.create(recursive: true);
     if (Platform.isAndroid || Platform.isIOS) {
       final bytes = await file.exists()
           ? await file.readAsBytes()
@@ -90,6 +92,7 @@ class ActivityLogController {
       );
       return exported != null;
     }
+    await file.parent.create(recursive: true);
     return openFolderInFileManager(file.parent.path);
   }
 

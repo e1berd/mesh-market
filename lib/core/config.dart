@@ -25,6 +25,9 @@ class AppConfig {
     this.iceServers = defaultIceServers,
     this.lanDiscovery = true,
     this.dhtDiscovery = true,
+    this.portMapping = true,
+    this.peerRelay = true,
+    this.holePunch = true,
     this.bluetoothDiscovery = true,
     this.wifiDirectDiscovery = false,
     this.multipeerDiscovery = false,
@@ -45,6 +48,9 @@ class AppConfig {
   final List<IceServer> iceServers;
   final bool lanDiscovery;
   final bool dhtDiscovery;
+  final bool portMapping;
+  final bool peerRelay;
+  final bool holePunch;
   final bool bluetoothDiscovery;
   final bool wifiDirectDiscovery;
   final bool multipeerDiscovery;
@@ -65,6 +71,9 @@ class AppConfig {
     List<IceServer>? iceServers,
     bool? lanDiscovery,
     bool? dhtDiscovery,
+    bool? portMapping,
+    bool? peerRelay,
+    bool? holePunch,
     bool? bluetoothDiscovery,
     bool? wifiDirectDiscovery,
     bool? multipeerDiscovery,
@@ -84,6 +93,9 @@ class AppConfig {
     iceServers: iceServers ?? this.iceServers,
     lanDiscovery: lanDiscovery ?? this.lanDiscovery,
     dhtDiscovery: dhtDiscovery ?? this.dhtDiscovery,
+    portMapping: portMapping ?? this.portMapping,
+    peerRelay: peerRelay ?? this.peerRelay,
+    holePunch: holePunch ?? this.holePunch,
     bluetoothDiscovery: bluetoothDiscovery ?? this.bluetoothDiscovery,
     wifiDirectDiscovery: wifiDirectDiscovery ?? this.wifiDirectDiscovery,
     multipeerDiscovery: multipeerDiscovery ?? this.multipeerDiscovery,
@@ -113,6 +125,9 @@ class AppConfig {
         .toList(),
     'lanDiscovery': lanDiscovery,
     'dhtDiscovery': dhtDiscovery,
+    'portMapping': portMapping,
+    'peerRelay': peerRelay,
+    'holePunch': holePunch,
     'bluetoothDiscovery': bluetoothDiscovery,
     'wifiDirectDiscovery': wifiDirectDiscovery,
     'multipeerDiscovery': multipeerDiscovery,
@@ -144,6 +159,9 @@ class AppConfig {
         defaultIceServers,
     lanDiscovery: json['lanDiscovery'] as bool? ?? true,
     dhtDiscovery: json['dhtDiscovery'] as bool? ?? true,
+    portMapping: json['portMapping'] as bool? ?? true,
+    peerRelay: json['peerRelay'] as bool? ?? true,
+    holePunch: json['holePunch'] as bool? ?? true,
     bluetoothDiscovery: json['bluetoothDiscovery'] as bool? ?? true,
     wifiDirectDiscovery: json['wifiDirectDiscovery'] as bool? ?? false,
     multipeerDiscovery: json['multipeerDiscovery'] as bool? ?? false,

@@ -76,6 +76,21 @@ class ConfigNotifier extends Notifier<AppConfig> {
     _save();
   }
 
+  void togglePortMapping(bool value) {
+    state = state.copyWith(portMapping: value);
+    _save();
+  }
+
+  void togglePeerRelay(bool value) {
+    state = state.copyWith(peerRelay: value);
+    _save();
+  }
+
+  void toggleHolePunch(bool value) {
+    state = state.copyWith(holePunch: value);
+    _save();
+  }
+
   void toggleBluetoothDiscovery(bool value) {
     state = state.copyWith(bluetoothDiscovery: value);
     _save();

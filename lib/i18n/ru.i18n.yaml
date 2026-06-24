@@ -146,6 +146,12 @@ settings:
   lanSubtitle: Найти устройства в одной сети
   dhtTitle: Интернет (DHT)
   dhtSubtitle: Найти устройства через интернет
+  portMappingTitle: Проброс портов роутера
+  portMappingSubtitle: Открыть путь через роутер (UPnP, NAT-PMP, PCP)
+  peerRelayTitle: Ретрансляция через устройства
+  peerRelaySubtitle: Связь через другое ваше устройство, если прямая не удалась
+  holePunchTitle: Пробивка NAT
+  holePunchSubtitle: Прямое P2P-соединение по UDP через NAT, без ретранслятора
   bluetoothTitle: Bluetooth
   bluetoothSubtitle: Использовать Bluetooth рядом, если сеть недоступна
   offlineTransports: Офлайн-транспорты

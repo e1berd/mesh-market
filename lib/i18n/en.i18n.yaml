@@ -144,6 +144,12 @@ settings:
   lanSubtitle: Find peers on the same network
   dhtTitle: Internet (DHT)
   dhtSubtitle: Find peers across networks
+  portMappingTitle: Router port mapping
+  portMappingSubtitle: Open a path through your router (UPnP, NAT-PMP, PCP)
+  peerRelayTitle: Peer relay
+  peerRelaySubtitle: Reach peers through another of your devices when direct fails
+  holePunchTitle: Hole punching
+  holePunchSubtitle: Direct peer-to-peer UDP through NAT, no relay needed
   bluetoothTitle: Bluetooth
   bluetoothSubtitle: Use nearby Bluetooth when network sync fails
   offlineTransports: Offline transports

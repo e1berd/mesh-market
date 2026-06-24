@@ -3,6 +3,8 @@ import 'peer_link.dart';
 enum SyncTransportKind {
   directTcp,
   localNetwork,
+  holePunch,
+  relay,
   wifiDirect,
   multipeer,
   wifiAware,
@@ -13,6 +15,8 @@ extension SyncTransportKindLabel on SyncTransportKind {
   String get id => switch (this) {
     SyncTransportKind.directTcp => 'tcp',
     SyncTransportKind.localNetwork => 'lan',
+    SyncTransportKind.holePunch => 'hole-punch',
+    SyncTransportKind.relay => 'relay',
     SyncTransportKind.wifiDirect => 'wifi-direct',
     SyncTransportKind.multipeer => 'multipeer',
     SyncTransportKind.wifiAware => 'wifi-aware',
@@ -22,6 +26,8 @@ extension SyncTransportKindLabel on SyncTransportKind {
   String get label => switch (this) {
     SyncTransportKind.directTcp => 'TCP',
     SyncTransportKind.localNetwork => 'Local network',
+    SyncTransportKind.holePunch => 'Hole punch',
+    SyncTransportKind.relay => 'Relay',
     SyncTransportKind.wifiDirect => 'Wi-Fi Direct',
     SyncTransportKind.multipeer => 'Multipeer',
     SyncTransportKind.wifiAware => 'Wi-Fi Aware',
