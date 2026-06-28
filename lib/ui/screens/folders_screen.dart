@@ -10,9 +10,11 @@ import '../../core/pairing.dart';
 import '../../i18n/strings.g.dart';
 import '../../platform/open_path.dart';
 import '../../platform/storage_access.dart';
+import '../../state/conflicts_provider.dart';
 import '../../state/folders_provider.dart';
 import '../../state/peers_provider.dart';
 import '../../state/share_controller.dart';
+import '../widgets/conflict_sheet.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
 
@@ -219,6 +221,8 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
   Widget build(BuildContext context) {
     final folder = widget.folder;
     final size = ref.watch(folderSizeProvider(folder.id));
+    final conflicts =
+        ref.watch(folderConflictsProvider(folder.id)).value ?? const [];
     final colors = context.colors;
 
     return Column(
@@ -359,6 +363,39 @@ class _FolderTileState extends ConsumerState<_FolderTile> {
             ],
           ),
         ),
+        if (conflicts.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Material(
+            color: colors.errorContainer,
+            borderRadius: BorderRadius.circular(18),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => showConflictSheet(context, folder.id),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: colors.onErrorContainer,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(context.t.folders.conflicts(n: conflicts.length))
+                          .size(14)
+                          .weight(.w800)
+                          .color(colors.onErrorContainer),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: colors.onErrorContainer,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

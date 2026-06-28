@@ -28,6 +28,7 @@ sealed class SyncMessage {
         map['i']! as int,
         _bytes(map['d']),
       ),
+      'progress' => Progress(map['d']! as int, map['n']! as int),
       'bye' => const Bye(),
       _ => throw FormatException('unknown message type: ${map['t']}'),
     };
@@ -102,6 +103,19 @@ final class BlockPayload extends SyncMessage {
 
   @override
   Map<String, Object?> fields() => {'path': path, 'i': index, 'd': sealed};
+}
+
+final class Progress extends SyncMessage {
+  const Progress(this.done, this.total);
+
+  final int done;
+  final int total;
+
+  @override
+  String get type => 'progress';
+
+  @override
+  Map<String, Object?> fields() => {'d': done, 'n': total};
 }
 
 final class Bye extends SyncMessage {

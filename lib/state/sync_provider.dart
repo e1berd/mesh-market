@@ -7,8 +7,10 @@ import '../platform/local_sync_controller.dart';
 import '../platform/remote_sync_controller.dart';
 import '../platform/sync_controller.dart';
 import 'app_providers.dart';
+import 'conflicts_provider.dart';
 import 'events_provider.dart';
 import 'folders_provider.dart';
+import 'sync_progress_provider.dart';
 import 'identity_provider.dart';
 import 'incoming_pair_provider.dart';
 import 'incoming_share_provider.dart';
@@ -34,8 +36,14 @@ final FutureProvider<SyncController> syncControllerProvider =
     controller.events.listen((event) {
       if (ref.mounted) ref.read(syncEventsProvider.notifier).add(event);
     }),
+    controller.progress.listen((progress) {
+      if (ref.mounted) ref.read(syncProgressProvider.notifier).update(progress);
+    }),
     controller.folderChanged.listen((folderId) {
-      if (ref.mounted) ref.invalidate(folderSizeProvider(folderId));
+      if (ref.mounted) {
+        ref.invalidate(folderSizeProvider(folderId));
+        ref.invalidate(folderConflictsProvider(folderId));
+      }
     }),
     controller.paired.listen((peer) {
       if (ref.mounted) ref.read(pairedPeersProvider.notifier).add(peer);

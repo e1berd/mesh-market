@@ -24,6 +24,15 @@ devices:
   errorLoad: Could not load identity
   errorLoadPeers: Could not load paired devices
   remove: Remove device
+  storageTitle: Synced storage
+  foldersCount:
+    zero: No folders
+    one: '{n} folder'
+    other: '{n} folders'
+  syncing: Syncing
+  connecting: Connecting
+  conflict: Needs attention
+  filesProgress: '{done} of {total} files'
 
 folders:
   add: Add folder
@@ -52,6 +61,18 @@ folders:
   receiveFiles: Receive files
   remoteMissing: Not available on remote
   remoteAvailable: Available on remote
+  conflicts:
+    one: '{n} conflict'
+    other: '{n} conflicts'
+  conflictsTitle: Resolve conflicts
+  resolveAuto: Resolve automatically
+  resolveAutoHint: Keeps the most recently changed version of each file
+  conflictCurrent: Current
+  conflictIncoming: Incoming
+  conflictKeepCurrent: Keep current
+  conflictUseIncoming: Use incoming
+  conflictNoPreview: Text preview is unavailable for this file
+  conflictResolved: Conflict resolved
 
 pair:
   scanHint: Scan this code on another device

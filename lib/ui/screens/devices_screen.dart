@@ -9,8 +9,10 @@ import '../../state/folders_provider.dart';
 import '../../state/identity_provider.dart';
 import '../../state/peers_provider.dart';
 import '../widgets/delete_swipe.dart';
+import '../widgets/device_sync_indicator.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
+import '../widgets/storage_summary.dart';
 
 class DevicesScreen extends ConsumerWidget {
   const DevicesScreen({super.key});
@@ -50,9 +52,17 @@ class DevicesScreen extends ConsumerWidget {
               children: [
                 ExpressiveResponsiveCenter(
                   maxWidth: 1180,
-                  padding: EdgeInsets.only(
-                    top: expressiveScreenPadding(context).top,
+                  padding: EdgeInsets.fromLTRB(
+                    expressiveScreenPadding(context).left,
+                    expressiveScreenPadding(context).top,
+                    expressiveScreenPadding(context).right,
+                    0,
                   ),
+                  child: const ExpressiveReveal(child: StorageSummary()),
+                ),
+                ExpressiveResponsiveCenter(
+                  maxWidth: 1180,
+                  padding: const EdgeInsets.only(top: 12),
                   child: ExpressiveReveal(
                     child: M3ECardList(
                       itemCount: 1,
@@ -260,6 +270,8 @@ class _DesktopDevicesLayout extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const ExpressiveReveal(child: StorageSummary()),
+                const SizedBox(height: 12),
                 ExpressiveReveal(
                   child: M3ECardList(
                     itemCount: 1,
@@ -354,7 +366,6 @@ class _PairedDeviceContent extends ConsumerWidget {
       for (final folder in folders)
         if (folder.peerIds.contains(peer.deviceId)) folder,
     ];
-
     return Column(
       crossAxisAlignment: .stretch,
       children: [
@@ -386,6 +397,8 @@ class _PairedDeviceContent extends ConsumerWidget {
               ),
           ],
         ),
+        const SizedBox(height: 12),
+        DeviceSyncIndicator(deviceId: peer.deviceId),
         if (sharedFolders.isNotEmpty) ...[
           const SizedBox(height: 12),
           for (final folder in sharedFolders)

@@ -27,6 +27,7 @@ class SyncHost {
     this.onFolderChanged,
     this.onNearby,
     this.onPaired,
+    this.onProgress,
     IncomingPairHandler? onIncomingPair,
     IncomingShareHandler? onIncomingShare,
   }) : _onIncomingPair = onIncomingPair ?? ((_, _) async => false),
@@ -34,6 +35,7 @@ class SyncHost {
 
   final void Function(SyncEvent event)? onEvent;
   final void Function(String folderId)? onFolderChanged;
+  final void Function(SyncProgress progress)? onProgress;
   final void Function(LanPeer peer)? onNearby;
   final void Function(PairingPayload peer)? onPaired;
   final IncomingPairHandler _onIncomingPair;
@@ -78,6 +80,7 @@ class SyncHost {
       onIncomingShare: _onIncomingShare,
       onEvent: onEvent,
       onFolderChanged: onFolderChanged,
+      onProgress: onProgress,
     );
     _service = svc;
     await svc.start();

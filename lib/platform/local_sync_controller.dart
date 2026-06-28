@@ -10,6 +10,7 @@ import 'sync_controller.dart';
 
 class LocalSyncController implements SyncController {
   final _events = StreamController<SyncEvent>.broadcast();
+  final _progress = StreamController<SyncProgress>.broadcast();
   final _nearby = StreamController<LanPeer>.broadcast();
   final _folderChanged = StreamController<String>.broadcast();
   final _paired = StreamController<PairingPayload>.broadcast();
@@ -20,6 +21,7 @@ class LocalSyncController implements SyncController {
 
   late final SyncHost _host = SyncHost(
     onEvent: _events.add,
+    onProgress: _progress.add,
     onFolderChanged: _folderChanged.add,
     onNearby: _nearby.add,
     onPaired: _paired.add,
@@ -52,6 +54,8 @@ class LocalSyncController implements SyncController {
 
   @override
   Stream<SyncEvent> get events => _events.stream;
+  @override
+  Stream<SyncProgress> get progress => _progress.stream;
   @override
   Stream<LanPeer> get nearby => _nearby.stream;
   @override
@@ -95,6 +99,7 @@ class LocalSyncController implements SyncController {
   Future<void> dispose() async {
     await _host.stop();
     await _events.close();
+    await _progress.close();
     await _nearby.close();
     await _folderChanged.close();
     await _paired.close();

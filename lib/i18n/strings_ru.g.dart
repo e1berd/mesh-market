@@ -94,6 +94,18 @@ class _Translations$devices$ru implements Translations$devices$en {
 	@override String get errorLoad => 'Не удалось загрузить данные устройства';
 	@override String get errorLoadPeers => 'Не удалось загрузить связанные устройства';
 	@override String get remove => 'Удалить устройство';
+	@override String get storageTitle => 'Память синхронизации';
+	@override String foldersCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n,
+		zero: 'Нет папок',
+		one: '${n} папка',
+		few: '${n} папки',
+		many: '${n} папок',
+		other: '${n} папок',
+	);
+	@override String get syncing => 'Синхронизация';
+	@override String get connecting => 'Подключение';
+	@override String get conflict => 'Требует внимания';
+	@override String filesProgress({required Object done, required Object total}) => '${done} из ${total} файлов';
 }
 
 // Path: folders
@@ -132,6 +144,21 @@ class _Translations$folders$ru implements Translations$folders$en {
 	@override String get receiveFiles => 'Получать файлы';
 	@override String get remoteMissing => 'Нет на удалённом устройстве';
 	@override String get remoteAvailable => 'Доступна на удалённом';
+	@override String conflicts({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n,
+		one: '${n} конфликт',
+		few: '${n} конфликта',
+		many: '${n} конфликтов',
+		other: '${n} конфликта',
+	);
+	@override String get conflictsTitle => 'Разрешение конфликтов';
+	@override String get resolveAuto => 'Решить автоматически';
+	@override String get resolveAutoHint => 'Оставляет более свежую версию каждого файла';
+	@override String get conflictCurrent => 'Текущий';
+	@override String get conflictIncoming => 'Входящий';
+	@override String get conflictKeepCurrent => 'Оставить текущий';
+	@override String get conflictUseIncoming => 'Принять входящий';
+	@override String get conflictNoPreview => 'Текстовый предпросмотр для этого файла недоступен';
+	@override String get conflictResolved => 'Конфликт разрешён';
 }
 
 // Path: pair
@@ -262,6 +289,8 @@ class _Translations$settings$ru implements Translations$settings$en {
 	@override String get portMappingSubtitle => 'Открыть путь через роутер (UPnP, NAT-PMP, PCP)';
 	@override String get peerRelayTitle => 'Ретрансляция через устройства';
 	@override String get peerRelaySubtitle => 'Связь через другое ваше устройство, если прямая не удалась';
+	@override String get holePunchTitle => 'Пробивка NAT';
+	@override String get holePunchSubtitle => 'Прямое P2P-соединение по UDP через NAT, без ретранслятора';
 	@override String get bluetoothTitle => 'Bluetooth';
 	@override String get bluetoothSubtitle => 'Использовать Bluetooth рядом, если сеть недоступна';
 	@override String get offlineTransports => 'Офлайн-транспорты';
@@ -339,6 +368,12 @@ extension on TranslationsRu {
 			'devices.errorLoad' => 'Не удалось загрузить данные устройства',
 			'devices.errorLoadPeers' => 'Не удалось загрузить связанные устройства',
 			'devices.remove' => 'Удалить устройство',
+			'devices.storageTitle' => 'Память синхронизации',
+			'devices.foldersCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, zero: 'Нет папок', one: '${n} папка', few: '${n} папки', many: '${n} папок', other: '${n} папок', ), 
+			'devices.syncing' => 'Синхронизация',
+			'devices.connecting' => 'Подключение',
+			'devices.conflict' => 'Требует внимания',
+			'devices.filesProgress' => ({required Object done, required Object total}) => '${done} из ${total} файлов',
 			'folders.add' => 'Добавить папку',
 			'folders.storageDenied' => 'Для синхронизации нужен доступ к хранилищу',
 			'folders.manageAccess' => 'Управление доступом',
@@ -362,6 +397,16 @@ extension on TranslationsRu {
 			'folders.receiveFiles' => 'Получать файлы',
 			'folders.remoteMissing' => 'Нет на удалённом устройстве',
 			'folders.remoteAvailable' => 'Доступна на удалённом',
+			'folders.conflicts' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(n, one: '${n} конфликт', few: '${n} конфликта', many: '${n} конфликтов', other: '${n} конфликта', ), 
+			'folders.conflictsTitle' => 'Разрешение конфликтов',
+			'folders.resolveAuto' => 'Решить автоматически',
+			'folders.resolveAutoHint' => 'Оставляет более свежую версию каждого файла',
+			'folders.conflictCurrent' => 'Текущий',
+			'folders.conflictIncoming' => 'Входящий',
+			'folders.conflictKeepCurrent' => 'Оставить текущий',
+			'folders.conflictUseIncoming' => 'Принять входящий',
+			'folders.conflictNoPreview' => 'Текстовый предпросмотр для этого файла недоступен',
+			'folders.conflictResolved' => 'Конфликт разрешён',
 			'pair.scanHint' => 'Отсканируйте этот код на другом устройстве',
 			'pair.scanButton' => 'Сканировать устройство',
 			'pair.scanInstruction' => 'Направьте камеру на QR-код другого устройства',
@@ -447,6 +492,8 @@ extension on TranslationsRu {
 			'settings.portMappingSubtitle' => 'Открыть путь через роутер (UPnP, NAT-PMP, PCP)',
 			'settings.peerRelayTitle' => 'Ретрансляция через устройства',
 			'settings.peerRelaySubtitle' => 'Связь через другое ваше устройство, если прямая не удалась',
+			'settings.holePunchTitle' => 'Пробивка NAT',
+			'settings.holePunchSubtitle' => 'Прямое P2P-соединение по UDP через NAT, без ретранслятора',
 			'settings.bluetoothTitle' => 'Bluetooth',
 			'settings.bluetoothSubtitle' => 'Использовать Bluetooth рядом, если сеть недоступна',
 			'settings.offlineTransports' => 'Офлайн-транспорты',

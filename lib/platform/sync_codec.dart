@@ -24,6 +24,24 @@ SyncEvent syncEventFromJson(Map<String, Object?> json) => SyncEvent(
   at: DateTime.fromMillisecondsSinceEpoch(json['at'] as int),
 );
 
+Map<String, Object?> syncProgressToJson(SyncProgress p) => {
+  'peerId': p.peerId,
+  'folderId': p.folderId,
+  'direction': p.direction.name,
+  'done': p.done,
+  'total': p.total,
+  'active': p.active,
+};
+
+SyncProgress syncProgressFromJson(Map<String, Object?> json) => SyncProgress(
+  peerId: json['peerId'] as String,
+  folderId: json['folderId'] as String,
+  direction: SyncDirection.values.byName(json['direction'] as String),
+  done: json['done'] as int,
+  total: json['total'] as int,
+  active: json['active'] as bool,
+);
+
 Map<String, Object?> lanPeerToJson(LanPeer peer) => {
   'payload': peer.payload.toJson(),
   'address': peer.address.address,

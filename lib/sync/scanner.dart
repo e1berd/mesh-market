@@ -44,20 +44,32 @@ class FolderScanner {
     }
 
     final hashes = await _hashFile(path, size);
+    final meta = FileMeta(
+      path: path,
+      size: size,
+      modified: modified,
+      blockHashes: hashes,
+    );
+
+    if (existing != null &&
+        !existing.meta.deleted &&
+        _sameHashes(existing.meta.blockHashes, hashes)) {
+      await index.put(IndexEntry(meta, existing.version));
+      return;
+    }
+
     final version = (existing?.version ?? VersionVector.empty).increment(
       deviceId,
     );
-    await index.put(
-      IndexEntry(
-        FileMeta(
-          path: path,
-          size: size,
-          modified: modified,
-          blockHashes: hashes,
-        ),
-        version,
-      ),
-    );
+    await index.put(IndexEntry(meta, version));
+  }
+
+  bool _sameHashes(List<String> a, List<String> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 
   Future<List<String>> _hashFile(String path, int size) async {

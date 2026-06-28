@@ -24,6 +24,7 @@ class _BackgroundBridge {
 
   late final SyncHost _host = SyncHost(
     onEvent: (e) => service.invoke(msgEvent, syncEventToJson(e)),
+    onProgress: (p) => service.invoke(msgProgress, syncProgressToJson(p)),
     onFolderChanged: (id) => service.invoke(msgFolderChanged, {'folderId': id}),
     onNearby: (p) => service.invoke(msgNearby, lanPeerToJson(p)),
     onPaired: (p) => service.invoke(msgPaired, p.toJson()),

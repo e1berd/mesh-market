@@ -34,6 +34,8 @@ class RemoteSyncController implements SyncController {
   @override
   Stream<SyncEvent> get events => _listen(msgEvent, syncEventFromJson);
   @override
+  Stream<SyncProgress> get progress => _listen(msgProgress, syncProgressFromJson);
+  @override
   Stream<LanPeer> get nearby => _listen(msgNearby, lanPeerFromJson);
   @override
   Stream<String> get folderChanged =>

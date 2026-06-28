@@ -138,6 +138,28 @@ class Translations$devices$en {
 
 	/// en: 'Remove device'
 	String get remove => 'Remove device';
+
+	/// en: 'Synced storage'
+	String get storageTitle => 'Synced storage';
+
+	/// en: '(zero) {No folders} (one) {{n} folder} (other) {{n} folders}'
+	String foldersCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
+		zero: 'No folders',
+		one: '${n} folder',
+		other: '${n} folders',
+	);
+
+	/// en: 'Syncing'
+	String get syncing => 'Syncing';
+
+	/// en: 'Connecting'
+	String get connecting => 'Connecting';
+
+	/// en: 'Needs attention'
+	String get conflict => 'Needs attention';
+
+	/// en: '{done} of {total} files'
+	String filesProgress({required Object done, required Object total}) => '${done} of ${total} files';
 }
 
 // Path: folders
@@ -220,6 +242,39 @@ class Translations$folders$en {
 
 	/// en: 'Available on remote'
 	String get remoteAvailable => 'Available on remote';
+
+	/// en: '(one) {{n} conflict} (other) {{n} conflicts}'
+	String conflicts({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n,
+		one: '${n} conflict',
+		other: '${n} conflicts',
+	);
+
+	/// en: 'Resolve conflicts'
+	String get conflictsTitle => 'Resolve conflicts';
+
+	/// en: 'Resolve automatically'
+	String get resolveAuto => 'Resolve automatically';
+
+	/// en: 'Keeps the most recently changed version of each file'
+	String get resolveAutoHint => 'Keeps the most recently changed version of each file';
+
+	/// en: 'Current'
+	String get conflictCurrent => 'Current';
+
+	/// en: 'Incoming'
+	String get conflictIncoming => 'Incoming';
+
+	/// en: 'Keep current'
+	String get conflictKeepCurrent => 'Keep current';
+
+	/// en: 'Use incoming'
+	String get conflictUseIncoming => 'Use incoming';
+
+	/// en: 'Text preview is unavailable for this file'
+	String get conflictNoPreview => 'Text preview is unavailable for this file';
+
+	/// en: 'Conflict resolved'
+	String get conflictResolved => 'Conflict resolved';
 }
 
 // Path: pair
@@ -521,6 +576,12 @@ class Translations$settings$en {
 	/// en: 'Reach peers through another of your devices when direct fails'
 	String get peerRelaySubtitle => 'Reach peers through another of your devices when direct fails';
 
+	/// en: 'Hole punching'
+	String get holePunchTitle => 'Hole punching';
+
+	/// en: 'Direct peer-to-peer UDP through NAT, no relay needed'
+	String get holePunchSubtitle => 'Direct peer-to-peer UDP through NAT, no relay needed';
+
 	/// en: 'Bluetooth'
 	String get bluetoothTitle => 'Bluetooth';
 
@@ -673,6 +734,12 @@ extension on Translations {
 			'devices.errorLoad' => 'Could not load identity',
 			'devices.errorLoadPeers' => 'Could not load paired devices',
 			'devices.remove' => 'Remove device',
+			'devices.storageTitle' => 'Synced storage',
+			'devices.foldersCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, zero: 'No folders', one: '${n} folder', other: '${n} folders', ), 
+			'devices.syncing' => 'Syncing',
+			'devices.connecting' => 'Connecting',
+			'devices.conflict' => 'Needs attention',
+			'devices.filesProgress' => ({required Object done, required Object total}) => '${done} of ${total} files',
 			'folders.add' => 'Add folder',
 			'folders.storageDenied' => 'Storage access is required to sync folders',
 			'folders.manageAccess' => 'Manage access',
@@ -696,6 +763,16 @@ extension on Translations {
 			'folders.receiveFiles' => 'Receive files',
 			'folders.remoteMissing' => 'Not available on remote',
 			'folders.remoteAvailable' => 'Available on remote',
+			'folders.conflicts' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(n, one: '${n} conflict', other: '${n} conflicts', ), 
+			'folders.conflictsTitle' => 'Resolve conflicts',
+			'folders.resolveAuto' => 'Resolve automatically',
+			'folders.resolveAutoHint' => 'Keeps the most recently changed version of each file',
+			'folders.conflictCurrent' => 'Current',
+			'folders.conflictIncoming' => 'Incoming',
+			'folders.conflictKeepCurrent' => 'Keep current',
+			'folders.conflictUseIncoming' => 'Use incoming',
+			'folders.conflictNoPreview' => 'Text preview is unavailable for this file',
+			'folders.conflictResolved' => 'Conflict resolved',
 			'pair.scanHint' => 'Scan this code on another device',
 			'pair.scanButton' => 'Scan a device',
 			'pair.scanInstruction' => 'Point the camera at another device QR code',
@@ -781,6 +858,8 @@ extension on Translations {
 			'settings.portMappingSubtitle' => 'Open a path through your router (UPnP, NAT-PMP, PCP)',
 			'settings.peerRelayTitle' => 'Peer relay',
 			'settings.peerRelaySubtitle' => 'Reach peers through another of your devices when direct fails',
+			'settings.holePunchTitle' => 'Hole punching',
+			'settings.holePunchSubtitle' => 'Direct peer-to-peer UDP through NAT, no relay needed',
 			'settings.bluetoothTitle' => 'Bluetooth',
 			'settings.bluetoothSubtitle' => 'Use nearby Bluetooth when network sync fails',
 			'settings.offlineTransports' => 'Offline transports',

@@ -15,6 +15,8 @@ import '../crypto/folder_key.dart';
 import '../storage/file_store.dart';
 import '../transport/bluetooth_transport.dart';
 import '../transport/dht.dart';
+import '../transport/holepunch/kcp_link.dart';
+import '../transport/holepunch/udp_punch.dart';
 import '../transport/ip_link_bringup.dart';
 import '../transport/lan_beacon.dart';
 import '../transport/lan_signaling.dart';
@@ -62,6 +64,7 @@ class SyncService {
     required this.onIncomingShare,
     this.onEvent,
     this.onFolderChanged,
+    this.onProgress,
   });
 
   final DeviceIdentity identity;
@@ -76,6 +79,7 @@ class SyncService {
   onIncomingShare;
   final void Function(SyncEvent event)? onEvent;
   final void Function(String folderId)? onFolderChanged;
+  final void Function(SyncProgress progress)? onProgress;
 
   final _dhts = <DhtDiscovery>[];
   final _subscriptions = <StreamSubscription<dynamic>>[];
@@ -180,17 +184,10 @@ class SyncService {
         _log('beacon failed: $error');
       }
     }
-    if (config.portMapping) await _startPortMapping();
-    if (config.dhtDiscovery) await _announcePairing();
-    if (config.bluetoothDiscovery) {
-      try {
-        await _bluetooth.start();
-        _subscriptions.add(_bluetooth.incoming.listen(_acceptBluetooth));
-      } on Object catch (error) {
-        _log('bluetooth failed: $error');
-      }
-    }
-    await _startOfflineTransports();
+    if (config.portMapping) unawaited(_startPortMapping());
+    if (config.dhtDiscovery) unawaited(_announcePairing());
+    if (config.bluetoothDiscovery) unawaited(_startBluetooth());
+    unawaited(_startOfflineTransports());
     _startOfflineDialing();
     _startRelayDialing();
     for (final folder in folders) {
@@ -198,28 +195,46 @@ class SyncService {
     }
   }
 
-  Future<void> _startPortMapping() async {
-    final signalPort = _signaling.boundPort;
-    if (signalPort != 0) {
-      final mapper = PortMapper(internalPort: signalPort);
-      _signalMap = mapper;
-      final mapping = await mapper.start();
-      _externalSignalPort = mapping?.externalPort;
-      if (mapping != null) _log('mapped signaling $mapping');
+  Future<void> _startBluetooth() async {
+    try {
+      await _bluetooth.start();
+      _subscriptions.add(_bluetooth.incoming.listen(_acceptBluetooth));
+    } on Object catch (error) {
+      _log('bluetooth failed: $error');
     }
-    final dataPort = _tcp.boundPort;
-    if (dataPort != 0) {
-      final mapper = PortMapper(internalPort: dataPort);
-      _dataMap = mapper;
-      _externalData = await mapper.start();
-      if (_externalData != null) _log('mapped data $_externalData');
+  }
+
+  Future<void> _startPortMapping() async {
+    try {
+      final signalPort = _signaling.boundPort;
+      if (signalPort != 0) {
+        final mapper = PortMapper(internalPort: signalPort);
+        _signalMap = mapper;
+        final mapping = await mapper.start();
+        _externalSignalPort = mapping?.externalPort;
+        if (mapping != null) _log('mapped signaling $mapping');
+      }
+      final dataPort = _tcp.boundPort;
+      if (dataPort != 0) {
+        final mapper = PortMapper(internalPort: dataPort);
+        _dataMap = mapper;
+        _externalData = await mapper.start();
+        if (_externalData != null) _log('mapped data $_externalData');
+      }
+    } on Object catch (error) {
+      _log('port mapping failed: $error');
     }
   }
 
   Future<void> _startOfflineTransports() async {
-    _wifiDirectSupported = await WifiDirectTransport.isSupported();
-    _wifiAwareSupported = await WifiAwareTransport.isSupported();
-    _multipeerSupported = await MultipeerTransport.isSupported();
+    try {
+      _wifiDirectSupported = await WifiDirectTransport.isSupported();
+      _wifiAwareSupported = await WifiAwareTransport.isSupported();
+      _multipeerSupported = await MultipeerTransport.isSupported();
+    } on Object catch (error) {
+      _log('offline transport probe failed: $error');
+      return;
+    }
     if (config.wifiDirectDiscovery && _wifiDirectSupported) {
       try {
         await _wifiDirect.start();
@@ -943,6 +958,22 @@ class SyncService {
     );
     final context = (peerId: peer.deviceId, folderId: folder.config.id);
     final peerConfig = folder.config.peer(peer.deviceId);
+    final seen = <SyncDirection, ({int done, int total})>{};
+
+    void emitProgress(SyncDirection direction, int done, int total, bool active) {
+      seen[direction] = (done: done, total: total);
+      onProgress?.call(
+        SyncProgress(
+          peerId: context.peerId,
+          folderId: context.folderId,
+          direction: direction,
+          done: done,
+          total: total,
+          active: active,
+        ),
+      );
+    }
+
     final engine = SyncEngine(
       index: folder.index,
       store: folder.store,
@@ -956,6 +987,10 @@ class SyncService {
           transport: transport,
         ),
       ),
+      onProgress: (done, total) =>
+          emitProgress(SyncDirection.incoming, done, total, true),
+      onPeerProgress: (done, total) =>
+          emitProgress(SyncDirection.outgoing, done, total, true),
     );
     final session = (folderId: folder.config.id, engine: engine, link: link);
     _sessions.add(session);
@@ -981,6 +1016,9 @@ class SyncService {
       if (completed) {
         _lastSynced[_syncKey(context.peerId, context.folderId)] =
             DateTime.now();
+      }
+      for (final entry in seen.entries) {
+        emitProgress(entry.key, entry.value.done, entry.value.total, false);
       }
       onEvent?.call(
         SyncEvent(
@@ -1129,6 +1167,35 @@ class SyncService {
           peerId: peer.deviceId,
           folderId: folder.config.id,
         );
+      },
+    );
+
+    yield SyncTransportCandidate(
+      descriptor: SyncTransportDescriptor(
+        kind: SyncTransportKind.holePunch,
+        priority: 8,
+        available: config.holePunch,
+      ),
+      open: () async {
+        final initiator = identity.id.compareTo(peer.deviceId) < 0;
+        onAttempt(SyncTransportKind.holePunch.id);
+        onEvent?.call(
+          SyncEvent(
+            SyncEventKind.connecting,
+            peerId: peer.deviceId,
+            folderId: folder.config.id,
+            transport: SyncTransportKind.holePunch.id,
+          ),
+        );
+        final pair = [identity.id, peer.deviceId]..sort();
+        final token = '${pair.first}/${pair.last}/${folder.infohash}';
+        final punch = await holePunch(
+          channel: channel,
+          initiator: initiator,
+          token: token,
+        );
+        if (punch == null) throw const SyncTransportUnavailable(null);
+        return KcpLink(peerId: peer.deviceId, punch: punch);
       },
     );
 

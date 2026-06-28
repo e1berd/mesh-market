@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import '../core/models.dart';
@@ -17,6 +18,8 @@ class SyncEngine {
     this.canReceive = true,
     this.canSend = true,
     this.onEvent,
+    this.onProgress,
+    this.onPeerProgress,
   });
 
   final FolderIndex index;
@@ -25,13 +28,25 @@ class SyncEngine {
   final bool canReceive;
   final bool canSend;
   final void Function(SyncEvent event)? onEvent;
+  final void Function(int done, int total)? onProgress;
+  final void Function(int done, int total)? onPeerProgress;
 
   final _downloads = <String, _Download>{};
+  int _filesDone = 0;
+  int _filesTotal = 0;
+  PeerLink? _link;
+
+  void _emitProgress() {
+    onProgress?.call(_filesDone, _filesTotal);
+    final link = _link;
+    if (link != null) unawaited(link.send(Progress(_filesDone, _filesTotal)));
+  }
 
   Future<void> announce(PeerLink link) async =>
       link.send(IndexSnapshot(await index.all()));
 
   Future<void> sync(PeerLink link) async {
+    _link = link;
     await announce(link);
     await for (final message in link.incoming) {
       switch (message) {
@@ -47,6 +62,8 @@ class SyncEngine {
           }
         case BlockPayload payload:
           await _receive(payload);
+        case Progress progress:
+          onPeerProgress?.call(progress.done, progress.total);
         case OpenLink():
           continue;
         case Hello():
@@ -100,6 +117,8 @@ class SyncEngine {
         : IndexEntry(_renamed(remote.meta, targetPath), remote.version);
     final download = _Download(entry, requestPath);
     _downloads[requestPath] = download;
+    _filesTotal++;
+    _emitProgress();
 
     final hashes = remote.meta.blockHashes;
     for (var i = 0; i < hashes.length; i++) {
@@ -158,6 +177,8 @@ class SyncEngine {
     await store.writeBytes(download.entry.meta.path, builder.toBytes());
     await index.put(download.entry);
     _downloads.remove(requestPath);
+    _filesDone++;
+    _emitProgress();
     onEvent?.call(
       SyncEvent(SyncEventKind.received, path: download.entry.meta.path),
     );

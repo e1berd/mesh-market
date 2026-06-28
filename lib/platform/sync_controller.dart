@@ -21,6 +21,7 @@ class SharePrompt {
 
 abstract class SyncController {
   Stream<SyncEvent> get events;
+  Stream<SyncProgress> get progress;
   Stream<LanPeer> get nearby;
   Stream<String> get folderChanged;
   Stream<PairingPayload> get paired;

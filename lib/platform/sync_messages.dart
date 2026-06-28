@@ -1,4 +1,5 @@
 const msgEvent = 'pm.event';
+const msgProgress = 'pm.progress';
 const msgNearby = 'pm.nearby';
 const msgFolderChanged = 'pm.folderChanged';
 const msgPaired = 'pm.paired';

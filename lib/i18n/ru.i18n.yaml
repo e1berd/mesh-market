@@ -24,6 +24,17 @@ devices:
   errorLoad: Не удалось загрузить данные устройства
   errorLoadPeers: Не удалось загрузить связанные устройства
   remove: Удалить устройство
+  storageTitle: Память синхронизации
+  foldersCount:
+    zero: Нет папок
+    one: '{n} папка'
+    few: '{n} папки'
+    many: '{n} папок'
+    other: '{n} папок'
+  syncing: Синхронизация
+  connecting: Подключение
+  conflict: Требует внимания
+  filesProgress: '{done} из {total} файлов'
 
 folders:
   add: Добавить папку
@@ -54,6 +65,20 @@ folders:
   receiveFiles: Получать файлы
   remoteMissing: Нет на удалённом устройстве
   remoteAvailable: Доступна на удалённом
+  conflicts:
+    one: '{n} конфликт'
+    few: '{n} конфликта'
+    many: '{n} конфликтов'
+    other: '{n} конфликта'
+  conflictsTitle: Разрешение конфликтов
+  resolveAuto: Решить автоматически
+  resolveAutoHint: Оставляет более свежую версию каждого файла
+  conflictCurrent: Текущий
+  conflictIncoming: Входящий
+  conflictKeepCurrent: Оставить текущий
+  conflictUseIncoming: Принять входящий
+  conflictNoPreview: Текстовый предпросмотр для этого файла недоступен
+  conflictResolved: Конфликт разрешён
 
 pair:
   scanHint: Отсканируйте этот код на другом устройстве
