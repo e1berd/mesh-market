@@ -136,6 +136,12 @@ activity:
   remove: Удалить запись
   empty: Ничего не синхронизируется
   emptyHint: Передачи и конфликты будут отображаться здесь по мере возникновения.
+  liveTitle: Сейчас идёт
+  you: Это устройство
+  liveTransferring: Передача
+  liveComplete: Все файлы синхронизированы
+  livePreparing: Подготовка
+  liveFiles: '{done} из {total} файлов'
   eventConnecting: Подключение
   eventConnected: Подключено
   eventDisconnected: Отключено

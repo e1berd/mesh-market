@@ -11,6 +11,7 @@ import '../../sync/sync_event.dart';
 import '../widgets/delete_swipe.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
+import '../widgets/live_transactions.dart';
 
 const _activityDesktopWidth = 960.0;
 
@@ -29,6 +30,7 @@ class ActivityScreen extends ConsumerWidget {
         crossAxisAlignment: .stretch,
         children: [
           const ExpressiveReveal(child: _ScheduleControls()),
+          const LiveTransactions(),
           Expanded(
             child: _ActivityBody(events: events, names: names),
           ),

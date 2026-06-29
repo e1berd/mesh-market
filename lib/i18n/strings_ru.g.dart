@@ -238,6 +238,12 @@ class _Translations$activity$ru implements Translations$activity$en {
 	@override String get remove => 'Удалить запись';
 	@override String get empty => 'Ничего не синхронизируется';
 	@override String get emptyHint => 'Передачи и конфликты будут отображаться здесь по мере возникновения.';
+	@override String get liveTitle => 'Сейчас идёт';
+	@override String get you => 'Это устройство';
+	@override String get liveTransferring => 'Передача';
+	@override String get liveComplete => 'Все файлы синхронизированы';
+	@override String get livePreparing => 'Подготовка';
+	@override String liveFiles({required Object done, required Object total}) => '${done} из ${total} файлов';
 	@override String get eventConnecting => 'Подключение';
 	@override String get eventConnected => 'Подключено';
 	@override String get eventDisconnected => 'Отключено';
@@ -486,6 +492,12 @@ extension on TranslationsRu {
 			'activity.remove' => 'Удалить запись',
 			'activity.empty' => 'Ничего не синхронизируется',
 			'activity.emptyHint' => 'Передачи и конфликты будут отображаться здесь по мере возникновения.',
+			'activity.liveTitle' => 'Сейчас идёт',
+			'activity.you' => 'Это устройство',
+			'activity.liveTransferring' => 'Передача',
+			'activity.liveComplete' => 'Все файлы синхронизированы',
+			'activity.livePreparing' => 'Подготовка',
+			'activity.liveFiles' => ({required Object done, required Object total}) => '${done} из ${total} файлов',
 			'activity.eventConnecting' => 'Подключение',
 			'activity.eventConnected' => 'Подключено',
 			'activity.eventDisconnected' => 'Отключено',

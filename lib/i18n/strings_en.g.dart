@@ -457,6 +457,24 @@ class Translations$activity$en {
 	/// en: 'Transfers and conflicts will appear here as they happen.'
 	String get emptyHint => 'Transfers and conflicts will appear here as they happen.';
 
+	/// en: 'In progress'
+	String get liveTitle => 'In progress';
+
+	/// en: 'You'
+	String get you => 'You';
+
+	/// en: 'Transferring'
+	String get liveTransferring => 'Transferring';
+
+	/// en: 'All files synced'
+	String get liveComplete => 'All files synced';
+
+	/// en: 'Preparing'
+	String get livePreparing => 'Preparing';
+
+	/// en: '{done} of {total} files'
+	String liveFiles({required Object done, required Object total}) => '${done} of ${total} files';
+
 	/// en: 'Connecting'
 	String get eventConnecting => 'Connecting';
 
@@ -888,6 +906,12 @@ extension on Translations {
 			'activity.remove' => 'Remove entry',
 			'activity.empty' => 'Nothing syncing',
 			'activity.emptyHint' => 'Transfers and conflicts will appear here as they happen.',
+			'activity.liveTitle' => 'In progress',
+			'activity.you' => 'You',
+			'activity.liveTransferring' => 'Transferring',
+			'activity.liveComplete' => 'All files synced',
+			'activity.livePreparing' => 'Preparing',
+			'activity.liveFiles' => ({required Object done, required Object total}) => '${done} of ${total} files',
 			'activity.eventConnecting' => 'Connecting',
 			'activity.eventConnected' => 'Connected',
 			'activity.eventDisconnected' => 'Disconnected',

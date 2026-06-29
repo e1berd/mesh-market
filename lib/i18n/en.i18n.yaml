@@ -130,6 +130,12 @@ activity:
   remove: Remove entry
   empty: Nothing syncing
   emptyHint: Transfers and conflicts will appear here as they happen.
+  liveTitle: In progress
+  you: You
+  liveTransferring: Transferring
+  liveComplete: All files synced
+  livePreparing: Preparing
+  liveFiles: '{done} of {total} files'
   eventConnecting: Connecting
   eventConnected: Connected
   eventDisconnected: Disconnected
