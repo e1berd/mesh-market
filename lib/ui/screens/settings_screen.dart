@@ -1,5 +1,6 @@
 import 'package:declar_ui/declar_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:m3e_core/m3e_core.dart';
 
 import '../../i18n/strings.g.dart';
 import '../widgets/expressive.dart';
@@ -15,6 +16,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t.settings;
+    final colors = context.colors;
     final entries = [
       _SettingsEntry(
         icon: Icons.palette_rounded,
@@ -54,16 +56,19 @@ class SettingsScreen extends ConsumerWidget {
         clipBehavior: Clip.hardEdge,
         child: ExpressiveResponsiveCenter(
           maxWidth: 760,
-          child: Column(
-            crossAxisAlignment: .stretch,
-            spacing: 12,
-            children: [
-              for (var i = 0; i < entries.length; i++)
-                ExpressiveReveal(
-                  delay: Duration(milliseconds: 40 * i),
-                  child: _SettingsNavTile(entry: entries[i]),
-                ),
-            ],
+          child: ExpressiveReveal(
+            child: M3ECardList(
+              itemCount: entries.length,
+              itemBuilder: (context, i) => _SettingsRow(entry: entries[i]),
+              onTap: (i) => context.push(entries[i].builder()),
+              semanticLabelBuilder: (i) => entries[i].title,
+              outerRadius: expressiveListOuterRadius,
+              innerRadius: expressiveListInnerRadius,
+              gap: expressiveListGap,
+              color: colors.surfaceContainerHigh,
+              padding: expressiveListPadding,
+              margin: expressiveListMargin,
+            ),
           ),
         ),
       ),
@@ -85,73 +90,37 @@ class _SettingsEntry {
   final Widget Function() builder;
 }
 
-class _SettingsNavTile extends StatefulWidget {
-  const _SettingsNavTile({required this.entry});
+class _SettingsRow extends StatelessWidget {
+  const _SettingsRow({required this.entry});
 
   final _SettingsEntry entry;
 
   @override
-  State<_SettingsNavTile> createState() => _SettingsNavTileState();
-}
-
-class _SettingsNavTileState extends State<_SettingsNavTile> {
-  bool _pressed = false;
-
-  @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final entry = widget.entry;
-    return AnimatedScale(
-      scale: _pressed ? .97 : 1,
-      duration: expressiveFastDuration,
-      curve: expressiveCurve,
-      child: Material(
-        color: colors.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(28),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () => context.push(entry.builder()),
-          onTapDown: (_) => setState(() => _pressed = true),
-          onTapUp: (_) => setState(() => _pressed = false),
-          onTapCancel: () => setState(() => _pressed = false),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 18, 14),
-            child: Row(
-              children: [
-                ExpressiveIconContainer(
-                  icon: entry.icon,
-                  color: colors.secondaryContainer,
-                  foregroundColor: colors.onSecondaryContainer,
-                  size: 52,
-                  radius: 18,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: .start,
-                    children: [
-                      Text(
-                        entry.title,
-                      ).size(17).weight(.w800).color(colors.onSurface),
-                      const SizedBox(height: 2),
-                      Text(entry.subtitle)
-                          .size(13)
-                          .color(colors.onSurfaceVariant)
-                          .maxLines(2)
-                          .overflow(.ellipsis),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: colors.onSurfaceVariant,
-                ),
-              ],
-            ),
+    return Row(
+      children: [
+        ExpressiveIconContainer(
+          icon: entry.icon,
+          color: colors.secondaryContainer,
+          foregroundColor: colors.onSecondaryContainer,
+        ).padding(right: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: .start,
+            children: [
+              Text(entry.title).size(16).weight(.w700),
+              Text(entry.subtitle)
+                  .size(12)
+                  .color(colors.onSurfaceVariant)
+                  .maxLines(2)
+                  .overflow(.ellipsis),
+            ],
           ),
         ),
-      ),
+        const SizedBox(width: 8),
+        Icon(Icons.chevron_right_rounded, color: colors.onSurfaceVariant),
+      ],
     );
   }
 }
