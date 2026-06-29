@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:mesh_market/core/pairing.dart';
 import 'package:mesh_market/crypto/aead.dart';
 import 'package:mesh_market/sync/engine.dart';
 import 'package:mesh_market/sync/index.dart';
@@ -56,17 +57,60 @@ void main() {
   });
 
   Future<(SyncEngine, FolderIndex, IoFileStore)> engine(
-      String device, Directory dir, {List<SyncEvent>? events}) async {
+      String device, Directory dir, {
+    List<SyncEvent>? events,
+    void Function(PairingPayload peer)? onPeerHello,
+  }) async {
     final db = await databaseFactoryMemory.openDatabase('${dir.path}/$device.db');
     final index = FolderIndex(db, 'folder');
     final store = IoFileStore(dir);
     final cipher = FolderCipher(SecretKey(List<int>.filled(32, 3)));
     return (
-      SyncEngine(index: index, store: store, cipher: cipher, onEvent: events?.add),
+      SyncEngine(
+        index: index,
+        store: store,
+        cipher: cipher,
+        onEvent: events?.add,
+        onPeerHello: onPeerHello,
+      ),
       index,
       store,
     );
   }
+
+  test('emits peer metadata from hello messages', () async {
+    PairingPayload? received;
+    final (engineA, _, _) = await engine('A', dirA);
+    final (engineB, _, _) = await engine(
+      'B',
+      dirB,
+      onPeerHello: (peer) => received = peer,
+    );
+    final (linkA, linkB) = _linkPair();
+    final runA = engineA.sync(linkA);
+    final runB = engineB.sync(linkB);
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+
+    await linkA.send(
+      Hello(
+        'A',
+        Uint8List(0),
+        payload: const PairingPayload(
+          deviceId: 'A',
+          name: 'Renamed phone',
+          signingKey: [1, 2],
+          agreementKey: [3, 4],
+        ),
+      ),
+    );
+    final seen = await _await(() async => received != null);
+    await linkA.close();
+    await linkB.close();
+    await Future.wait([runA, runB]);
+
+    expect(seen, isTrue);
+    expect(received?.name, equals('Renamed phone'));
+  });
 
   test('copies a new file from one peer to the other', () async {
     File('${dirA.path}/notes.txt').writeAsStringSync('hello mesh market');

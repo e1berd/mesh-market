@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:cbor/cbor.dart';
 
+import '../core/pairing.dart';
 import '../sync/index.dart';
 
 sealed class SyncMessage {
@@ -17,7 +18,15 @@ sealed class SyncMessage {
     final map = (cbor.decode(bytes).toObject()! as Map).cast<String, Object?>();
     return switch (map['t']) {
       'open' => OpenLink(map['id']! as String, map['folder']! as String),
-      'hello' => Hello(map['id']! as String, _bytes(map['sig'])),
+      'hello' => Hello(
+        map['id']! as String,
+        _bytes(map['sig']),
+        payload: map['p'] == null
+            ? null
+            : PairingPayload.fromJson(
+                (map['p']! as Map).cast<String, Object?>(),
+              ),
+      ),
       'index' => IndexSnapshot([
         for (final entry in map['entries']! as List)
           IndexEntry.fromMap((entry as Map).cast<String, Object?>()),
@@ -52,16 +61,21 @@ final class OpenLink extends SyncMessage {
 }
 
 final class Hello extends SyncMessage {
-  Hello(this.deviceId, this.signature);
+  Hello(this.deviceId, this.signature, {this.payload});
 
   final String deviceId;
   final Uint8List signature;
+  final PairingPayload? payload;
 
   @override
   String get type => 'hello';
 
   @override
-  Map<String, Object?> fields() => {'id': deviceId, 'sig': signature};
+  Map<String, Object?> fields() => {
+    'id': deviceId,
+    'sig': signature,
+    if (payload != null) 'p': payload!.toJson(),
+  };
 }
 
 final class IndexSnapshot extends SyncMessage {

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import '../core/models.dart';
+import '../core/pairing.dart';
 import '../crypto/aead.dart';
 import '../storage/file_store.dart';
 import '../transport/messages.dart';
@@ -20,6 +21,7 @@ class SyncEngine {
     this.onEvent,
     this.onProgress,
     this.onPeerProgress,
+    this.onPeerHello,
   });
 
   final FolderIndex index;
@@ -30,6 +32,7 @@ class SyncEngine {
   final void Function(SyncEvent event)? onEvent;
   final void Function(int done, int total)? onProgress;
   final void Function(int done, int total)? onPeerProgress;
+  final void Function(PairingPayload peer)? onPeerHello;
 
   final _downloads = <String, _Download>{};
   int _filesDone = 0;
@@ -66,8 +69,9 @@ class SyncEngine {
           onPeerProgress?.call(progress.done, progress.total);
         case OpenLink():
           continue;
-        case Hello():
-          continue;
+        case Hello hello:
+          final payload = hello.payload;
+          if (payload != null) onPeerHello?.call(payload);
         case Bye():
           return;
       }

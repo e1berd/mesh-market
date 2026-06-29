@@ -1,10 +1,18 @@
 import 'dart:typed_data';
 
 import 'package:mesh_market/core/models.dart';
+import 'package:mesh_market/core/pairing.dart';
 import 'package:mesh_market/sync/index.dart';
 import 'package:mesh_market/sync/version_vector.dart';
 import 'package:mesh_market/transport/messages.dart';
 import 'package:test/test.dart';
+
+PairingPayload _payload(String id, String name) => PairingPayload(
+  deviceId: id,
+  name: name,
+  signingKey: const [1, 2],
+  agreementKey: const [3, 4],
+);
 
 void main() {
   test('open link round-trips device and folder id', () {
@@ -18,11 +26,16 @@ void main() {
   test('hello round-trips device id and signature', () {
     final decoded =
         SyncMessage.decode(
-              Hello('DEVICE1', Uint8List.fromList([1, 2, 3])).encode(),
+              Hello(
+                'DEVICE1',
+                Uint8List.fromList([1, 2, 3]),
+                payload: _payload('DEVICE1', 'Phone'),
+              ).encode(),
             )
             as Hello;
     expect(decoded.deviceId, equals('DEVICE1'));
     expect(decoded.signature, equals([1, 2, 3]));
+    expect(decoded.payload?.name, equals('Phone'));
   });
 
   test('index snapshot round-trips an entry', () {

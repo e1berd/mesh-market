@@ -20,6 +20,7 @@ import '../transport/holepunch/udp_punch.dart';
 import '../transport/ip_link_bringup.dart';
 import '../transport/lan_beacon.dart';
 import '../transport/lan_signaling.dart';
+import '../transport/messages.dart';
 import '../transport/multipeer_transport.dart';
 import '../transport/nat/port_mapper.dart';
 import '../transport/nat/port_mapping.dart';
@@ -141,6 +142,7 @@ class SyncService {
   SignalHello _hello(FolderRuntime folder) => SignalHello(
     folder.infohash,
     identity.id,
+    payload: _self,
     syncPort: _externalData?.externalPort,
     syncAddress: _externalData?.externalAddress?.address,
   );
@@ -566,7 +568,7 @@ class SyncService {
       'known=$known active=$_syncActive',
     );
     if (!known) return;
-    if (existing.name != peer.payload.name) onPaired(peer.payload);
+    _refreshPeer(peer.payload);
     unawaited(_pushShares(peer));
     if (!_syncActive) return;
     for (final folder in folders) {
@@ -679,6 +681,7 @@ class SyncService {
                   .timeout(const Duration(seconds: 10))
               as SignalHello;
       _log('dial got hello from ${hello.deviceId}');
+      _refreshPeer(hello.payload);
       _endpoints[hello.deviceId] = (address: address, port: port);
       final peerSyncPort = hello.syncPort ?? syncPort;
       final peerSyncAddress = hello.syncAddress != null
@@ -734,6 +737,7 @@ class SyncService {
         return;
       }
       await channel.send(_hello(folder));
+      _refreshPeer(hello.payload);
       if (!_canStart(hello.deviceId, folder.config.id)) {
         await channel.close();
         return;
@@ -1010,6 +1014,7 @@ class SyncService {
           emitProgress(SyncDirection.incoming, done, total, true),
       onPeerProgress: (done, total) =>
           emitProgress(SyncDirection.outgoing, done, total, true),
+      onPeerHello: _refreshPeer,
     );
     final session = (folderId: folder.config.id, engine: engine, link: link);
     _sessions.add(session);
@@ -1024,6 +1029,7 @@ class SyncService {
     _log('sync started "${folder.config.label}" via $transportLabel');
     var completed = false;
     try {
+      await link.send(Hello(identity.id, Uint8List(0), payload: _self));
       await engine.sync(link);
       completed = true;
       _log('sync finished "${folder.config.label}"');
@@ -1357,6 +1363,20 @@ class SyncService {
       if (peer.deviceId == deviceId) return peer;
     }
     return null;
+  }
+
+  void _refreshPeer(PairingPayload? candidate) {
+    if (candidate == null || candidate.deviceId == identity.id) return;
+    final existing = _peerById(candidate.deviceId);
+    if (existing == null || existing.name == candidate.name) return;
+    if (!listEquals(existing.signingKey, candidate.signingKey) ||
+        !listEquals(existing.agreementKey, candidate.agreementKey)) {
+      _log(
+        'ignored peer metadata update with mismatched keys: ${candidate.deviceId}',
+      );
+      return;
+    }
+    onPaired(candidate);
   }
 
   FolderRuntime? _folderByInfohash(String infohash) {

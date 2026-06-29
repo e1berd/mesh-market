@@ -18,6 +18,10 @@ sealed class SignalMessage {
         'hello' => SignalHello(
             json['infohash']! as String,
             json['id']! as String,
+            payload: json['p'] == null
+                ? null
+                : PairingPayload.fromJson(
+                    (json['p']! as Map).cast<String, Object?>()),
             syncPort: json['sport'] as int?,
             syncAddress: json['saddr'] as String?,
           ),
@@ -106,12 +110,14 @@ final class SignalHello extends SignalMessage {
   const SignalHello(
     this.infohash,
     this.deviceId, {
+    this.payload,
     this.syncPort,
     this.syncAddress,
   });
 
   final String infohash;
   final String deviceId;
+  final PairingPayload? payload;
   final int? syncPort;
   final String? syncAddress;
 
@@ -120,6 +126,7 @@ final class SignalHello extends SignalMessage {
         't': 'hello',
         'infohash': infohash,
         'id': deviceId,
+        if (payload != null) 'p': payload!.toJson(),
         if (syncPort != null) 'sport': syncPort,
         if (syncAddress != null) 'saddr': syncAddress,
       };
