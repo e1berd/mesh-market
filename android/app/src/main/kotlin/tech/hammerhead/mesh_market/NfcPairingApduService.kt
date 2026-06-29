@@ -2,6 +2,7 @@ package tech.hammerhead.mesh_market
 
 import android.nfc.cardemulation.HostApduService
 import android.os.Bundle
+import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import kotlin.math.min
 
@@ -9,6 +10,7 @@ class NfcPairingApduService : HostApduService() {
     companion object {
         const val PREFS = "nfc_pairing"
         const val KEY_PAYLOAD = "payload"
+        const val KEY_RECEIVED_PAYLOAD = "received_payload"
 
         private val AID = byteArrayOf(
             0xF0.toByte(),
@@ -24,6 +26,7 @@ class NfcPairingApduService : HostApduService() {
         private val WRONG_PARAMETERS = byteArrayOf(0x6A.toByte(), 0x86.toByte())
         private val INS_NOT_SUPPORTED = byteArrayOf(0x6D, 0x00)
         private val ERROR = byteArrayOf(0x6F, 0x00)
+        private var writeBuffer = ByteArrayOutputStream()
     }
 
     override fun processCommandApdu(commandApdu: ByteArray?, extras: Bundle?): ByteArray {
@@ -36,6 +39,8 @@ class NfcPairingApduService : HostApduService() {
         return when (command[1].toInt() and 0xff) {
             0x10 -> lengthResponse(payload.size)
             0x20 -> readResponse(command, payload)
+            0x30 -> writeRequest(command)
+            0x40 -> commitWrite()
             else -> INS_NOT_SUPPORTED
         }
     }
@@ -75,5 +80,27 @@ class NfcPairingApduService : HostApduService() {
         val size = if (requested == 0) 240 else requested
         val end = min(payload.size, offset + size)
         return payload.copyOfRange(offset, end) + OK
+    }
+
+    private fun writeRequest(command: ByteArray): ByteArray {
+        val offset = ((command[2].toInt() and 0xff) shl 8) or
+            (command[3].toInt() and 0xff)
+        val length = command[4].toInt() and 0xff
+        if (command.size < 5 + length) return WRONG_PARAMETERS
+        if (offset == 0) writeBuffer = ByteArrayOutputStream()
+        if (offset != writeBuffer.size()) return WRONG_PARAMETERS
+        writeBuffer.write(command, 5, length)
+        return OK
+    }
+
+    private fun commitWrite(): ByteArray {
+        val payload = writeBuffer.toString(StandardCharsets.UTF_8.name())
+        if (payload.isBlank()) return WRONG_PARAMETERS
+        getSharedPreferences(PREFS, MODE_PRIVATE)
+            .edit()
+            .putString(KEY_RECEIVED_PAYLOAD, payload)
+            .apply()
+        writeBuffer = ByteArrayOutputStream()
+        return OK
     }
 }

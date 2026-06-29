@@ -89,7 +89,7 @@ pair:
   manualHint: Paste a device code
   pairing: Pairing…
   pairFailed: Could not reach that device
-  storedLocally: Saved — pairing finishes when both devices are on the same network
+  storedLocally: Saved. If the other device did not show a request, check internet or NFC
   incomingTitle: Pairing request
   incomingBody: '{name} wants to pair. Check the code matches on both devices.'
   verificationCode: Verification code
@@ -110,9 +110,9 @@ pair:
   scanPaused: Scanning paused
   pauseScan: Pause scanning
   resumeScan: Resume scanning
-  nfcButton: Tap to pair
-  nfcHint: Hold this device against another to pair
-  nfcWaiting: Hold the devices together…
+  nfcButton: Hold for NFC pairing
+  nfcHint: Hold on one device and place both devices together
+  nfcWaiting: NFC is active, keep the devices together…
   nfcFailed: NFC pairing failed
 
 share:

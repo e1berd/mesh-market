@@ -9,23 +9,34 @@ import 'sync_provider.dart';
 
 enum PairOutcome { paired, storedLocally, failed }
 
-final pairingControllerProvider =
-    Provider<PairingController>(PairingController.new);
+final pairingControllerProvider = Provider<PairingController>(
+  PairingController.new,
+);
 
 class PairingController {
   PairingController(this.ref);
 
   final Ref ref;
 
-  Future<PairOutcome> pairByPayload(PairingPayload peer) async {
+  Future<PairOutcome> pairByPayload(
+    PairingPayload peer, {
+    bool storeIfUnreachable = false,
+  }) async {
     final service = await ref.read(syncControllerProvider.future);
     final match = _find(peer.deviceId) ?? await _await(service, peer.deviceId);
-    if (match == null) {
+    if (match != null && await service.pairAt(match.address, match.port)) {
+      return PairOutcome.paired;
+    }
+
+    if (await service.pairViaCode(peer.deviceId)) {
+      return PairOutcome.paired;
+    }
+
+    if (storeIfUnreachable) {
       await ref.read(pairedPeersProvider.notifier).add(peer);
       return PairOutcome.storedLocally;
     }
-    final paired = await service.pairAt(match.address, match.port);
-    return paired ? PairOutcome.paired : PairOutcome.failed;
+    return PairOutcome.failed;
   }
 
   Future<PairOutcome> pairByCode(String code) async {
@@ -35,7 +46,8 @@ class PairingController {
   }
 
   LanPeer? _find(String deviceId) {
-    for (final peer in ref.read(nearbyDevicesProvider).value ?? const <LanPeer>[]) {
+    for (final peer
+        in ref.read(nearbyDevicesProvider).value ?? const <LanPeer>[]) {
       if (peer.deviceId == deviceId) return peer;
     }
     return null;

@@ -182,7 +182,7 @@ class _Translations$pair$ru implements Translations$pair$en {
 	@override String get manualHint => 'Вставьте код устройства';
 	@override String get pairing => 'Связывание…';
 	@override String get pairFailed => 'Не удалось связаться с устройством';
-	@override String get storedLocally => 'Сохранено — связь завершится, когда оба устройства будут в одной сети';
+	@override String get storedLocally => 'Сохранено. Если на втором устройстве не появился запрос, проверьте интернет или NFC';
 	@override String get incomingTitle => 'Запрос на связь';
 	@override String incomingBody({required Object name}) => '${name} хочет связаться. Проверьте, что код совпадает на обоих устройствах.';
 	@override String get verificationCode => 'Код проверки';
@@ -203,9 +203,9 @@ class _Translations$pair$ru implements Translations$pair$en {
 	@override String get scanPaused => 'Поиск приостановлен';
 	@override String get pauseScan => 'Приостановить поиск';
 	@override String get resumeScan => 'Возобновить поиск';
-	@override String get nfcButton => 'Связать касанием';
-	@override String get nfcHint => 'Приложите устройство к другому для связи';
-	@override String get nfcWaiting => 'Держите устройства вместе…';
+	@override String get nfcButton => 'Удерживать для NFC-связи';
+	@override String get nfcHint => 'Удерживайте на одном устройстве и приложите оба друг к другу';
+	@override String get nfcWaiting => 'NFC включен, держите устройства вместе…';
 	@override String get nfcFailed => 'Не удалось связать через NFC';
 }
 
@@ -421,7 +421,7 @@ extension on TranslationsRu {
 			'pair.manualHint' => 'Вставьте код устройства',
 			'pair.pairing' => 'Связывание…',
 			'pair.pairFailed' => 'Не удалось связаться с устройством',
-			'pair.storedLocally' => 'Сохранено — связь завершится, когда оба устройства будут в одной сети',
+			'pair.storedLocally' => 'Сохранено. Если на втором устройстве не появился запрос, проверьте интернет или NFC',
 			'pair.incomingTitle' => 'Запрос на связь',
 			'pair.incomingBody' => ({required Object name}) => '${name} хочет связаться. Проверьте, что код совпадает на обоих устройствах.',
 			'pair.verificationCode' => 'Код проверки',
@@ -442,9 +442,9 @@ extension on TranslationsRu {
 			'pair.scanPaused' => 'Поиск приостановлен',
 			'pair.pauseScan' => 'Приостановить поиск',
 			'pair.resumeScan' => 'Возобновить поиск',
-			'pair.nfcButton' => 'Связать касанием',
-			'pair.nfcHint' => 'Приложите устройство к другому для связи',
-			'pair.nfcWaiting' => 'Держите устройства вместе…',
+			'pair.nfcButton' => 'Удерживать для NFC-связи',
+			'pair.nfcHint' => 'Удерживайте на одном устройстве и приложите оба друг к другу',
+			'pair.nfcWaiting' => 'NFC включен, держите устройства вместе…',
 			'pair.nfcFailed' => 'Не удалось связать через NFC',
 			'share.incomingTitle' => 'Запрос на доступ к папке',
 			'share.incomingBody' => ({required Object name, required Object folder}) => '${name} хочет открыть вам доступ к папке «${folder}». Выберите, куда её сохранить.',

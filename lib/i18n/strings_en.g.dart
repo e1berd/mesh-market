@@ -327,8 +327,8 @@ class Translations$pair$en {
 	/// en: 'Could not reach that device'
 	String get pairFailed => 'Could not reach that device';
 
-	/// en: 'Saved — pairing finishes when both devices are on the same network'
-	String get storedLocally => 'Saved — pairing finishes when both devices are on the same network';
+	/// en: 'Saved. If the other device did not show a request, check internet or NFC'
+	String get storedLocally => 'Saved. If the other device did not show a request, check internet or NFC';
 
 	/// en: 'Pairing request'
 	String get incomingTitle => 'Pairing request';
@@ -390,14 +390,14 @@ class Translations$pair$en {
 	/// en: 'Resume scanning'
 	String get resumeScan => 'Resume scanning';
 
-	/// en: 'Tap to pair'
-	String get nfcButton => 'Tap to pair';
+	/// en: 'Hold for NFC pairing'
+	String get nfcButton => 'Hold for NFC pairing';
 
-	/// en: 'Hold this device against another to pair'
-	String get nfcHint => 'Hold this device against another to pair';
+	/// en: 'Hold on one device and place both devices together'
+	String get nfcHint => 'Hold on one device and place both devices together';
 
-	/// en: 'Hold the devices together…'
-	String get nfcWaiting => 'Hold the devices together…';
+	/// en: 'NFC is active, keep the devices together…'
+	String get nfcWaiting => 'NFC is active, keep the devices together…';
 
 	/// en: 'NFC pairing failed'
 	String get nfcFailed => 'NFC pairing failed';
@@ -787,7 +787,7 @@ extension on Translations {
 			'pair.manualHint' => 'Paste a device code',
 			'pair.pairing' => 'Pairing…',
 			'pair.pairFailed' => 'Could not reach that device',
-			'pair.storedLocally' => 'Saved — pairing finishes when both devices are on the same network',
+			'pair.storedLocally' => 'Saved. If the other device did not show a request, check internet or NFC',
 			'pair.incomingTitle' => 'Pairing request',
 			'pair.incomingBody' => ({required Object name}) => '${name} wants to pair. Check the code matches on both devices.',
 			'pair.verificationCode' => 'Verification code',
@@ -808,9 +808,9 @@ extension on Translations {
 			'pair.scanPaused' => 'Scanning paused',
 			'pair.pauseScan' => 'Pause scanning',
 			'pair.resumeScan' => 'Resume scanning',
-			'pair.nfcButton' => 'Tap to pair',
-			'pair.nfcHint' => 'Hold this device against another to pair',
-			'pair.nfcWaiting' => 'Hold the devices together…',
+			'pair.nfcButton' => 'Hold for NFC pairing',
+			'pair.nfcHint' => 'Hold on one device and place both devices together',
+			'pair.nfcWaiting' => 'NFC is active, keep the devices together…',
 			'pair.nfcFailed' => 'NFC pairing failed',
 			'share.incomingTitle' => 'Folder share request',
 			'share.incomingBody' => ({required Object name, required Object folder}) => '${name} wants to share the folder “${folder}” with you. Choose where to save it.',

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:declar_ui/declar_ui.dart';
 import 'package:expressive_loading_indicator/expressive_loading_indicator.dart';
 import 'package:flutter/services.dart';
@@ -11,12 +13,14 @@ import '../../core/pairing.dart';
 import '../../i18n/strings.g.dart';
 import '../../state/app_providers.dart';
 import '../../state/identity_provider.dart';
+import '../../state/incoming_pair_provider.dart';
 import '../../state/nearby_devices_provider.dart';
 import '../../state/pairing_controller.dart';
 import '../../state/peers_provider.dart';
 import '../../state/transport_support_provider.dart';
 import '../../transport/lan_beacon.dart';
 import '../../transport/nfc_pairing.dart';
+import '../../transport/pairing_code.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
 import '../widgets/remote_code_field.dart';
@@ -33,11 +37,26 @@ class PairScreen extends ConsumerStatefulWidget {
 class _PairScreenState extends ConsumerState<PairScreen> {
   bool _revealed = false;
   bool _scanning = false;
+  bool _nfcHolding = false;
+  String? _passiveNfcKey;
+  Timer? _passiveNfcTimer;
+  Completer<void>? _nfcCancel;
+  final _nfcPrompts = <String>{};
+
+  @override
+  void dispose() {
+    _passiveNfcTimer?.cancel();
+    _cancelNfcHold(updateUi: false);
+    const NfcPairing().stopPassive().catchError((_) {});
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final identity = ref.watch(identityProvider);
     final name = ref.watch(deviceNameProvider);
+    final support = ref.watch(transportSupportProvider).value;
+    final config = ref.watch(configProvider);
 
     return SafeArea(
       top: false,
@@ -64,11 +83,46 @@ class _PairScreenState extends ConsumerState<PairScreen> {
               title: context.t.devices.errorLoad,
               message: '$error',
             ),
-            data: (deviceName) => _body(context, device, deviceName),
+            data: (deviceName) {
+              final self = PairingPayload.ofDevice(device, deviceName);
+              _configurePassiveNfc(
+                self,
+                enabled: config.nfcPairing && (support?.nfc ?? false),
+              );
+              return _body(context, device, deviceName);
+            },
           ),
         ),
       ),
     );
+  }
+
+  void _configurePassiveNfc(PairingPayload self, {required bool enabled}) {
+    final nextKey = enabled ? self.deviceId : null;
+    if (_passiveNfcKey == nextKey) return;
+    _passiveNfcKey = nextKey;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _passiveNfcTimer?.cancel();
+      _passiveNfcTimer = null;
+      await const NfcPairing().stopPassive().catchError((_) {});
+      if (!mounted || _passiveNfcKey != nextKey || nextKey == null) return;
+      final started = await const NfcPairing()
+          .startPassive(self)
+          .catchError((_) => false);
+      if (!mounted || !started || _passiveNfcKey != nextKey) return;
+      _passiveNfcTimer = Timer.periodic(
+        const Duration(milliseconds: 250),
+        (_) => _pollPassiveNfc(self),
+      );
+    });
+  }
+
+  Future<void> _pollPassiveNfc(PairingPayload self) async {
+    final peer = await const NfcPairing().takePassiveReceived().catchError(
+      (_) => null,
+    );
+    if (!mounted || peer == null || peer.deviceId == self.deviceId) return;
+    await _confirmNfcPeer(peer, self.deviceId);
   }
 
   Widget _body(BuildContext context, DeviceIdentity device, String deviceName) {
@@ -512,27 +566,71 @@ class _PairScreenState extends ConsumerState<PairScreen> {
     if (support == null || !support.nfc || !config.nfcPairing) {
       return const SizedBox.shrink();
     }
-    return M3EButton.icon(
-      onPressed: () => _pairViaNfc(context, self),
-      icon: const Icon(Icons.nfc_rounded),
-      label: Text(context.t.pair.nfcButton),
-      style: M3EButtonStyle.outlined,
-      size: .md,
+    return _NfcHoldButton(
+      holding: _nfcHolding,
+      onHoldStart: () => _startNfcHold(context, self),
+      onHoldEnd: _cancelNfcHold,
     );
   }
 
-  Future<void> _pairViaNfc(BuildContext context, PairingPayload self) async {
+  void _startNfcHold(BuildContext context, PairingPayload self) {
+    if (_nfcHolding) return;
+    final cancel = Completer<void>();
+    _nfcCancel = cancel;
+    setState(() => _nfcHolding = true);
+    _pairViaNfc(context, self, cancel.future);
+  }
+
+  void _cancelNfcHold({bool updateUi = true}) {
+    final cancel = _nfcCancel;
+    if (cancel != null && !cancel.isCompleted) cancel.complete();
+    _nfcCancel = null;
+    _passiveNfcKey = null;
+    if (updateUi && mounted && _nfcHolding) {
+      setState(() => _nfcHolding = false);
+    }
+    const NfcPairing().cancelActive().catchError((_) {});
+  }
+
+  Future<void> _pairViaNfc(
+    BuildContext context,
+    PairingPayload self,
+    Future<void> cancelSignal,
+  ) async {
     context.showSnackBar(context.t.pair.nfcWaiting);
     try {
-      final peer = await const NfcPairing().shareAndRead(self);
+      final peer = await const NfcPairing().shareAndRead(
+        self,
+        cancelSignal: cancelSignal,
+      );
       if (!context.mounted) return;
       if (peer.deviceId == self.deviceId) {
         context.showSnackBar(context.t.pair.selfPairError);
         return;
       }
-      await _pair(context, peer);
+      await _confirmNfcPeer(peer, self.deviceId);
+    } on NfcPairingCanceled {
+      return;
     } on Object {
       if (context.mounted) context.showSnackBar(context.t.pair.nfcFailed);
+    } finally {
+      if (identical(_nfcCancel?.future, cancelSignal)) _nfcCancel = null;
+      _passiveNfcKey = null;
+      if (mounted && _nfcHolding) setState(() => _nfcHolding = false);
+    }
+  }
+
+  Future<void> _confirmNfcPeer(PairingPayload peer, String selfId) async {
+    if (!_nfcPrompts.add(peer.deviceId)) return;
+    try {
+      final accepted = await ref
+          .read(incomingPairProvider.notifier)
+          .request(peer, await pairingCode(selfId, peer.deviceId));
+      if (!mounted || !accepted) return;
+      await ref.read(pairedPeersProvider.notifier).add(peer);
+      if (mounted) context.showSnackBar(context.t.pair.paired(name: peer.name));
+    } finally {
+      _nfcPrompts.remove(peer.deviceId);
     }
   }
 
@@ -546,11 +644,15 @@ class _PairScreenState extends ConsumerState<PairScreen> {
     context.showSnackBar(context.t.pair.codeCopied);
   }
 
-  Future<void> _pair(BuildContext context, PairingPayload peer) async {
+  Future<void> _pair(
+    BuildContext context,
+    PairingPayload peer, {
+    bool storeIfUnreachable = false,
+  }) async {
     context.showSnackBar(context.t.pair.pairing);
     final outcome = await ref
         .read(pairingControllerProvider)
-        .pairByPayload(peer);
+        .pairByPayload(peer, storeIfUnreachable: storeIfUnreachable);
     if (!context.mounted) return;
     context.showSnackBar(switch (outcome) {
       PairOutcome.paired => context.t.pair.paired(name: peer.name),
@@ -581,10 +683,93 @@ class _PairScreenState extends ConsumerState<PairScreen> {
         context.showSnackBar(context.t.pair.selfPairError);
         return;
       }
-      await _pair(context, peer);
+      await _pair(context, peer, storeIfUnreachable: true);
     } on Object {
       if (context.mounted) context.showSnackBar(context.t.pair.invalidQr);
     }
+  }
+}
+
+class _NfcHoldButton extends StatelessWidget {
+  const _NfcHoldButton({
+    required this.holding,
+    required this.onHoldStart,
+    required this.onHoldEnd,
+  });
+
+  final bool holding;
+  final VoidCallback onHoldStart;
+  final VoidCallback onHoldEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final background = holding
+        ? colors.primaryContainer
+        : colors.surfaceContainerHigh;
+    final foreground = holding ? colors.onPrimaryContainer : colors.onSurface;
+    final border = holding ? colors.primary : colors.outlineVariant;
+
+    return Semantics(
+      button: true,
+      label: context.t.pair.nfcButton,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onLongPressStart: (_) => onHoldStart(),
+        onLongPressEnd: (_) => onHoldEnd(),
+        onLongPressCancel: onHoldEnd,
+        child: ExpressiveSpringScale(
+          active: holding,
+          child: ExpressiveSpringContainer(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            decoration: BoxDecoration(
+              color: background,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: border, width: holding ? 2 : 1),
+            ),
+            child: Row(
+              children: [
+                ExpressiveIconContainer(
+                  icon: Icons.nfc_rounded,
+                  color: holding ? colors.primary : colors.secondaryContainer,
+                  foregroundColor: holding
+                      ? colors.onPrimary
+                      : colors.onSecondaryContainer,
+                  size: 46,
+                  radius: holding ? 23 : 16,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: .start,
+                    children: [
+                      Text(
+                        context.t.pair.nfcButton,
+                      ).size(15).weight(.w800).color(foreground),
+                      const SizedBox(height: 2),
+                      Text(context.t.pair.nfcHint)
+                          .size(12)
+                          .weight(.w600)
+                          .color(
+                            holding
+                                ? colors.onPrimaryContainer
+                                : colors.onSurfaceVariant,
+                          ),
+                    ],
+                  ),
+                ),
+                if (holding)
+                  const ExpressiveLoadingIndicator(
+                    constraints: BoxConstraints.tightFor(width: 28, height: 28),
+                  )
+                else
+                  Icon(Icons.touch_app_rounded, color: colors.onSurfaceVariant),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

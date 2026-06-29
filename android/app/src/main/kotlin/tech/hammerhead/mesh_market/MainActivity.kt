@@ -47,6 +47,7 @@ class MainActivity : FlutterActivity() {
                     result.success(null)
                 }
                 "startHce" -> result.success(startHce(call.argument<String>("payload")))
+                "popHceReceived" -> result.success(popHceReceived())
                 "stopHce" -> {
                     stopHce()
                     result.success(null)
@@ -151,6 +152,15 @@ class MainActivity : FlutterActivity() {
             .edit()
             .remove(NfcPairingApduService.KEY_PAYLOAD)
             .apply()
+    }
+
+    private fun popHceReceived(): String? {
+        val prefs = getSharedPreferences(NfcPairingApduService.PREFS, MODE_PRIVATE)
+        val payload = prefs.getString(NfcPairingApduService.KEY_RECEIVED_PAYLOAD, null)
+        if (payload != null) {
+            prefs.edit().remove(NfcPairingApduService.KEY_RECEIVED_PAYLOAD).apply()
+        }
+        return payload
     }
 
     private fun openFolder(path: String?): Boolean {

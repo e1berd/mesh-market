@@ -24,24 +24,58 @@ class NfcPairing {
     }
   }
 
-  Future<PairingPayload> shareAndRead(PairingPayload self) async {
-    await _startHce(self).catchError((_) => false);
+  Future<PairingPayload> shareAndRead(
+    PairingPayload self, {
+    Future<void>? cancelSignal,
+  }) async {
+    await _popHceReceived().catchError((_) => null);
+    await startPassive(self).catchError((_) => false);
     await _startNdefPush(self).catchError((_) => false);
     try {
-      return await read();
+      return await Future.any([
+        _readAndWrite(self),
+        _waitForHceReceived(),
+        if (cancelSignal != null)
+          cancelSignal.then<PairingPayload>(
+            (_) => throw const NfcPairingCanceled(),
+          ),
+      ]);
     } finally {
-      await _stopNdefPush().catchError((_) {});
-      await _stopHce().catchError((_) {});
+      await cancelActive();
     }
   }
 
+  Future<void> cancelActive() async {
+    await _stopNdefPush().catchError((_) {});
+    await _stopHce().catchError((_) {});
+    await NfcManager.instance.stopSession().catchError((_) {});
+  }
+
+  Future<bool> startPassive(PairingPayload self) async {
+    await _popHceReceived().catchError((_) => null);
+    return _startHce(self);
+  }
+
+  Future<void> stopPassive() => _stopHce();
+
+  Future<PairingPayload?> takePassiveReceived() async {
+    final raw = await _popHceReceived().catchError((_) => null);
+    if (raw == null || raw.isEmpty) return null;
+    return PairingPayload.decode(raw);
+  }
+
   Future<PairingPayload> read() async {
+    return _readAndWrite(null);
+  }
+
+  Future<PairingPayload> _readAndWrite(PairingPayload? self) async {
     final completer = Completer<PairingPayload>();
     await NfcManager.instance.startSession(
       pollingOptions: const {NfcPollingOption.iso14443},
       onDiscovered: (tag) async {
         final payload = await _readTag(tag);
         if (payload != null && !completer.isCompleted) {
+          if (self != null) await _writeHce(tag, self);
           completer.complete(payload);
           await NfcManager.instance.stopSession();
         }
@@ -72,7 +106,20 @@ class NfcPairing {
     return ok ?? false;
   }
 
+  Future<String?> _popHceReceived() =>
+      _channel.invokeMethod<String>('popHceReceived');
+
   Future<void> _stopHce() => _channel.invokeMethod<void>('stopHce');
+
+  Future<PairingPayload> _waitForHceReceived() async {
+    final started = DateTime.now();
+    while (DateTime.now().difference(started) < const Duration(seconds: 30)) {
+      final raw = await _popHceReceived().catchError((_) => null);
+      if (raw != null && raw.isNotEmpty) return PairingPayload.decode(raw);
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    }
+    throw TimeoutException('No NFC peer payload received');
+  }
 
   Future<PairingPayload?> _readTag(NfcTag tag) async {
     final hcePayload = await _readHce(tag);
@@ -114,6 +161,38 @@ class NfcPairing {
       return PairingPayload.decode(utf8.decode(bytes));
     } on Object {
       return null;
+    }
+  }
+
+  Future<void> _writeHce(NfcTag tag, PairingPayload payload) async {
+    final isoDep = IsoDep.from(tag);
+    if (isoDep == null) return;
+    try {
+      final selected = await isoDep.transceive(data: _selectAidApdu());
+      if (!_isSuccess(selected)) return;
+
+      final bytes = utf8.encode(payload.encode());
+      var offset = 0;
+      while (offset < bytes.length) {
+        final end = offset + 220 > bytes.length ? bytes.length : offset + 220;
+        final chunk = bytes.sublist(offset, end);
+        final response = await isoDep.transceive(
+          data: Uint8List.fromList([
+            0x80,
+            0x30,
+            (offset >> 8) & 0xff,
+            offset & 0xff,
+            chunk.length,
+            ...chunk,
+          ]),
+        );
+        if (!_isSuccess(response)) return;
+        offset = end;
+      }
+
+      await isoDep.transceive(data: Uint8List.fromList([0x80, 0x40, 0, 0, 0]));
+    } on Object {
+      return;
     }
   }
 
@@ -171,4 +250,8 @@ class NfcPairing {
     if (start < 0 || end <= start) return null;
     return text.substring(start, end + 1);
   }
+}
+
+class NfcPairingCanceled implements Exception {
+  const NfcPairingCanceled();
 }
