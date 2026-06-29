@@ -10,6 +10,8 @@ import '../core/paths.dart';
 import '../transport/swarm.dart';
 import 'sync_provider.dart';
 
+enum AddFolderOutcome { added, pathTaken, idTaken }
+
 final foldersProvider =
     AsyncNotifierProvider<FoldersNotifier, List<FolderConfig>>(
       FoldersNotifier.new,
@@ -36,24 +38,36 @@ class FoldersNotifier extends AsyncNotifier<List<FolderConfig>> {
     return foldersFromJson(await _file.readAsString());
   }
 
-  Future<bool> add(String path) async {
+  bool idTaken(String folderId) =>
+      (state.value ?? const []).any((folder) => folder.id == folderId);
+
+  Future<AddFolderOutcome> create({
+    required String path,
+    required String label,
+    required String folderId,
+    List<FolderPeer> peers = const [],
+  }) async {
     final normalizedPath = p.normalize(p.absolute(path));
     final existing = [...?state.value];
     if (existing.any(
       (folder) => p.normalize(p.absolute(folder.localPath)) == normalizedPath,
     )) {
-      return false;
+      return AddFolderOutcome.pathTaken;
+    }
+    if (existing.any((folder) => folder.id == folderId)) {
+      return AddFolderOutcome.idTaken;
     }
 
     final folder = FolderConfig(
-      id: DateTime.now().microsecondsSinceEpoch.toRadixString(36),
-      label: p.basename(normalizedPath),
+      id: folderId,
+      label: label,
       localPath: normalizedPath,
       swarmSecret: newSwarmSecret(),
+      peers: peers,
     );
     await _persist([...existing, folder]);
     await scan(folder);
-    return true;
+    return AddFolderOutcome.added;
   }
 
   Future<void> remove(String id) async =>

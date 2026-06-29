@@ -212,3 +212,28 @@ iceDialog:
   credential: Credential (TURN)
   cancel: Cancel
   add: Add
+
+addFolder:
+  title: Add folder
+  change: Change
+  nameLabel: Folder name
+  nameHint: e.g. Photos
+  idLabel: Folder ID
+  idHint: photos
+  idInfo: What is this?
+  idInfoTitle: Folder ID
+  idInfoBody: >-
+    The Folder ID is how your devices recognise this as the same folder. Devices
+    that use the same ID treat it as one shared folder instead of creating a
+    duplicate. It is generated from the folder name — give the folder the same
+    name on each device and the IDs match automatically. You can also edit it by
+    hand. Devices are still linked through pairing (QR); the ID is not a password.
+  idTaken: A folder with this ID already exists
+  pathTaken: This folder is already added
+  access: Device access
+  accessHint: Choose which paired devices can sync this folder
+  noPeers: Pair a device first to share this folder
+  send: Send files
+  receive: Receive files
+  create: Add folder
+  gotIt: Got it

@@ -48,6 +48,7 @@ class TranslationsRu with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$schedule$ru schedule = _Translations$schedule$ru._(_root);
 	@override late final _Translations$settings$ru settings = _Translations$settings$ru._(_root);
 	@override late final _Translations$iceDialog$ru iceDialog = _Translations$iceDialog$ru._(_root);
+	@override late final _Translations$addFolder$ru addFolder = _Translations$addFolder$ru._(_root);
 }
 
 // Path: nav
@@ -340,6 +341,33 @@ class _Translations$iceDialog$ru implements Translations$iceDialog$en {
 	@override String get add => 'Добавить';
 }
 
+// Path: addFolder
+class _Translations$addFolder$ru implements Translations$addFolder$en {
+	_Translations$addFolder$ru._(this._root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Добавить папку';
+	@override String get change => 'Изменить';
+	@override String get nameLabel => 'Название папки';
+	@override String get nameHint => 'например, Фото';
+	@override String get idLabel => 'Folder ID';
+	@override String get idHint => 'foto';
+	@override String get idInfo => 'Что это?';
+	@override String get idInfoTitle => 'Folder ID';
+	@override String get idInfoBody => 'Folder ID — это то, по чему ваши устройства понимают, что это одна и та же папка. Устройства с одинаковым ID считают её общей, а не создают дубликат. Он формируется из названия папки — назовите папку одинаково на каждом устройстве, и ID совпадут автоматически. Можно изменить и вручную. Само соединение устройств по-прежнему идёт через сопряжение (QR); ID не является паролем.';
+	@override String get idTaken => 'Папка с таким ID уже существует';
+	@override String get pathTaken => 'Эта папка уже добавлена';
+	@override String get access => 'Доступ устройств';
+	@override String get accessHint => 'Выберите, какие сопряжённые устройства могут синхронизировать папку';
+	@override String get noPeers => 'Сначала сопрягите устройство, чтобы поделиться папкой';
+	@override String get send => 'Отправлять файлы';
+	@override String get receive => 'Получать файлы';
+	@override String get create => 'Добавить папку';
+	@override String get gotIt => 'Понятно';
+}
+
 /// The flat map containing all translations for locale <ru>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -532,6 +560,24 @@ extension on TranslationsRu {
 			'iceDialog.credential' => 'Пароль (TURN)',
 			'iceDialog.cancel' => 'Отмена',
 			'iceDialog.add' => 'Добавить',
+			'addFolder.title' => 'Добавить папку',
+			'addFolder.change' => 'Изменить',
+			'addFolder.nameLabel' => 'Название папки',
+			'addFolder.nameHint' => 'например, Фото',
+			'addFolder.idLabel' => 'Folder ID',
+			'addFolder.idHint' => 'foto',
+			'addFolder.idInfo' => 'Что это?',
+			'addFolder.idInfoTitle' => 'Folder ID',
+			'addFolder.idInfoBody' => 'Folder ID — это то, по чему ваши устройства понимают, что это одна и та же папка. Устройства с одинаковым ID считают её общей, а не создают дубликат. Он формируется из названия папки — назовите папку одинаково на каждом устройстве, и ID совпадут автоматически. Можно изменить и вручную. Само соединение устройств по-прежнему идёт через сопряжение (QR); ID не является паролем.',
+			'addFolder.idTaken' => 'Папка с таким ID уже существует',
+			'addFolder.pathTaken' => 'Эта папка уже добавлена',
+			'addFolder.access' => 'Доступ устройств',
+			'addFolder.accessHint' => 'Выберите, какие сопряжённые устройства могут синхронизировать папку',
+			'addFolder.noPeers' => 'Сначала сопрягите устройство, чтобы поделиться папкой',
+			'addFolder.send' => 'Отправлять файлы',
+			'addFolder.receive' => 'Получать файлы',
+			'addFolder.create' => 'Добавить папку',
+			'addFolder.gotIt' => 'Понятно',
 			_ => null,
 		};
 	}

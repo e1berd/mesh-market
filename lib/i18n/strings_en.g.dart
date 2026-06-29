@@ -54,6 +54,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$schedule$en schedule = Translations$schedule$en._(_root);
 	late final Translations$settings$en settings = Translations$settings$en._(_root);
 	late final Translations$iceDialog$en iceDialog = Translations$iceDialog$en._(_root);
+	late final Translations$addFolder$en addFolder = Translations$addFolder$en._(_root);
 }
 
 // Path: nav
@@ -706,6 +707,69 @@ class Translations$iceDialog$en {
 	String get add => 'Add';
 }
 
+// Path: addFolder
+class Translations$addFolder$en {
+	Translations$addFolder$en._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Add folder'
+	String get title => 'Add folder';
+
+	/// en: 'Change'
+	String get change => 'Change';
+
+	/// en: 'Folder name'
+	String get nameLabel => 'Folder name';
+
+	/// en: 'e.g. Photos'
+	String get nameHint => 'e.g. Photos';
+
+	/// en: 'Folder ID'
+	String get idLabel => 'Folder ID';
+
+	/// en: 'photos'
+	String get idHint => 'photos';
+
+	/// en: 'What is this?'
+	String get idInfo => 'What is this?';
+
+	/// en: 'Folder ID'
+	String get idInfoTitle => 'Folder ID';
+
+	/// en: 'The Folder ID is how your devices recognise this as the same folder. Devices that use the same ID treat it as one shared folder instead of creating a duplicate. It is generated from the folder name — give the folder the same name on each device and the IDs match automatically. You can also edit it by hand. Devices are still linked through pairing (QR); the ID is not a password.'
+	String get idInfoBody => 'The Folder ID is how your devices recognise this as the same folder. Devices that use the same ID treat it as one shared folder instead of creating a duplicate. It is generated from the folder name — give the folder the same name on each device and the IDs match automatically. You can also edit it by hand. Devices are still linked through pairing (QR); the ID is not a password.';
+
+	/// en: 'A folder with this ID already exists'
+	String get idTaken => 'A folder with this ID already exists';
+
+	/// en: 'This folder is already added'
+	String get pathTaken => 'This folder is already added';
+
+	/// en: 'Device access'
+	String get access => 'Device access';
+
+	/// en: 'Choose which paired devices can sync this folder'
+	String get accessHint => 'Choose which paired devices can sync this folder';
+
+	/// en: 'Pair a device first to share this folder'
+	String get noPeers => 'Pair a device first to share this folder';
+
+	/// en: 'Send files'
+	String get send => 'Send files';
+
+	/// en: 'Receive files'
+	String get receive => 'Receive files';
+
+	/// en: 'Add folder'
+	String get create => 'Add folder';
+
+	/// en: 'Got it'
+	String get gotIt => 'Got it';
+}
+
 /// The flat map containing all translations for locale <en>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -898,6 +962,24 @@ extension on Translations {
 			'iceDialog.credential' => 'Credential (TURN)',
 			'iceDialog.cancel' => 'Cancel',
 			'iceDialog.add' => 'Add',
+			'addFolder.title' => 'Add folder',
+			'addFolder.change' => 'Change',
+			'addFolder.nameLabel' => 'Folder name',
+			'addFolder.nameHint' => 'e.g. Photos',
+			'addFolder.idLabel' => 'Folder ID',
+			'addFolder.idHint' => 'photos',
+			'addFolder.idInfo' => 'What is this?',
+			'addFolder.idInfoTitle' => 'Folder ID',
+			'addFolder.idInfoBody' => 'The Folder ID is how your devices recognise this as the same folder. Devices that use the same ID treat it as one shared folder instead of creating a duplicate. It is generated from the folder name — give the folder the same name on each device and the IDs match automatically. You can also edit it by hand. Devices are still linked through pairing (QR); the ID is not a password.',
+			'addFolder.idTaken' => 'A folder with this ID already exists',
+			'addFolder.pathTaken' => 'This folder is already added',
+			'addFolder.access' => 'Device access',
+			'addFolder.accessHint' => 'Choose which paired devices can sync this folder',
+			'addFolder.noPeers' => 'Pair a device first to share this folder',
+			'addFolder.send' => 'Send files',
+			'addFolder.receive' => 'Receive files',
+			'addFolder.create' => 'Add folder',
+			'addFolder.gotIt' => 'Got it',
 			_ => null,
 		};
 	}

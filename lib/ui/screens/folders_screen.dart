@@ -17,6 +17,7 @@ import '../../state/share_controller.dart';
 import '../widgets/conflict_sheet.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/expressive.dart';
+import 'add_folder_screen.dart';
 
 class FoldersScreen extends ConsumerWidget {
   const FoldersScreen({super.key});
@@ -167,12 +168,7 @@ class FoldersScreen extends ConsumerWidget {
     if (picked == null) return;
     final path = resolveAndroidDirectory(picked);
 
-    final added = await ref.read(foldersProvider.notifier).add(path);
-    if (!added && context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t.folders.alreadyAdded)));
-    }
+    if (context.mounted) context.push(AddFolderScreen(path: path));
   }
 }
 

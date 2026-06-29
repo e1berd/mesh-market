@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:m3e_core/m3e_core.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:motor/motor.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../core/identity.dart';
@@ -690,7 +691,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
   }
 }
 
-class _NfcHoldButton extends StatelessWidget {
+class _NfcHoldButton extends StatefulWidget {
   const _NfcHoldButton({
     required this.holding,
     required this.onHoldStart,
@@ -702,71 +703,178 @@ class _NfcHoldButton extends StatelessWidget {
   final VoidCallback onHoldEnd;
 
   @override
+  State<_NfcHoldButton> createState() => _NfcHoldButtonState();
+}
+
+class _NfcHoldButtonState extends State<_NfcHoldButton>
+    with SingleTickerProviderStateMixin {
+  late final SingleMotionController _motion;
+  bool _touching = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _motion = SingleMotionController(
+      motion: M3EMotion.expressiveSpatialDefault.toMotion(),
+      vsync: this,
+      initialValue: _target,
+    );
+  }
+
+  @override
+  void didUpdateWidget(_NfcHoldButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.holding != widget.holding) _motion.animateTo(_target);
+  }
+
+  @override
+  void dispose() {
+    _motion.dispose();
+    super.dispose();
+  }
+
+  void _setTouching(bool value) {
+    if (_touching == value) return;
+    setState(() => _touching = value);
+    _motion.animateTo(_target);
+  }
+
+  double get _target => widget.holding
+      ? 1
+      : _touching
+      ? .36
+      : 0;
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final background = holding
-        ? colors.primaryContainer
-        : colors.surfaceContainerHigh;
-    final foreground = holding ? colors.onPrimaryContainer : colors.onSurface;
-    final border = holding ? colors.primary : colors.outlineVariant;
-
     return Semantics(
       button: true,
       label: context.t.pair.nfcButton,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onLongPressStart: (_) => onHoldStart(),
-        onLongPressEnd: (_) => onHoldEnd(),
-        onLongPressCancel: onHoldEnd,
-        child: ExpressiveSpringScale(
-          active: holding,
-          child: ExpressiveSpringContainer(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-            decoration: BoxDecoration(
-              color: background,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: border, width: holding ? 2 : 1),
-            ),
-            child: Row(
-              children: [
-                ExpressiveIconContainer(
-                  icon: Icons.nfc_rounded,
-                  color: holding ? colors.primary : colors.secondaryContainer,
-                  foregroundColor: holding
-                      ? colors.onPrimary
-                      : colors.onSecondaryContainer,
-                  size: 46,
-                  radius: holding ? 23 : 16,
+        onTapDown: (_) => _setTouching(true),
+        onTapUp: (_) => _setTouching(false),
+        onTapCancel: () => _setTouching(false),
+        onLongPressStart: (_) {
+          _setTouching(true);
+          widget.onHoldStart();
+        },
+        onLongPressEnd: (_) {
+          _setTouching(false);
+          widget.onHoldEnd();
+        },
+        onLongPressCancel: () {
+          _setTouching(false);
+          widget.onHoldEnd();
+        },
+        child: AnimatedBuilder(
+          animation: _motion,
+          builder: (context, _) {
+            final value = _motion.value.clamp(0.0, 1.0);
+            final background = Color.lerp(
+              colors.surfaceContainerHigh,
+              colors.primaryContainer,
+              value,
+            )!;
+            final foreground = Color.lerp(
+              colors.onSurface,
+              colors.onPrimaryContainer,
+              value,
+            )!;
+            final supporting = Color.lerp(
+              colors.onSurfaceVariant,
+              colors.onPrimaryContainer,
+              value,
+            )!;
+            final border = Color.lerp(
+              colors.outlineVariant,
+              colors.primary,
+              value,
+            )!;
+            final padColor = Color.lerp(
+              colors.secondaryContainer,
+              colors.primary,
+              value,
+            )!;
+            final onPad = Color.lerp(
+              colors.onSecondaryContainer,
+              colors.onPrimary,
+              value,
+            )!;
+
+            return SizedBox(
+              height: 136,
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: background,
+                  borderRadius: BorderRadius.circular(34 + (6 * value)),
+                  border: Border.all(color: border, width: 1 + value),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colors.primary.withValues(
+                        alpha: .08 + value * .10,
+                      ),
+                      blurRadius: 18 + value * 18,
+                      offset: Offset(0, 8 + value * 5),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: .start,
-                    children: [
-                      Text(
-                        context.t.pair.nfcButton,
-                      ).size(15).weight(.w800).color(foreground),
-                      const SizedBox(height: 2),
-                      Text(context.t.pair.nfcHint)
-                          .size(12)
-                          .weight(.w600)
-                          .color(
-                            holding
-                                ? colors.onPrimaryContainer
-                                : colors.onSurfaceVariant,
-                          ),
-                    ],
-                  ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 88,
+                      height: 88,
+                      decoration: BoxDecoration(
+                        color: padColor,
+                        borderRadius: BorderRadius.circular(28 + (16 * value)),
+                      ),
+                      child: Icon(
+                        Icons.fingerprint_rounded,
+                        color: onPad,
+                        size: 58,
+                      ),
+                    ),
+                    const SizedBox(width: 18),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: .start,
+                        mainAxisAlignment: .center,
+                        children: [
+                          Text(
+                            context.t.pair.nfcButton,
+                          ).size(17).weight(.w800).color(foreground),
+                          const SizedBox(height: 6),
+                          Text(
+                                widget.holding
+                                    ? context.t.pair.nfcWaiting
+                                    : context.t.pair.nfcHint,
+                              )
+                              .size(13)
+                              .weight(.w600)
+                              .color(supporting)
+                              .maxLines(2)
+                              .overflow(.ellipsis),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    SizedBox.square(
+                      dimension: 34,
+                      child: widget.holding
+                          ? const ExpressiveLoadingIndicator()
+                          : Icon(
+                              Icons.touch_app_rounded,
+                              color: supporting,
+                              size: 28,
+                            ),
+                    ),
+                  ],
                 ),
-                if (holding)
-                  const ExpressiveLoadingIndicator(
-                    constraints: BoxConstraints.tightFor(width: 28, height: 28),
-                  )
-                else
-                  Icon(Icons.touch_app_rounded, color: colors.onSurfaceVariant),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
